@@ -1,13 +1,19 @@
 {
   "name": "truffle-plugin-verify",
-  "version": "0.1.0-alpha0",
+  "version": "0.1.0-alpha1",
   "description": "",
   "repository": "https://github.com/rkalis/ethroulette",
   "main": "verify.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["truffle", "plugin", "ethereum", "etherscan", "verify"],
+  "keywords": [
+    "truffle",
+    "plugin",
+    "ethereum",
+    "etherscan",
+    "verify"
+  ],
   "author": "Rosco Kalis <roscokalis@gmail.com>",
   "license": "MIT",
   "dependencies": {
@@ -15,4 +21,3 @@
     "querystring": "^0.2.0"
   }
 }
-
