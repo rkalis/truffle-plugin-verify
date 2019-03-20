@@ -1,6 +1,6 @@
 # truffle-plugin-verify
 
-This truffle plugin allwos you to automatically verify your smart contracts source code on Etherscan, straight from the Truffle CLI.
+This truffle plugin allows you to automatically verify your smart contracts source code on Etherscan, straight from the Truffle CLI.
 
 ## Installation
 1. Install the package
