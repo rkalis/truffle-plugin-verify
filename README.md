@@ -42,11 +42,7 @@ For example, if we defined `rinkeby` as network in Truffle, and we wish to verif
 truffle run verify SimpleStorage --network rinkeby
 ```
 
-This will return a `guid` which can be checked to see if the verification succeeded. This will be automated in a future release.
-
-```
-https://api.etherscan.io/api?module=contract&action=checkverifystatus&apikey=MY_API_KEY&guid=MY_GUID
-```
+This can take some time, and will eventually either return `Pass - Verified` or `Fail - Unable to verify`.
 
 ## Limitations & Roadmap
 This plugin is in a very early version, so there is still a lot missing. Below is a non-exhaustive list of features that are currently missing from the plugin, that will be added in a later release.
@@ -58,7 +54,6 @@ This plugin is in a very early version, so there is still a lot missing. Below i
 * The plugin has no graceful error handling, so be sure to follow the usage exactly
 * The plugin currently only supports mainnet and rinkeby
 * The plugin assumes it can find build artifacts under the `build/contracts/` directory (i.e. no support for custom paths)
-* The plugin has no support to automatically check the verification status back from Etherscan
 * The plugin can only verify one smart contract at a time, instead of automatically verifying all deployed contracts
 
 ## Support

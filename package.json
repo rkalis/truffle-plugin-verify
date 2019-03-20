@@ -17,6 +17,7 @@
   "author": "Rosco Kalis <roscokalis@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "await-sleep": "0.0.1",
     "axios": "^0.18.0",
     "querystring": "^0.2.0"
   }
