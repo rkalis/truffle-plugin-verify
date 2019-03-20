@@ -2,18 +2,20 @@
 
 This truffle plugin allows you to automatically verify your smart contracts source code on Etherscan, straight from the Truffle CLI.
 
+**Attention: This plugin is a very early work in progress, all information in this README is subject to change while in alpha.**
+
 ## Installation
-1. Install the package
+1. Install the plugin with npm
 ```sh
 npm install truffle-plugin-verify
 ```
-2. Add the plugin to your `truffle.js` or `truffle-config.js`
+2. Add the plugin to your `truffle.js` or `truffle-config.js` file
 ```js
 module.exports = {
   /* ... rest of truffle-config */
 
   plugins: [
-    "truffle-plugin-verify"
+    'truffle-plugin-verify'
   ]
 }
 ```
@@ -57,6 +59,7 @@ This plugin is in a very early version, so there is still a lot missing. Below i
 * The plugin currently only supports mainnet and rinkeby
 * The plugin assumes it can find build artifacts under the `build/contracts/` directory (i.e. no support for custom paths)
 * The plugin has no support to automatically check the verification status back from Etherscan
+* The plugin can only verify one smart contract at a time, instead of automatically verifying all deployed contracts
 
 ## Support
-I need funding to develop this plugin to its full potential. If you found this plugin and can't wait for the above features to be completed as well, send me some Ξ or tokens at `0x6775f0Ee4E63983501DBE7b0385bF84DBd36D69B` and tweet me [@RoscoKalis](https://twitter.com/RoscoKalis) to let me know what you want your money to go towards.
+If you found this plugin and can't wait for the above features to be completed, send me some Ξ or tokens at `0xe126b3E5d052f1F575828f61fEBA4f4f2603652a` and tweet me [@RoscoKalis](https://twitter.com/RoscoKalis) to let me know what you want your money to go towards.
