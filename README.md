@@ -1,4 +1,8 @@
 # truffle-plugin-verify
+[![NPM Version](https://img.shields.io/npm/v/truffle-plugin-verify.svg)](https://www.npmjs.com/package/truffle-plugin-verify)
+[![NPM Monthly Downloads](https://img.shields.io/npm/dm/truffle-plugin-verify.svg)](https://www.npmjs.com/package/truffle-plugin-verify)
+[![NPM License](https://img.shields.io/npm/l/truffle-assertions.svg)](https://www.npmjs.com/package/truffle-plugin-verify)
+
 
 This truffle plugin allows you to automatically verify your smart contracts source code on Etherscan, straight from the Truffle CLI.
 
