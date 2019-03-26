@@ -29,8 +29,8 @@ module.exports = {
 module.exports = {
   /* ... rest of truffle-config */
 
-  verify: {
-    etherscanApiKey: 'MY_API_KEY'
+  api_keys: {
+    etherscan: 'MY_API_KEY'
   }
 }
 ```

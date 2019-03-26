@@ -53,7 +53,7 @@ const verificationStatus = async (apiUrl, apiKey, guid) => {
 module.exports = async (config) => {
   const networkId = (config.networks[config.network] || {}).network_id || 4
   const apiUrl = API_URLS[networkId]
-  const apiKey = config.verify.etherscanApiKey
+  const apiKey = config.api_keys.etherscan
   const contractName = config._[1]
   const artifactPath = `${config.working_directory}/build/contracts/${contractName}.json`
   const artifact = require(artifactPath)
