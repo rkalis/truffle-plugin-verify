@@ -60,6 +60,7 @@ This plugin is in a very early version, so there is still functionality missing.
 * The plugin has no graceful error handling, so be sure to follow the usage exactly
 * The plugin assumes it can find build artifacts under the `build/contracts/` directory (i.e. no support for custom paths)
 * The plugin can only verify one smart contract at a time, instead of automatically verifying all deployed contracts
+* There is no automatic testing / build process in place
 
 ## Support
 If you found this plugin and can't wait for the above features to be completed, send me some Ξ or tokens at `0xe126b3E5d052f1F575828f61fEBA4f4f2603652a` and tweet me [@RoscoKalis](https://twitter.com/RoscoKalis) to let me know what you want your money to go towards.
