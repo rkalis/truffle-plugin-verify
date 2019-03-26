@@ -4,7 +4,10 @@ const sleep = require('await-sleep')
 
 const API_URLS = {
   [1]: 'https://api.etherscan.io/api',
-  [4]: 'https://api-rinkeby.etherscan.io/api'
+  [3]: 'https://api-ropsten.etherscan.io/api',
+  [4]: 'https://api-rinkeby.etherscan.io/api',
+  [5]: 'https://api-goerli.etherscan.io/api',
+  [42]: 'https://api-kovan.etherscan.io/api',
 }
 
 const VerificationStatus = {
