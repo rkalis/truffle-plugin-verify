@@ -50,13 +50,15 @@ truffle run verify SimpleStorage --network rinkeby
 
 This can take some time, and will eventually either return `Pass - Verified` or `Fail - Unable to verify`.
 
+## Notes
+This plugin gets compiler optimisation settings from the truffle config file, so make sure that your truffle config settings are the same as when your contracts were compiled.
+
 ## Limitations & Roadmap
 This plugin is in a very early version, so there is still functionality missing. Below is a non-exhaustive list of features that are currently missing from the plugin, that will be added in a later release.
 
 * The plugin only works with single file contracts (i.e. no import flattening)
 * The plugin has no external library support
 * The plugin has no constructor arguments support
-* The plugin assumes compiler optimisation has been used
 * The plugin has no graceful error handling, so be sure to follow the usage exactly
 * The plugin assumes it can find build artifacts under the `build/contracts/` directory (i.e. no support for custom paths)
 * The plugin can only verify one smart contract at a time, instead of automatically verifying all deployed contracts
