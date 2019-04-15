@@ -56,6 +56,7 @@ const parseConfig = (config) => {
   const apiKey = config.api_keys.etherscan
   const contractName = config._[1]
   const workingDir = config.working_directory
+  const contractsBuildDir = config.contracts_build_directory
   const optimizerSettings = config.compilers.solc.settings.optimizer
 
   return {
@@ -64,6 +65,7 @@ const parseConfig = (config) => {
     networkId,
     contractName,
     workingDir,
+    contractsBuildDir,
     // Note: API docs state enabled = 0, disbled = 1, but empiric evidence suggests reverse
     optimizationUsed: optimizerSettings.enabled ? 1 : 0,
     runs: optimizerSettings.runs
@@ -72,7 +74,7 @@ const parseConfig = (config) => {
 
 module.exports = async (config) => {
   const options = parseConfig(config)
-  const artifactPath = `${options.workingDir}/build/contracts/${options.contractName}.json`
+  const artifactPath = `${options.contractsBuildDir}/${options.contractName}.json`
   const artifact = require(artifactPath)
 
   try {
