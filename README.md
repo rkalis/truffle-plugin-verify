@@ -30,8 +30,16 @@ module.exports = {
   /* ... rest of truffle-config */
 
   api_keys: {
-    etherscan: 'MY_API_KEY'
+    etherscan: 'MY_API_KEY',
   }
+}
+```
+5. If you are using a flattening tool, add the path to the flattened contracts
+```js
+module.exports = {
+  /* ... rest of truffle-config */
+
+  flattenedLocation: "./.flattened" // optional
 }
 ```
 
@@ -56,7 +64,7 @@ This plugin gets compiler optimisation settings from the truffle config file, so
 ## Limitations & Roadmap
 This plugin is in a very early version, so there is still functionality missing. Below is a non-exhaustive list of features that are currently missing from the plugin, that will be added in a later release.
 
-* The plugin only works with single file contracts (i.e. no import flattening)
+* The plugin only works with single file contracts - flattening must be done beforehand
 * The plugin has no external library support
 * The plugin has no constructor arguments support
 * The plugin has no graceful error handling, so be sure to follow the usage exactly

@@ -1,3 +1,4 @@
+const fs = require('fs')
 const axios = require('axios')
 const querystring = require('querystring')
 const sleep = require('await-sleep')
@@ -54,6 +55,7 @@ const parseConfig = (config) => {
   const networkId = (config.networks[config.network] || {}).network_id || 4
   const apiUrl = API_URLS[networkId]
   const apiKey = config.api_keys.etherscan
+  const flattenedLocation = config.flattenedLocation
   const contractName = config._[1]
   const workingDir = config.working_directory
   const contractsBuildDir = config.contracts_build_directory
@@ -74,8 +76,15 @@ const parseConfig = (config) => {
 
 module.exports = async (config) => {
   const options = parseConfig(config)
+
   const artifactPath = `${options.contractsBuildDir}/${options.contractName}.json`
   const artifact = require(artifactPath)
+
+  if (options.flattenedLocation) {
+    const flattenedPath = `${options.flattenedLocation}/${options.contractName}.sol`
+    const source = new Promise((resolve, reject) => fs.readFile(flattenedPath, (err, data) => err ? reject(err) : resolve(data)));
+    artifact.source = source;
+  }
 
   try {
     const res = await sendVerifyRequest(artifact, options)
