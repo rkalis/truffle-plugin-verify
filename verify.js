@@ -1,3 +1,4 @@
+const ethers = require("ethers");
 const fs = require('fs')
 const axios = require('axios')
 const querystring = require('querystring')
@@ -17,7 +18,23 @@ const VerificationStatus = {
   PENDING: 'Pending in queue'
 }
 
+const fetchConstructorTypes = (artifact) => {
+  for (const value of artifact.abi) {
+	if (value.type === "constructor") {
+		return value.inputs.map(inp => inp.type);
+	}
+  }
+  return [];
+}
+
 const sendVerifyRequest = async (artifact, options) => {
+  // Encode parameters
+  const encoder = new ethers.utils.AbiCoder();
+  // Change to your constructor parameters
+  const types = fetchConstructorTypes(artifact);
+  const values = []; // populate with constructor values
+  const encodedConstructorArgs = await encoder.encode(types, values);
+  encodedConstructorArgs = encodedConstructorArgs.substr(2);
   return await axios.post(
     options.apiUrl,
     querystring.stringify({
@@ -32,7 +49,7 @@ const sendVerifyRequest = async (artifact, options) => {
       compilerversion: `v${artifact.compiler.version.replace('.Emscripten.clang', '')}`,
       optimizationUsed: options.optimizationUsed,
       runs: options.runs,
-      // constructorArguements: '$('#constructorArguements').val()'
+      constructorArguements: encodedConstructorArgs
     })
   )
 }
