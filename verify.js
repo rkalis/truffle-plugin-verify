@@ -25,7 +25,7 @@ const fetchConstructorValues = async (artifact, options) => {
   );
   if (res.data && res.data.status === '1') {
     const bytecodeLength = artifact.bytecode.length;
-    // the last bit of the transaction data is the constructor parameters
+    // the last part of the transaction data is the constructor parameters
     return res.data.result[0].input.substring(bytecodeLength)
   }
 	return "";
