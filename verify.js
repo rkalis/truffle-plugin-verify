@@ -2,6 +2,7 @@ const fs = require('fs')
 const axios = require('axios')
 const querystring = require('querystring')
 const sleep = require('await-sleep')
+const flatten = require('sol-merger');
 
 const API_URLS = {
   [1]: 'https://api.etherscan.io/api',
@@ -33,14 +34,14 @@ const fetchConstructorValues = async (artifact, options) => {
 
 const sendVerifyRequest = async (artifact, options) => {
   const encodedConstructorArgs = await fetchConstructorValues(artifact, options);
+  const flattenedSource = await flatten(artifact.sourcePath);
   const postQueries = {
       apikey: options.apiKey,
       module: 'contract',
       action: 'verifysourcecode',
       // TODO: detect deployed networks
       contractaddress: artifact.networks[`${options.networkId}`].address,
-      // TODO: Flatten multi-level contracts
-      sourceCode: artifact.source,
+      sourceCode: flattenedSource,
       contractname: artifact.contractName,
       compilerversion: `v${artifact.compiler.version.replace('.Emscripten.clang', '')}`,
       optimizationUsed: options.optimizationUsed,
@@ -72,7 +73,6 @@ const parseConfig = (config) => {
   const networkId = (config.networks[config.network] || {}).network_id || 4
   const apiUrl = API_URLS[networkId]
   const apiKey = config.api_keys.etherscan
-  const flattenedLocation = config.flattenedLocation
   const contractName = config._[1]
   const workingDir = config.working_directory
   const contractsBuildDir = config.contracts_build_directory
@@ -85,7 +85,6 @@ const parseConfig = (config) => {
     contractName,
     workingDir,
     contractsBuildDir,
-    flattenedLocation,
     // Note: API docs state enabled = 0, disbled = 1, but empiric evidence suggests reverse
     optimizationUsed: optimizerSettings.enabled ? 1 : 0,
     runs: optimizerSettings.runs
@@ -97,12 +96,6 @@ module.exports = async (config) => {
 
   const artifactPath = `${options.contractsBuildDir}/${options.contractName}.json`
   const artifact = require(artifactPath)
-
-  if (options.flattenedLocation) {
-    const flattenedPath = `${options.flattenedLocation}/${options.contractName}.sol`
-    const source = fs.readFileSync(flattenedPath, "utf8");
-    artifact.source = source;
-  }
 
   try {
     const res = await sendVerifyRequest(artifact, options)
