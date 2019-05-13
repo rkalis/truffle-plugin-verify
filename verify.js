@@ -85,6 +85,7 @@ const parseConfig = (config) => {
     contractName,
     workingDir,
     contractsBuildDir,
+    flattenedLocation,
     // Note: API docs state enabled = 0, disbled = 1, but empiric evidence suggests reverse
     optimizationUsed: optimizerSettings.enabled ? 1 : 0,
     runs: optimizerSettings.runs
@@ -99,7 +100,7 @@ module.exports = async (config) => {
 
   if (options.flattenedLocation) {
     const flattenedPath = `${options.flattenedLocation}/${options.contractName}.sol`
-    const source = new Promise((resolve, reject) => fs.readFile(flattenedPath, (err, data) => err ? reject(err) : resolve(data)));
+    const source = fs.readFileSync(flattenedPath, "utf8");
     artifact.source = source;
   }
 
