@@ -1,4 +1,3 @@
-const ethers = require("ethers");
 const fs = require('fs')
 const axios = require('axios')
 const querystring = require('querystring')
@@ -18,26 +17,23 @@ const VerificationStatus = {
   PENDING: 'Pending in queue'
 }
 
-const fetchConstructorTypes = (artifact) => {
-  for (const value of artifact.abi) {
-	if (value.type === "constructor") {
-		return value.inputs.map(inp => inp.type);
-	}
+const fetchConstructorValues = async (artifact, options) => {
+  const contractAddress = artifact.networks[`${options.networkId}`].address;
+  // fetch the contract creation transaction and extract the input data
+  const res = await axios.get(
+    `${options.apiUrl}?module=account&action=txlist&address=${contractAddress}&page=1&sort=asc&offset=1`
+  );
+  if (res.data && res.data.status === '1') {
+    const bytecodeLength = artifact.bytecode.length;
+    // the last bit of the transaction data is the constructor parameters
+    return res.data.result[0].input.substring(bytecodeLength)
   }
-  return [];
+	return "";
 }
 
 const sendVerifyRequest = async (artifact, options) => {
-  // Encode parameters
-  const encoder = new ethers.utils.AbiCoder();
-  // Change to your constructor parameters
-  const types = fetchConstructorTypes(artifact);
-  const values = []; // populate with constructor values
-  const encodedConstructorArgs = await encoder.encode(types, values);
-  encodedConstructorArgs = encodedConstructorArgs.substr(2);
-  return await axios.post(
-    options.apiUrl,
-    querystring.stringify({
+  const encodedConstructorArgs = await fetchConstructorValues(artifact, options);
+  const postQueries = {
       apikey: options.apiKey,
       module: 'contract',
       action: 'verifysourcecode',
@@ -50,7 +46,11 @@ const sendVerifyRequest = async (artifact, options) => {
       optimizationUsed: options.optimizationUsed,
       runs: options.runs,
       constructorArguements: encodedConstructorArgs
-    })
+    };
+
+  return await axios.post(
+    options.apiUrl,
+    querystring.stringify(postQueries)
   )
 }
 
