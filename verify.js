@@ -1,4 +1,3 @@
-const fs = require('fs')
 const axios = require('axios')
 const querystring = require('querystring')
 const sleep = require('await-sleep')
@@ -93,7 +92,6 @@ const parseConfig = (config) => {
 
 module.exports = async (config) => {
   const options = parseConfig(config)
-
   const artifactPath = `${options.contractsBuildDir}/${options.contractName}.json`
   const artifact = require(artifactPath)
 
