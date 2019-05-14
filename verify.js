@@ -1,7 +1,7 @@
 const axios = require('axios')
 const querystring = require('querystring')
 const sleep = require('await-sleep')
-const flatten = require('sol-merger');
+const merge = require('sol-merger');
 
 const API_URLS = {
   [1]: 'https://api.etherscan.io/api',
@@ -33,14 +33,14 @@ const fetchConstructorValues = async (artifact, options) => {
 
 const sendVerifyRequest = async (artifact, options) => {
   const encodedConstructorArgs = await fetchConstructorValues(artifact, options);
-  const flattenedSource = await flatten(artifact.sourcePath);
+  const mergedSource = await merge(artifact.sourcePath);
   const postQueries = {
       apikey: options.apiKey,
       module: 'contract',
       action: 'verifysourcecode',
       // TODO: detect deployed networks
       contractaddress: artifact.networks[`${options.networkId}`].address,
-      sourceCode: flattenedSource,
+      sourceCode: mergedSource,
       contractname: artifact.contractName,
       compilerversion: `v${artifact.compiler.version.replace('.Emscripten.clang', '')}`,
       optimizationUsed: options.optimizationUsed,
