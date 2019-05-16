@@ -28,6 +28,7 @@ const fetchConstructorValues = async (artifact, options) => {
     // the last part of the transaction data is the constructor parameters
     return res.data.result[0].input.substring(bytecodeLength)
   }
+  console.error("Failed to fetch constructor arguments");
   return "";
 }
 
