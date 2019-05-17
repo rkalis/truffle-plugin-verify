@@ -56,9 +56,6 @@ This plugin gets compiler optimisation settings from the truffle config file, so
 ## Limitations & Roadmap
 This plugin is in a very early version, so there is still functionality missing. Below is a non-exhaustive list of features that are currently missing from the plugin, that will be added in a later release.
 
-* The plugin only works with single file contracts (i.e. no import flattening)
-* The plugin has no external library support
-* The plugin has no constructor arguments support
 * The plugin has no graceful error handling, so be sure to follow the usage exactly
 * The plugin can only verify one smart contract at a time, instead of automatically verifying all deployed contracts
 * There is no automatic testing / build process in place

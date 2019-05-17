@@ -1,6 +1,7 @@
 const axios = require('axios')
 const querystring = require('querystring')
 const sleep = require('await-sleep')
+const merge = require('sol-merger');
 
 const API_URLS = {
   [1]: 'https://api.etherscan.io/api',
@@ -16,23 +17,41 @@ const VerificationStatus = {
   PENDING: 'Pending in queue'
 }
 
+const fetchConstructorValues = async (artifact, options) => {
+  const contractAddress = artifact.networks[`${options.networkId}`].address;
+  // fetch the contract creation transaction and extract the input data
+  const res = await axios.get(
+    `${options.apiUrl}?module=account&action=txlist&address=${contractAddress}&page=1&sort=asc&offset=1`
+  );
+  if (res.data && res.data.status === '1') {
+    const bytecodeLength = artifact.bytecode.length;
+    // the last part of the transaction data is the constructor parameters
+    return res.data.result[0].input.substring(bytecodeLength)
+  }
+  console.error("Failed to fetch constructor arguments");
+  return "";
+}
+
 const sendVerifyRequest = async (artifact, options) => {
-  return await axios.post(
-    options.apiUrl,
-    querystring.stringify({
+  const encodedConstructorArgs = await fetchConstructorValues(artifact, options);
+  const mergedSource = await merge(artifact.sourcePath);
+  const postQueries = {
       apikey: options.apiKey,
       module: 'contract',
       action: 'verifysourcecode',
       // TODO: detect deployed networks
       contractaddress: artifact.networks[`${options.networkId}`].address,
-      // TODO: Flatten multi-level contracts
-      sourceCode: artifact.source,
+      sourceCode: mergedSource,
       contractname: artifact.contractName,
       compilerversion: `v${artifact.compiler.version.replace('.Emscripten.clang', '')}`,
       optimizationUsed: options.optimizationUsed,
       runs: options.runs,
-      // constructorArguements: '$('#constructorArguements').val()'
-    })
+      constructorArguements: encodedConstructorArgs
+    };
+
+  return await axios.post(
+    options.apiUrl,
+    querystring.stringify(postQueries)
   )
 }
 
