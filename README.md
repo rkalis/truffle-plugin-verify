@@ -23,7 +23,7 @@ module.exports = {
   ]
 }
 ```
-3. Generate an API Key on your Etherscan account (see the Etherscan website)
+3. Generate an API Key on your Etherscan account (see the [Etherscan website](https://etherscan.io/apis))
 4. Add your Etherscan API key to your truffle config (use something like `dotenv` to make sure you don't commit the api key)
 ```js
 module.exports = {
