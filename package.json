@@ -1,8 +1,8 @@
 {
   "name": "truffle-plugin-verify",
   "version": "0.2.0-alpha1",
-  "description": "",
-  "repository": "https://github.com/rkalis/ethroulette",
+  "description": "Verify your deployed smart contracts on Etherscan from the Truffle CLI",
+  "repository": "https://github.com/rkalis/truffle-plugin-verify",
   "main": "verify.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
