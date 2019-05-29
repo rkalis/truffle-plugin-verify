@@ -1,7 +1,7 @@
 const axios = require('axios')
 const querystring = require('querystring')
 const sleep = require('await-sleep')
-const merge = require('sol-merger');
+const { merge } = require('sol-merger');
 
 const API_URLS = {
   [1]: 'https://api.etherscan.io/api',
