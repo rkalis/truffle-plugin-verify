@@ -3,10 +3,9 @@
 [![NPM Monthly Downloads](https://img.shields.io/npm/dm/truffle-plugin-verify.svg)](https://www.npmjs.com/package/truffle-plugin-verify)
 [![NPM License](https://img.shields.io/npm/l/truffle-assertions.svg)](https://www.npmjs.com/package/truffle-plugin-verify)
 
-
 This truffle plugin allows you to automatically verify your smart contracts source code on Etherscan, straight from the Truffle CLI.
 
-**Attention: This plugin is a very early work in progress, all information in this README is subject to change while in alpha.**
+I wrote a [tutorial](https://kalis.me/verify-truffle-smart-contracts-etherscan/) on my website that goes through the entire process of installing and using this plugin.
 
 ## Installation
 1. Install the plugin with npm
@@ -24,7 +23,7 @@ module.exports = {
 }
 ```
 3. Generate an API Key on your Etherscan account (see the [Etherscan website](https://etherscan.io/apis))
-4. Add your Etherscan API key to your truffle config (use something like `dotenv` to make sure you don't commit the api key)
+4. Add your Etherscan API key to your truffle config (make sure to use something like `dotenv` so you don't commit the api key)
 ```js
 module.exports = {
   /* ... rest of truffle-config */
@@ -36,11 +35,14 @@ module.exports = {
 ```
 
 ## Usage
+Before running verification, make sure that you have actually deployed a contract to a public network with Truffle.
+After deployment, run the following command for every contract you wish to verify.
+
 ```
 truffle run verify SmartContractName [--network networkName]
 ```
 
-The network parameter should correspond to a network defined in the Truffle config file, with the correct network id set. The Ethereum main net and all public testnets are supported.
+The network parameter should correspond to a network defined in the Truffle config file, with the correct network id set. The Ethereum mainnet and all public testnets are supported.
 
 For example, if we defined `rinkeby` as network in Truffle, and we wish to verify the `SimpleStorage` contract:
 
@@ -48,17 +50,10 @@ For example, if we defined `rinkeby` as network in Truffle, and we wish to verif
 truffle run verify SimpleStorage --network rinkeby
 ```
 
-This can take some time, and will eventually either return `Pass - Verified` or `Fail - Unable to verify`.
+This can take some time, and will eventually either return `Pass - Verified` or `Fail - Unable to verify`. Since the information we get from the Etherscan API is quite limited, it is currently impossible to retrieve any more information on verification failure. There should be no reason though why the verification should fail if the usage is followed correctly. If you do receive a `Fail - Unable to verify` and you are sure that you followed the instructions correctly, please [open an issue](/issues/new) and I will look into it.
 
 ## Notes
 This plugin gets compiler optimisation settings from the truffle config file, so make sure that your truffle config settings are the same as when your contracts were compiled.
 
-## Limitations & Roadmap
-This plugin is in a very early version, so there is still functionality missing. Below is a non-exhaustive list of features that are currently missing from the plugin, that will be added in a later release.
-
-* The plugin has no graceful error handling, so be sure to follow the usage exactly
-* The plugin can only verify one smart contract at a time, instead of automatically verifying all deployed contracts
-* There is no automatic testing / build process in place
-
-## Support
-If you found this plugin and can't wait for the above features to be completed, send me some Ξ or tokens at `0xe126b3E5d052f1F575828f61fEBA4f4f2603652a` and tweet me [@RoscoKalis](https://twitter.com/RoscoKalis) to let me know what you want your money to go towards.
+## Donations
+If you''ve used this plugin and found it helpful in your workflow, please consider sending some Ξ or tokens to `0xe126b3E5d052f1F575828f61fEBA4f4f2603652a`.
