@@ -18,6 +18,11 @@ const VerificationStatus = {
   PENDING: 'Pending in queue'
 }
 
+const RequestStatus = {
+  OK: '1',
+  NOTOK: '0'
+}
+
 const fetchConstructorValues = async (artifact, options) => {
   const contractAddress = artifact.networks[`${options.networkId}`].address
   // fetch the contract creation transaction and extract the input data
@@ -25,7 +30,7 @@ const fetchConstructorValues = async (artifact, options) => {
     `${options.apiUrl}?module=account&action=txlist&address=${contractAddress}&page=1&sort=asc&offset=1`
   )
 
-  if (res.data && res.data.status === '1') {
+  if (res.data && res.data.status === RequestStatus.OK) {
     const bytecodeLength = artifact.bytecode.length
     // the last part of the transaction data is the constructor parameters
     return res.data.result[0].input.substring(bytecodeLength)
@@ -51,22 +56,29 @@ const sendVerifyRequest = async (artifact, options) => {
     constructorArguements: encodedConstructorArgs
   }
 
-  return axios.post(
-    options.apiUrl,
-    querystring.stringify(postQueries)
-  )
+  try {
+    return await axios.post(
+      options.apiUrl,
+      querystring.stringify(postQueries)
+    )
+  } catch (e) {
+    throw new Error(`Failed to connect to Etherscan API at url ${options.apiUrl}`)
+  }
 }
 
 const verificationStatus = async (guid, options) => {
   while (true) {
     await sleep(1000)
 
-    const verificationResult = await axios.get(
-      `${options.apiUrl}?module=contract&action=checkverifystatus&apikey=${options.apiKey}&guid=${guid}`
-    )
-
-    if (verificationResult.data.result !== VerificationStatus.PENDING) {
-      return verificationResult.data.result
+    try {
+      const verificationResult = await axios.get(
+        `${options.apiUrl}?module=contract&action=checkverifystatus&apikey=${options.apiKey}&guid=${guid}`
+      )
+      if (verificationResult.data.result !== VerificationStatus.PENDING) {
+        return verificationResult.data.result
+      }
+    } catch (e) {
+      throw new Error(`Failed to connect to Etherscan API at url ${options.apiUrl}`)
     }
   }
 }
@@ -126,17 +138,15 @@ module.exports = async (config) => {
       throw new Error(`No instance of contract ${options.contractName} found on network ${config.network}`)
     }
 
-    try {
-      const res = await sendVerifyRequest(artifact, options)
+    const res = await sendVerifyRequest(artifact, options)
 
-      if (res.data && res.data.status === '1') {
-        const status = await verificationStatus(res.data.result, options)
-        console.log(status)
-      } else {
-        throw new Error()
-      }
-    } catch (e) {
+    if (!res.data) {
       throw new Error(`Failed to connect to Etherscan API at url ${options.apiUrl}`)
+    } else if (res.data.status !== RequestStatus.OK) {
+      throw new Error(res.data.result)
+    } else {
+      const status = await verificationStatus(res.data.result, options)
+      console.log(status)
     }
   } catch (e) {
     console.error(e.message)
