@@ -56,6 +56,13 @@ const sendVerifyRequest = async (artifact, options) => {
     constructorArguements: encodedConstructorArgs
   }
 
+  const libraries = artifact.networks[`${options.networkId}`].links || {}
+  Object.entries(libraries).forEach(([key, value], i) => {
+    if (i > 9) throw new Error('Can not link more than 10 libraries with Etherscan API')
+    postQueries[`libraryname${i + 1}`] = key
+    postQueries[`libraryaddress${i + 1}`] = value
+  })
+
   try {
     return await axios.post(
       options.apiUrl,
