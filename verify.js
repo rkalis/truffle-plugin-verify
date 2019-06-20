@@ -41,11 +41,12 @@ const fetchConstructorValues = async (artifact, options) => {
 
 const fetchMergedSource = async (artifact, options) => {
   let mergedSource = await merge(artifact.sourcePath)
-  // Include the preamble if it exists, removing instances of */ for safety
+  // Include the preamble if it exists, removing all instances of */ for safety
   if (options.verifyPreamble) {
     mergedSource = `/**
-* ${options.verifyPreamble.replace(/\*\//g, '')}
+${options.verifyPreamble.replace(/\*+\/+/g, '')}
 */
+
 ${mergedSource}`
   }
   return mergedSource
