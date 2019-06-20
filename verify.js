@@ -39,9 +39,21 @@ const fetchConstructorValues = async (artifact, options) => {
   throw new Error('Failed to fetch constructor arguments')
 }
 
+const fetchMergedSource = async (artifact, options) => {
+  let mergedSource = await merge(artifact.sourcePath)
+  // Include the preamble if it exists, removing instances of */ for safety
+  if (options.verifyPreamble) {
+    mergedSource = `/**
+* ${options.verifyPreamble.replace(/\*\//g, '')}
+*/
+${mergedSource}`
+  }
+  return mergedSource
+}
+
 const sendVerifyRequest = async (artifact, options) => {
   const encodedConstructorArgs = await fetchConstructorValues(artifact, options)
-  const mergedSource = await merge(artifact.sourcePath)
+  const mergedSource = await fetchMergedSource(artifact, options)
   const postQueries = {
     apikey: options.apiKey,
     module: 'contract',
@@ -116,6 +128,7 @@ const parseConfig = (config) => {
   const workingDir = config.working_directory
   const contractsBuildDir = config.contracts_build_directory
   const optimizerSettings = config.compilers.solc.settings.optimizer
+  const verifyPreamble = config.verify.preamble || "";
 
   return {
     apiUrl,
@@ -124,6 +137,7 @@ const parseConfig = (config) => {
     contractName,
     workingDir,
     contractsBuildDir,
+    verifyPreamble,
     // Note: API docs state enabled = 0, disbled = 1, but empiric evidence suggests reverse
     optimizationUsed: optimizerSettings.enabled ? 1 : 0,
     runs: optimizerSettings.runs
