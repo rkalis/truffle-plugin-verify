@@ -52,6 +52,22 @@ truffle run verify SimpleStorage --network rinkeby
 
 This can take some time, and will eventually either return `Pass - Verified` or `Fail - Unable to verify`. Since the information we get from the Etherscan API is quite limited, it is currently impossible to retrieve any more information on verification failure. There should be no reason though why the verification should fail if the usage is followed correctly. If you do receive a `Fail - Unable to verify` and you are sure that you followed the instructions correctly, please [open an issue](/issues/new) and I will look into it.
 
+
+### Adding Preamble (Optional)
+
+There is also the option of adding some preamble to the beginning of your verified source code. This may be useful for adding authorship information, links to source code, or even versioning information.
+
+To do so, add to your `truffle.js` or `truffle-config.js` file
+```js
+module.exports = {
+  /* ... rest of truffle-config */
+
+  verify: {
+    preamble: "Your multiline compatible\npreamble text here!"
+  }
+}
+```
+
 ## Notes
 This plugin gets compiler optimisation settings from the truffle config file, so make sure that your truffle config settings are the same as when your contracts were compiled.
 
