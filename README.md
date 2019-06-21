@@ -39,7 +39,7 @@ Before running verification, make sure that you have actually deployed your cont
 After deployment, run the following command with one or more contracts which you wish to verify:
 
 ```
-truffle run verify SmartContractName AnotherContractName [--network networkName]
+truffle run verify SomeContractName AnotherContractName [--network networkName]
 ```
 
 The network parameter should correspond to a network defined in the Truffle config file, with the correct network id set. The Ethereum mainnet and all public testnets are supported.
