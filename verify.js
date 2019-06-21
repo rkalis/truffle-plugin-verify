@@ -197,7 +197,7 @@ module.exports = async (config) => {
     }
   }
 
-  if (errorContracts) {
+  if (errorContracts.length > 0) {
     console.error(`\nFailed to verify: ${errorContracts.join(', ')}`)
     process.exit(1)
   }
