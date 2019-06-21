@@ -55,7 +55,7 @@ This can take some time, and will eventually either return `Pass - Verified` or 
 
 ### Adding Preamble (Optional)
 
-There is also the option of adding some preamble to the beginning of your verified source code. This may be useful for adding authorship information, links to source code, or even versioning information.
+There is also the option of adding preamble to the beginning of your verified source code. This may be useful for adding authorship information, links to source code, copyright information, or versioning information.
 
 To do so, add to your `truffle.js` or `truffle-config.js` file
 ```js
@@ -63,7 +63,7 @@ module.exports = {
   /* ... rest of truffle-config */
 
   verify: {
-    preamble: "Your multiline compatible\npreamble text here!"
+    preamble: "Author: John Citizen.\nVersion: 1.0.1"
   }
 }
 ```
