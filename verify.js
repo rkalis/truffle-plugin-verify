@@ -81,7 +81,7 @@ const sendVerifyRequest = async (artifact, options) => {
   })
 
   try {
-    return await axios.post(
+    return axios.post(
       options.apiUrl,
       querystring.stringify(postQueries)
     )
