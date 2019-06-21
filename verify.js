@@ -175,7 +175,7 @@ const verifyContract = async (options, contractName) => {
 
 module.exports = async (config) => {
   // Attempt to parse options
-  let options;
+  let options
   try {
     options = parseConfig(config)
   } catch (e) {
