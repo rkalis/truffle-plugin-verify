@@ -129,7 +129,11 @@ const parseConfig = (config) => {
   const workingDir = config.working_directory
   const contractsBuildDir = config.contracts_build_directory
   const optimizerSettings = config.compilers.solc.settings.optimizer
-  const verifyPreamble = config.verify.preamble || "";
+
+  let verifyPreamble = ''
+  if (config.verify && config.verify.preamble) {
+    verifyPreamble = config.verify.preamble
+  }
 
   return {
     apiUrl,
