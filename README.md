@@ -35,11 +35,11 @@ module.exports = {
 ```
 
 ## Usage
-Before running verification, make sure that you have actually deployed a contract to a public network with Truffle.
-After deployment, run the following command for every contract you wish to verify.
+Before running verification, make sure that you have actually deployed your contracts to a public network with Truffle.
+After deployment, run the following command with one or more contracts which you wish to verify:
 
 ```
-truffle run verify SmartContractName [--network networkName]
+truffle run verify SmartContractName AnotherContractName [--network networkName]
 ```
 
 The network parameter should correspond to a network defined in the Truffle config file, with the correct network id set. The Ethereum mainnet and all public testnets are supported.
@@ -50,7 +50,7 @@ For example, if we defined `rinkeby` as network in Truffle, and we wish to verif
 truffle run verify SimpleStorage --network rinkeby
 ```
 
-This can take some time, and will eventually either return `Pass - Verified` or `Fail - Unable to verify`. Since the information we get from the Etherscan API is quite limited, it is currently impossible to retrieve any more information on verification failure. There should be no reason though why the verification should fail if the usage is followed correctly. If you do receive a `Fail - Unable to verify` and you are sure that you followed the instructions correctly, please [open an issue](/issues/new) and I will look into it.
+This can take some time, and will eventually either return `Pass - Verified` or `Fail - Unable to verify` for each contract. Since the information we get from the Etherscan API is quite limited, it is currently impossible to retrieve any more information on verification failure. There should be no reason though why the verification should fail if the usage is followed correctly. If you do receive a `Fail - Unable to verify` and you are sure that you followed the instructions correctly, please [open an issue](/issues/new) and I will look into it.
 
 
 ### Adding Preamble (Optional)
