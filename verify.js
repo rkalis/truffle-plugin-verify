@@ -40,6 +40,10 @@ const fetchConstructorValues = async (artifact, options) => {
 }
 
 const fetchMergedSource = async (artifact, options) => {
+  if (!fs.existsSync(artifact.sourcePath)) {
+    throw new Error(`Could not find source file: ${artifact.sourcePath}`)
+  }
+
   let mergedSource = await merge(artifact.sourcePath)
   // Include the preamble if it exists, removing all instances of */ for safety
   if (options.verifyPreamble) {
