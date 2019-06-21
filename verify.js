@@ -126,10 +126,9 @@ const parseConfig = (config) => {
   const apiKey = config.api_keys.etherscan
 
   if (config._.length < 2) {
-    throw new Error('No contract name specified')
+    throw new Error('No contract name(s) specified')
   }
 
-  const contractName = config._[1]
   const workingDir = config.working_directory
   const contractsBuildDir = config.contracts_build_directory
   const optimizerSettings = config.compilers.solc.settings.optimizer
@@ -143,7 +142,6 @@ const parseConfig = (config) => {
     apiUrl,
     apiKey,
     networkId,
-    contractName,
     workingDir,
     contractsBuildDir,
     verifyPreamble,
@@ -153,33 +151,56 @@ const parseConfig = (config) => {
   }
 }
 
+const verifyContract = async (options, contractName) => {
+  const artifactPath = `${options.contractsBuildDir}/${contractName}.json`
+  if (!fs.existsSync(artifactPath)) {
+    throw new Error(`Could not find ${contractName} artifact at: ${artifactPath}`)
+  }
+
+  const artifact = require(artifactPath)
+  if (!artifact.networks || !artifact.networks[`${options.networkId}`]) {
+    throw new Error(`No instance of contract ${contractName} found on network ${config.network}`)
+  }
+
+  const res = await sendVerifyRequest(artifact, options)
+  if (!res.data) {
+    throw new Error(`Failed to connect to Etherscan API at url ${options.apiUrl}`)
+  } else if (res.data.status !== RequestStatus.OK) {
+    throw new Error(res.data.result)
+  } else {
+    const status = await verificationStatus(res.data.result, options)
+    console.log(status)
+  }
+}
+
 module.exports = async (config) => {
+  // Attempt to parse options
+  let options;
   try {
-    const options = parseConfig(config)
-    const artifactPath = `${options.contractsBuildDir}/${options.contractName}.json`
-
-    if (!fs.existsSync(artifactPath)) {
-      throw new Error(`Artifact for contract ${options.contractName} not found`)
-    }
-
-    const artifact = require(artifactPath)
-
-    if (!artifact.networks || !artifact.networks[`${options.networkId}`]) {
-      throw new Error(`No instance of contract ${options.contractName} found on network ${config.network}`)
-    }
-
-    const res = await sendVerifyRequest(artifact, options)
-
-    if (!res.data) {
-      throw new Error(`Failed to connect to Etherscan API at url ${options.apiUrl}`)
-    } else if (res.data.status !== RequestStatus.OK) {
-      throw new Error(res.data.result)
-    } else {
-      const status = await verificationStatus(res.data.result, options)
-      console.log(status)
-    }
+    options = parseConfig(config)
   } catch (e) {
     console.error(e.message)
     process.exit(1)
   }
+
+  // Verify each contract
+  const contractNames = config._.slice(1)
+  // Track which contracts failed verification
+  const errorContracts = []
+  for (const contractName of contractNames) {
+    console.log(`\nVerifying: ${contractName}`)
+    try {
+      await verifyContract(options, contractName)
+    } catch (e) {
+      console.error(e.message)
+      errorContracts.push(contractName)
+    }
+  }
+
+  if (errorContracts) {
+    console.error(`\nFailed to verify: ${errorContracts.join(', ')}`)
+    process.exit(1)
+  }
+
+  console.log('\nVerification finished successfully.')
 }
