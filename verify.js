@@ -185,23 +185,23 @@ module.exports = async (config) => {
   // Verify each contract
   const contractNames = config._.slice(1)
   // Track which contracts failed verification
-  const errorContracts = []
+  const failedContracts = []
   for (const contractName of contractNames) {
     console.log(`\nVerifying: ${contractName}`)
     try {
       const result = await verifyContract(options, contractName)
       if (result === VerificationStatus.FAILED) {
-        errorContracts.push(contractName)
+        failedContracts.push(contractName)
       }
       console.log(result)
     } catch (e) {
       console.error(e.message)
-      errorContracts.push(contractName)
+      failedContracts.push(contractName)
     }
   }
 
-  if (errorContracts.length > 0) {
-    console.error(`\nFailed to verify ${errorContracts.length} contract(s): ${errorContracts.join(', ')}`)
+  if (failedContracts.length > 0) {
+    console.error(`\nFailed to verify ${failedContracts.length} contract(s): ${failedContracts.join(', ')}`)
     process.exit(1)
   }
 
