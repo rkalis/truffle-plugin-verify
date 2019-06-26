@@ -12,10 +12,19 @@ const API_URLS = {
   42: 'https://api-kovan.etherscan.io/api'
 }
 
+const EXPLORER_URLS = {
+  1: 'https://etherscan.io/address',
+  3: 'https://ropsten.etherscan.io/address',
+  4: 'https://rinkeby.etherscan.io/address',
+  5: 'https://goerli.etherscan.io/address',
+  42: 'https://kovan.etherscan.io/address'
+}
+
 const VerificationStatus = {
   FAILED: 'Fail - Unable to verify',
   SUCCESS: 'Pass - Verified',
-  PENDING: 'Pending in queue'
+  PENDING: 'Pending in queue',
+  ALREADY_VERIFIED: 'Contract source code already verified'
 }
 
 const RequestStatus = {
@@ -144,13 +153,16 @@ const parseConfig = (config) => {
   }
 }
 
-const verifyContract = async (options, contractName) => {
+const getArtifact = (contractName, options) => {
   const artifactPath = `${options.contractsBuildDir}/${contractName}.json`
   if (!fs.existsSync(artifactPath)) {
     throw new Error(`Could not find ${contractName} artifact at: ${artifactPath}`)
   }
 
-  const artifact = require(artifactPath)
+  return require(artifactPath)
+}
+
+const verifyContract = async (options, artifact, contractName) => {
   if (!artifact.networks || !artifact.networks[`${options.networkId}`]) {
     throw new Error(`No instance of contract ${contractName} found for network id ${options.networkId}`)
   }
@@ -159,7 +171,11 @@ const verifyContract = async (options, contractName) => {
   if (!res.data) {
     throw new Error(`Failed to connect to Etherscan API at url ${options.apiUrl}`)
   } else if (res.data.status !== RequestStatus.OK) {
-    throw new Error(res.data.result)
+    if (res.data.result === VerificationStatus.ALREADY_VERIFIED) {
+      return res.data.result
+    } else {
+      throw new Error(res.data.result)
+    }
   } else {
     return verificationStatus(res.data.result, options)
   }
@@ -182,16 +198,19 @@ module.exports = async (config) => {
   for (const contractName of contractNames) {
     console.log(`Verifying: ${contractName}`)
     try {
-      const result = await verifyContract(options, contractName)
-      if (result === VerificationStatus.FAILED) {
+      const artifact = getArtifact(contractName, options)
+      let status = await verifyContract(options, artifact, contractName)
+      if (status === VerificationStatus.FAILED) {
         failedContracts.push(contractName)
+      } else {
+        const contractAddress = artifact.networks[`${options.networkId}`].address
+        const explorerUrl = `${EXPLORER_URLS[options.networkId]}/${contractAddress}#contracts`
+        status += `: ${explorerUrl}`
       }
-      console.log(result)
+      console.log(status)
     } catch (e) {
       console.error(e.message)
-      if (!e.message.includes('already verified')) {
-        failedContracts.push(contractName)
-      }
+      failedContracts.push(contractName)
     }
     console.log()
   }
