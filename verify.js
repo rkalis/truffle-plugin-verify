@@ -168,8 +168,7 @@ const verifyContract = async (options, contractName) => {
   } else if (res.data.status !== RequestStatus.OK) {
     throw new Error(res.data.result)
   } else {
-    const status = await verificationStatus(res.data.result, options)
-    console.log(status)
+    return verificationStatus(res.data.result, options)
   }
 }
 
@@ -190,7 +189,11 @@ module.exports = async (config) => {
   for (const contractName of contractNames) {
     console.log(`\nVerifying: ${contractName}`)
     try {
-      await verifyContract(options, contractName)
+      const result = await verifyContract(options, contractName)
+      if (result === VerificationStatus.FAILED) {
+        errorContracts.push(contractName)
+      }
+      console.log(result)
     } catch (e) {
       console.error(e.message)
       errorContracts.push(contractName)
