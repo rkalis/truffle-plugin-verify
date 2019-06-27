@@ -48,7 +48,7 @@ const fetchMergedSource = async (artifact, options) => {
   // Include the preamble if it exists, removing all instances of */ for safety
   if (options.verifyPreamble) {
     mergedSource = `/**
-${options.verifyPreamble.replace(/\*+\/+/g, '')}
+${options.verifyPreamble.replace(/\*+\//g, '')}
 */
 
 ${mergedSource}`
