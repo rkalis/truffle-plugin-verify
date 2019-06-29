@@ -47,11 +47,8 @@ const fetchMergedSource = async (artifact, options) => {
   let mergedSource = await merge(artifact.sourcePath)
   // Include the preamble if it exists, removing all instances of */ for safety
   if (options.verifyPreamble) {
-    mergedSource = `/**
-${options.verifyPreamble.replace(/\*+\//g, '')}
-*/
-
-${mergedSource}`
+    const preamble = options.verifyPreamble.replace(/\*+\//g, '')
+    mergedSource = `/**\n${preamble}\n*/\n\n${mergedSource}`
   }
   return mergedSource
 }
@@ -132,11 +129,7 @@ const parseConfig = (config) => {
   const workingDir = config.working_directory
   const contractsBuildDir = config.contracts_build_directory
   const optimizerSettings = config.compilers.solc.settings.optimizer
-
-  let verifyPreamble = ''
-  if (config.verify && config.verify.preamble) {
-    verifyPreamble = config.verify.preamble
-  }
+  const verifyPreamble = config.verify && config.verify.preamble
 
   return {
     apiUrl,
@@ -159,7 +152,7 @@ const verifyContract = async (options, contractName) => {
 
   const artifact = require(artifactPath)
   if (!artifact.networks || !artifact.networks[`${options.networkId}`]) {
-    throw new Error(`No instance of contract ${contractName} found on network ${config.network}`)
+    throw new Error(`No instance of contract ${contractName} found for network id ${options.networkId}`)
   }
 
   const res = await sendVerifyRequest(artifact, options)
@@ -187,7 +180,7 @@ module.exports = async (config) => {
   // Track which contracts failed verification
   const failedContracts = []
   for (const contractName of contractNames) {
-    console.log(`\nVerifying: ${contractName}`)
+    console.log(`Verifying: ${contractName}`)
     try {
       const result = await verifyContract(options, contractName)
       if (result === VerificationStatus.FAILED) {
@@ -196,14 +189,17 @@ module.exports = async (config) => {
       console.log(result)
     } catch (e) {
       console.error(e.message)
-      failedContracts.push(contractName)
+      if (!e.message.includes('already verified')) {
+        failedContracts.push(contractName)
+      }
     }
+    console.log()
   }
 
   if (failedContracts.length > 0) {
-    console.error(`\nFailed to verify ${failedContracts.length} contract(s): ${failedContracts.join(', ')}`)
+    console.error(`Failed to verify ${failedContracts.length} contract(s): ${failedContracts.join(', ')}`)
     process.exit(1)
   }
 
-  console.log(`\nSuccessfully verified ${contractNames.length} contract(s).`)
+  console.log(`Successfully verified ${contractNames.length} contract(s).`)
 }
