@@ -39,9 +39,23 @@ const fetchConstructorValues = async (artifact, options) => {
   throw new Error('Failed to fetch constructor arguments')
 }
 
+const fetchMergedSource = async (artifact, options) => {
+  if (!fs.existsSync(artifact.sourcePath)) {
+    throw new Error(`Could not find source file: ${artifact.sourcePath}`)
+  }
+
+  let mergedSource = await merge(artifact.sourcePath)
+  // Include the preamble if it exists, removing all instances of */ for safety
+  if (options.verifyPreamble) {
+    const preamble = options.verifyPreamble.replace(/\*+\//g, '')
+    mergedSource = `/**\n${preamble}\n*/\n\n${mergedSource}`
+  }
+  return mergedSource
+}
+
 const sendVerifyRequest = async (artifact, options) => {
   const encodedConstructorArgs = await fetchConstructorValues(artifact, options)
-  const mergedSource = await merge(artifact.sourcePath)
+  const mergedSource = await fetchMergedSource(artifact, options)
   const postQueries = {
     apikey: options.apiKey,
     module: 'contract',
@@ -64,7 +78,7 @@ const sendVerifyRequest = async (artifact, options) => {
   })
 
   try {
-    return await axios.post(
+    return axios.post(
       options.apiUrl,
       querystring.stringify(postQueries)
     )
@@ -109,53 +123,83 @@ const parseConfig = (config) => {
   const apiKey = config.api_keys.etherscan
 
   if (config._.length < 2) {
-    throw new Error('No contract name specified')
+    throw new Error('No contract name(s) specified')
   }
 
-  const contractName = config._[1]
   const workingDir = config.working_directory
   const contractsBuildDir = config.contracts_build_directory
   const optimizerSettings = config.compilers.solc.settings.optimizer
+  const verifyPreamble = config.verify && config.verify.preamble
 
   return {
     apiUrl,
     apiKey,
     networkId,
-    contractName,
     workingDir,
     contractsBuildDir,
+    verifyPreamble,
     // Note: API docs state enabled = 0, disbled = 1, but empiric evidence suggests reverse
     optimizationUsed: optimizerSettings.enabled ? 1 : 0,
     runs: optimizerSettings.runs
   }
 }
 
+const verifyContract = async (options, contractName) => {
+  const artifactPath = `${options.contractsBuildDir}/${contractName}.json`
+  if (!fs.existsSync(artifactPath)) {
+    throw new Error(`Could not find ${contractName} artifact at: ${artifactPath}`)
+  }
+
+  const artifact = require(artifactPath)
+  if (!artifact.networks || !artifact.networks[`${options.networkId}`]) {
+    throw new Error(`No instance of contract ${contractName} found for network id ${options.networkId}`)
+  }
+
+  const res = await sendVerifyRequest(artifact, options)
+  if (!res.data) {
+    throw new Error(`Failed to connect to Etherscan API at url ${options.apiUrl}`)
+  } else if (res.data.status !== RequestStatus.OK) {
+    throw new Error(res.data.result)
+  } else {
+    return verificationStatus(res.data.result, options)
+  }
+}
+
 module.exports = async (config) => {
+  // Attempt to parse options
+  let options
   try {
-    const options = parseConfig(config)
-    const artifactPath = `${options.contractsBuildDir}/${options.contractName}.json`
-
-    if (!fs.existsSync(artifactPath)) {
-      throw new Error(`Artifact for contract ${options.contractName} not found`)
-    }
-
-    const artifact = require(artifactPath)
-
-    if (!artifact.networks || !artifact.networks[`${options.networkId}`]) {
-      throw new Error(`No instance of contract ${options.contractName} found on network ${config.network}`)
-    }
-
-    const res = await sendVerifyRequest(artifact, options)
-
-    if (!res.data) {
-      throw new Error(`Failed to connect to Etherscan API at url ${options.apiUrl}`)
-    } else if (res.data.status !== RequestStatus.OK) {
-      throw new Error(res.data.result)
-    } else {
-      const status = await verificationStatus(res.data.result, options)
-      console.log(status)
-    }
+    options = parseConfig(config)
   } catch (e) {
     console.error(e.message)
+    process.exit(1)
   }
+
+  // Verify each contract
+  const contractNames = config._.slice(1)
+  // Track which contracts failed verification
+  const failedContracts = []
+  for (const contractName of contractNames) {
+    console.log(`Verifying: ${contractName}`)
+    try {
+      const result = await verifyContract(options, contractName)
+      if (result === VerificationStatus.FAILED) {
+        failedContracts.push(contractName)
+      }
+      console.log(result)
+    } catch (e) {
+      console.error(e.message)
+      if (!e.message.includes('already verified')) {
+        failedContracts.push(contractName)
+      }
+    }
+    console.log()
+  }
+
+  if (failedContracts.length > 0) {
+    console.error(`Failed to verify ${failedContracts.length} contract(s): ${failedContracts.join(', ')}`)
+    process.exit(1)
+  }
+
+  console.log(`Successfully verified ${contractNames.length} contract(s).`)
 }

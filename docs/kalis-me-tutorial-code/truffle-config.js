@@ -13,6 +13,9 @@ module.exports = {
   plugins: [
     'truffle-plugin-verify'
   ],
+  verify: {
+    preamble: "Hello world!\nThis is an example preamble at the top of the verified source code!\nIt is compatible with multiline strings."
+  },
   api_keys: {
     etherscan: process.env.ETHERSCAN_API_KEY
   }
