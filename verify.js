@@ -32,85 +32,46 @@ const RequestStatus = {
   NOTOK: '0'
 }
 
-const fetchConstructorValues = async (artifact, options) => {
-  const contractAddress = artifact.networks[`${options.networkId}`].address
-  // fetch the contract creation transaction and extract the input data
-  const res = await axios.get(
-    `${options.apiUrl}?module=account&action=txlist&address=${contractAddress}&page=1&sort=asc&offset=1`
-  )
-
-  if (res.data && res.data.status === RequestStatus.OK) {
-    const bytecodeLength = artifact.bytecode.length
-    // the last part of the transaction data is the constructor parameters
-    return res.data.result[0].input.substring(bytecodeLength)
-  }
-
-  throw new Error('Failed to fetch constructor arguments')
-}
-
-const fetchMergedSource = async (artifact, options) => {
-  if (!fs.existsSync(artifact.sourcePath)) {
-    throw new Error(`Could not find source file: ${artifact.sourcePath}`)
-  }
-
-  let mergedSource = await merge(artifact.sourcePath)
-  // Include the preamble if it exists, removing all instances of */ for safety
-  if (options.verifyPreamble) {
-    const preamble = options.verifyPreamble.replace(/\*+\//g, '')
-    mergedSource = `/**\n${preamble}\n*/\n\n${mergedSource}`
-  }
-  return mergedSource
-}
-
-const sendVerifyRequest = async (artifact, options) => {
-  const encodedConstructorArgs = await fetchConstructorValues(artifact, options)
-  const mergedSource = await fetchMergedSource(artifact, options)
-  const postQueries = {
-    apikey: options.apiKey,
-    module: 'contract',
-    action: 'verifysourcecode',
-    // TODO: detect deployed networks
-    contractaddress: artifact.networks[`${options.networkId}`].address,
-    sourceCode: mergedSource,
-    contractname: artifact.contractName,
-    compilerversion: `v${artifact.compiler.version.replace('.Emscripten.clang', '')}`,
-    optimizationUsed: options.optimizationUsed,
-    runs: options.runs,
-    constructorArguements: encodedConstructorArgs
-  }
-
-  const libraries = artifact.networks[`${options.networkId}`].links || {}
-  Object.entries(libraries).forEach(([key, value], i) => {
-    if (i > 9) throw new Error('Can not link more than 10 libraries with Etherscan API')
-    postQueries[`libraryname${i + 1}`] = key
-    postQueries[`libraryaddress${i + 1}`] = value
-  })
-
+module.exports = async (config) => {
+  // Attempt to parse options
+  let options
   try {
-    return axios.post(
-      options.apiUrl,
-      querystring.stringify(postQueries)
-    )
+    options = parseConfig(config)
   } catch (e) {
-    throw new Error(`Failed to connect to Etherscan API at url ${options.apiUrl}`)
+    console.error(e.message)
+    process.exit(1)
   }
-}
 
-const verificationStatus = async (guid, options) => {
-  while (true) {
-    await sleep(1000)
-
+  // Verify each contract
+  const contractNames = config._.slice(1)
+  // Track which contracts failed verification
+  const failedContracts = []
+  for (const contractName of contractNames) {
+    console.log(`Verifying: ${contractName}`)
     try {
-      const verificationResult = await axios.get(
-        `${options.apiUrl}?module=contract&action=checkverifystatus&apikey=${options.apiKey}&guid=${guid}`
-      )
-      if (verificationResult.data.result !== VerificationStatus.PENDING) {
-        return verificationResult.data.result
+      const artifact = getArtifact(contractName, options)
+      let status = await verifyContract(artifact, contractName, options)
+      if (status === VerificationStatus.FAILED) {
+        failedContracts.push(contractName)
+      } else {
+        const contractAddress = artifact.networks[`${options.networkId}`].address
+        const explorerUrl = `${EXPLORER_URLS[options.networkId]}/${contractAddress}#contracts`
+        status += `: ${explorerUrl}`
       }
+      console.log(status)
     } catch (e) {
-      throw new Error(`Failed to connect to Etherscan API at url ${options.apiUrl}`)
+      console.error(e.message)
+      failedContracts.push(contractName)
     }
+    console.log()
   }
+
+  if (failedContracts.length > 0) {
+    console.error(`Failed to verify ${failedContracts.length} contract(s): ${failedContracts.join(', ')}`)
+    process.exit(1)
+  }
+
+  console.log(`Successfully verified ${contractNames.length} contract(s).`)
 }
 
 const parseConfig = (config) => {
@@ -162,7 +123,7 @@ const getArtifact = (contractName, options) => {
   return require(artifactPath)
 }
 
-const verifyContract = async (options, artifact, contractName) => {
+const verifyContract = async (artifact, contractName, options) => {
   if (!artifact.networks || !artifact.networks[`${options.networkId}`]) {
     throw new Error(`No instance of contract ${contractName} found for network id ${options.networkId}`)
   }
@@ -181,44 +142,83 @@ const verifyContract = async (options, artifact, contractName) => {
   }
 }
 
-module.exports = async (config) => {
-  // Attempt to parse options
-  let options
+const sendVerifyRequest = async (artifact, options) => {
+  const encodedConstructorArgs = await fetchConstructorValues(artifact, options)
+  const mergedSource = await fetchMergedSource(artifact, options)
+  const postQueries = {
+    apikey: options.apiKey,
+    module: 'contract',
+    action: 'verifysourcecode',
+    // TODO: detect deployed networks
+    contractaddress: artifact.networks[`${options.networkId}`].address,
+    sourceCode: mergedSource,
+    contractname: artifact.contractName,
+    compilerversion: `v${artifact.compiler.version.replace('.Emscripten.clang', '')}`,
+    optimizationUsed: options.optimizationUsed,
+    runs: options.runs,
+    constructorArguements: encodedConstructorArgs
+  }
+
+  const libraries = artifact.networks[`${options.networkId}`].links || {}
+  Object.entries(libraries).forEach(([key, value], i) => {
+    if (i > 9) throw new Error('Can not link more than 10 libraries with Etherscan API')
+    postQueries[`libraryname${i + 1}`] = key
+    postQueries[`libraryaddress${i + 1}`] = value
+  })
+
   try {
-    options = parseConfig(config)
+    return axios.post(
+      options.apiUrl,
+      querystring.stringify(postQueries)
+    )
   } catch (e) {
-    console.error(e.message)
-    process.exit(1)
+    throw new Error(`Failed to connect to Etherscan API at url ${options.apiUrl}`)
+  }
+}
+
+const fetchConstructorValues = async (artifact, options) => {
+  const contractAddress = artifact.networks[`${options.networkId}`].address
+  // fetch the contract creation transaction and extract the input data
+  const res = await axios.get(
+    `${options.apiUrl}?module=account&action=txlist&address=${contractAddress}&page=1&sort=asc&offset=1`
+  )
+
+  if (res.data && res.data.status === RequestStatus.OK) {
+    const bytecodeLength = artifact.bytecode.length
+    // the last part of the transaction data is the constructor parameters
+    return res.data.result[0].input.substring(bytecodeLength)
   }
 
-  // Verify each contract
-  const contractNames = config._.slice(1)
-  // Track which contracts failed verification
-  const failedContracts = []
-  for (const contractName of contractNames) {
-    console.log(`Verifying: ${contractName}`)
+  throw new Error('Failed to fetch constructor arguments')
+}
+
+const fetchMergedSource = async (artifact, options) => {
+  if (!fs.existsSync(artifact.sourcePath)) {
+    throw new Error(`Could not find source file: ${artifact.sourcePath}`)
+  }
+
+  let mergedSource = await merge(artifact.sourcePath)
+  // Include the preamble if it exists, removing all instances of */ for safety
+  if (options.verifyPreamble) {
+    const preamble = options.verifyPreamble.replace(/\*+\//g, '')
+    mergedSource = `/**\n${preamble}\n*/\n\n${mergedSource}`
+  }
+  return mergedSource
+}
+
+const verificationStatus = async (guid, options) => {
+  while (true) {
+    await sleep(1000)
+
     try {
-      const artifact = getArtifact(contractName, options)
-      let status = await verifyContract(options, artifact, contractName)
-      if (status === VerificationStatus.FAILED) {
-        failedContracts.push(contractName)
-      } else {
-        const contractAddress = artifact.networks[`${options.networkId}`].address
-        const explorerUrl = `${EXPLORER_URLS[options.networkId]}/${contractAddress}#contracts`
-        status += `: ${explorerUrl}`
+      const verificationResult = await axios.get(
+        `${options.apiUrl}?module=contract&action=checkverifystatus&apikey=${options.apiKey}&guid=${guid}`
+      )
+      if (verificationResult.data.result !== VerificationStatus.PENDING) {
+        return verificationResult.data.result
       }
-      console.log(status)
     } catch (e) {
-      console.error(e.message)
-      failedContracts.push(contractName)
+      throw new Error(`Failed to connect to Etherscan API at url ${options.apiUrl}`)
     }
-    console.log()
   }
-
-  if (failedContracts.length > 0) {
-    console.error(`Failed to verify ${failedContracts.length} contract(s): ${failedContracts.join(', ')}`)
-    process.exit(1)
-  }
-
-  console.log(`Successfully verified ${contractNames.length} contract(s).`)
 }
