@@ -131,18 +131,19 @@ const sendVerifyRequest = async (artifact, options) => {
 const fetchConstructorValues = async (artifact, options) => {
   const contractAddress = artifact.networks[`${options.networkId}`].address
 
+  // Fetch the contract creation transaction to extract the input data
+  let res
   try {
-    // Fetch the contract creation transaction and extract the input data
-    const res = await axios.get(
+    res = await axios.get(
       `${options.apiUrl}?module=account&action=txlist&address=${contractAddress}&page=1&sort=asc&offset=1`
     )
-    enforceOrThrow(res.data && res.data.status === RequestStatus.OK, 'Failed to fetch constructor arguments')
-
-    // The last part of the transaction data is the constructor parameters
-    return res.data.result[0].input.substring(artifact.bytecode.length)
   } catch (e) {
     throw new Error(`Failed to connect to Etherscan API at url ${options.apiUrl}`)
   }
+  enforceOrThrow(res.data && res.data.status === RequestStatus.OK, 'Failed to fetch constructor arguments')
+
+  // The last part of the transaction data is the constructor parameters
+  return res.data.result[0].input.substring(artifact.bytecode.length)
 }
 
 const fetchMergedSource = async (artifact, options) => {
