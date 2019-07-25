@@ -1,6 +1,6 @@
 const axios = require('axios')
 const querystring = require('querystring')
-const sleep = require('await-sleep')
+const delay = require('delay')
 const { merge } = require('sol-merger')
 const fs = require('fs')
 const { enforce, enforceOrThrow } = require('./util')
@@ -164,7 +164,7 @@ const fetchMergedSource = async (artifact, options) => {
 const verificationStatus = async (guid, options) => {
   // Retry API call every second until status is no longer pending
   while (true) {
-    await sleep(1000)
+    await delay(1000)
 
     try {
       const verificationResult = await axios.get(
