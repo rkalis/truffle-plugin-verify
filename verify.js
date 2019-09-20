@@ -10,27 +10,31 @@ module.exports = async (config) => {
   const options = parseConfig(config)
 
   // Verify each contract
-  const contractNames = config._.slice(1)
+  const contractNameAddressPairs = config._.slice(1)
 
   // Track which contracts failed verification
   const failedContracts = []
-  for (const contractName of contractNames) {
-    console.log(`Verifying ${contractName}`)
+  for (const contractNameAddressPair of contractNameAddressPairs) {
+    console.log(`Verifying ${contractNameAddressPair}`)
     try {
+      const [contractName, contractAddress] = contractNameAddressPair.split('@')
+
       const artifact = getArtifact(contractName, options)
+
+      if (contractAddress) { artifact.networks[`${options.networkId}`].address = contractAddress }
+
       let status = await verifyContract(artifact, options)
       if (status === VerificationStatus.FAILED) {
-        failedContracts.push(contractName)
+        failedContracts.push(`${contractNameAddressPair}`)
       } else {
         // Add link to verified contract on Etherscan
-        const contractAddress = artifact.networks[`${options.networkId}`].address
-        const explorerUrl = `${EXPLORER_URLS[options.networkId]}/${contractAddress}#contracts`
+        const explorerUrl = `${EXPLORER_URLS[options.networkId]}/${contractAddress || artifact.networks[`${options.networkId}`].address}#contracts`
         status += `: ${explorerUrl}`
       }
       console.log(status)
     } catch (e) {
       console.error(e.message)
-      failedContracts.push(contractName)
+      failedContracts.push(contractNameAddressPair)
     }
     console.log()
   }
@@ -40,7 +44,7 @@ module.exports = async (config) => {
     `Failed to verify ${failedContracts.length} contract(s): ${failedContracts.join(', ')}`
   )
 
-  console.log(`Successfully verified ${contractNames.length} contract(s).`)
+  console.log(`Successfully verified ${contractNameAddressPairs.length} contract(s).`)
 }
 
 const parseConfig = (config) => {
