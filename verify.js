@@ -21,14 +21,16 @@ module.exports = async (config) => {
 
       const artifact = getArtifact(contractName, options)
 
-      if (contractAddress) { artifact.networks[`${options.networkId}`].address = contractAddress }
+      if (contractAddress) {
+        artifact.networks[`${options.networkId}`].address = contractAddress
+      }
 
       let status = await verifyContract(artifact, options)
       if (status === VerificationStatus.FAILED) {
         failedContracts.push(`${contractNameAddressPair}`)
       } else {
         // Add link to verified contract on Etherscan
-        const explorerUrl = `${EXPLORER_URLS[options.networkId]}/${contractAddress || artifact.networks[`${options.networkId}`].address}#contracts`
+        const explorerUrl = `${EXPLORER_URLS[options.networkId]}/${artifact.networks[`${options.networkId}`].address}#contracts`
         status += `: ${explorerUrl}`
       }
       console.log(status)
@@ -80,7 +82,8 @@ const getArtifact = (contractName, options) => {
   // Construct artifact path and read artifact
   const artifactPath = `${options.contractsBuildDir}/${contractName}.json`
   enforceOrThrow(fs.existsSync(artifactPath), `Could not find ${contractName} artifact at ${artifactPath}`)
-  return require(artifactPath)
+  // Stringify + parse to make a deep copy (to avoid bugs with PR #19)
+  return JSON.parse(JSON.stringify(require(artifactPath)))
 }
 
 const verifyContract = async (artifact, options) => {

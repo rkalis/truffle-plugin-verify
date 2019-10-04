@@ -51,15 +51,14 @@ truffle run verify SimpleStorage --network rinkeby
 
 This can take some time, and will eventually either return `Pass - Verified` or `Fail - Unable to verify` for each contract. Since the information we get from the Etherscan API is quite limited, it is currently impossible to retrieve any more information on verification failure. There should be no reason though why the verification should fail if the usage is followed correctly. If you do receive a `Fail - Unable to verify` and you are sure that you followed the instructions correctly, please [open an issue](/issues/new) and I will look into it.
 
-### Address override
-
-As a variant you may explicitly provide the address of the contract(s) that you wish to verify. This is handy when you have deployed multiple instances of the same contract. The address is appended with `@<address>` as follows:
+### Address override (Optional)
+You can optionally provide an explicit address of the contract(s) that you wish to verify. This may be useful when you have deployed multiple instances of the same contract. The address is appended with `@<address>` as follows:
 ```
-truffle run verify SimpleStorage@0x61C9157A9EfCaf6022243fA65Ef4666ECc9FD3D7 SimpleStorage@0x049c9439e0C3C480229a666DF5Eb0c1B28F57969 --network rinkeby
+truffle run verify SimpleStorage@0x61C9157A9EfCaf6022243fA65Ef4666ECc9FD3D7 --network rinkeby
 ```
 
 ### Adding Preamble (Optional)
-There is also the option of adding preamble to the beginning of your verified source code. This may be useful for adding authorship information, links to source code, copyright information, or versioning information.
+You can optionally provide a preamble to the beginning of your verified source code. This may be useful for adding authorship information, links to source code, copyright information, or versioning information.
 
 To do so, add the following to your `truffle.js` or `truffle-config.js` file
 ```js
