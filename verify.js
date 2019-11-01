@@ -62,7 +62,7 @@ const parseConfig = (config) => {
 
   const workingDir = config.working_directory
   const contractsBuildDir = config.contracts_build_directory
-  const optimizerSettings = config.compilers.solc.settings.optimizer
+  const solcSettings = config.compilers.solc.settings
   const verifyPreamble = config.verify && config.verify.preamble
 
   return {
@@ -72,9 +72,9 @@ const parseConfig = (config) => {
     workingDir,
     contractsBuildDir,
     verifyPreamble,
-    // Note: API docs state enabled = 0, disbled = 1, but empiric evidence suggests reverse
-    optimizationUsed: optimizerSettings.enabled ? 1 : 0,
-    runs: optimizerSettings.runs
+    optimizationUsed: solcSettings.optimizer.enabled ? 1 : 0,
+    runs: solcSettings.optimizer.runs,
+    evmVersion: solcSettings.evmTarget
   }
 }
 
@@ -113,11 +113,14 @@ const sendVerifyRequest = async (artifact, options) => {
     action: 'verifysourcecode',
     contractaddress: artifact.networks[`${options.networkId}`].address,
     sourceCode: mergedSource,
+    codeformat: 'solidity-single-file',
     contractname: artifact.contractName,
     compilerversion: `v${artifact.compiler.version.replace('.Emscripten.clang', '')}`,
     optimizationUsed: options.optimizationUsed,
     runs: options.runs,
-    constructorArguements: encodedConstructorArgs
+    constructorArguements: encodedConstructorArgs,
+    evmversion: options.evmVersion
+    // licenseType: 1 <-- could be inferred from package.json
   }
 
   // Link libraries as specified in the artifact
