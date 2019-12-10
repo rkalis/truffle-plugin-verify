@@ -22,6 +22,9 @@ module.exports = async (config) => {
       const artifact = getArtifact(contractName, options)
 
       if (contractAddress) {
+        if (!artifact.networks[`${options.networkId}`]) {
+          artifact.networks[`${options.networkId}`] = {}
+        }
         artifact.networks[`${options.networkId}`].address = contractAddress
       }
 
