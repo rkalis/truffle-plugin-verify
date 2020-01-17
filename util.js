@@ -1,10 +1,10 @@
-const abort = (message, code = 1) => {
-  console.error(message)
+const abort = (message, logger = console, code = 1) => {
+  logger.error(message)
   process.exit(code)
 }
 
-const enforce = (condition, message, code) => {
-  if (!condition) abort(message, code)
+const enforce = (condition, message, logger, code) => {
+  if (!condition) abort(message, logger, code)
 }
 
 const enforceOrThrow = (condition, message) => {

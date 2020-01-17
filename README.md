@@ -38,7 +38,7 @@ I wrote a tutorial on my website that goes through the entire process of install
 Before running verification, make sure that you have actually deployed your contracts to a public network with Truffle. After deployment, run the following command with one or more contracts that you wish to verify:
 
 ```
-truffle run verify SomeContractName AnotherContractName --network networkName
+truffle run verify SomeContractName AnotherContractName --network networkName [--debug]
 ```
 
 The network parameter should correspond to a network defined in the Truffle config file, with the correct network id set. The Ethereum mainnet and all main public testnets are supported.
@@ -49,7 +49,9 @@ For example, if we defined `rinkeby` as network in Truffle, and we wish to verif
 truffle run verify SimpleStorage --network rinkeby
 ```
 
-This can take some time, and will eventually either return `Pass - Verified` or `Fail - Unable to verify` for each contract. Since the information we get from the Etherscan API is quite limited, it is currently impossible to retrieve any more information on verification failure. There should be no reason though why the verification should fail if the usage is followed correctly. If you do receive a `Fail - Unable to verify` and you are sure that you followed the instructions correctly, please [open an issue](/issues/new) and I will look into it.
+This can take some time, and will eventually either return `Pass - Verified` or `Fail - Unable to verify` for each contract. Since the information we get from the Etherscan API is quite limited, it is currently impossible to retrieve any more information on verification failure. There should be no reason though why the verification should fail if the usage is followed correctly.
+
+If you do receive a `Fail - Unable to verify` and you are sure that you followed the instructions correctly, please [open an issue](/issues/new) and I will look into it. Optionally, a `--debug` flag can also be passed into the CLI to output additional debug messages. It is helpful if you run this once before opening an issue and providing the output in your bug report.
 
 ### Address override (Optional)
 You can optionally provide an explicit address of the contract(s) that you wish to verify. This may be useful when you have deployed multiple instances of the same contract. The address is appended with `@<address>` as follows:
@@ -70,6 +72,14 @@ module.exports = {
   }
 }
 ```
+
+### Debugging
+You can pass an optional `--debug` flag into the plugin to display debug messages during the verification process. This is generally not necessary, but can be used to provide additional information when the plugin appears to malfunction.
+
+```
+truffle run verify SimpleStorage --network rinkeby
+```
+
 
 ## Notes
 This plugin gets compiler optimisation settings from the truffle config file, so make sure that your truffle config settings are the same as they were when your contracts were compiled.

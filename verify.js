@@ -1,13 +1,20 @@
 const axios = require('axios')
-const querystring = require('querystring')
+const cliLogger = require('cli-logger')
 const delay = require('delay')
-const { merge } = require('sol-merger')
 const fs = require('fs')
-const { enforce, enforceOrThrow } = require('./util')
+const querystring = require('querystring')
+const { merge } = require('sol-merger')
 const { API_URLS, EXPLORER_URLS, RequestStatus, VerificationStatus } = require('./constants')
+const { enforce, enforceOrThrow } = require('./util')
+
+const logger = cliLogger({ level: 'info' })
 
 module.exports = async (config) => {
   const options = parseConfig(config)
+
+  // Set debug logging
+  if (config.debug) logger.level('debug')
+  logger.debug('DEBUG logging is turned ON')
 
   // Verify each contract
   const contractNameAddressPairs = config._.slice(1)
@@ -15,13 +22,14 @@ module.exports = async (config) => {
   // Track which contracts failed verification
   const failedContracts = []
   for (const contractNameAddressPair of contractNameAddressPairs) {
-    console.log(`Verifying ${contractNameAddressPair}`)
+    logger.info(`Verifying ${contractNameAddressPair}`)
     try {
       const [contractName, contractAddress] = contractNameAddressPair.split('@')
 
       const artifact = getArtifact(contractName, options)
 
       if (contractAddress) {
+        logger.debug(`Custom address ${contractAddress} specified`)
         if (!artifact.networks[`${options.networkId}`]) {
           artifact.networks[`${options.networkId}`] = {}
         }
@@ -36,32 +44,33 @@ module.exports = async (config) => {
         const explorerUrl = `${EXPLORER_URLS[options.networkId]}/${artifact.networks[`${options.networkId}`].address}#contracts`
         status += `: ${explorerUrl}`
       }
-      console.log(status)
+      logger.info(status)
     } catch (e) {
-      console.error(e.message)
+      logger.error(e.message)
       failedContracts.push(contractNameAddressPair)
     }
-    console.log()
+    logger.info()
   }
 
   enforce(
     failedContracts.length === 0,
-    `Failed to verify ${failedContracts.length} contract(s): ${failedContracts.join(', ')}`
+    `Failed to verify ${failedContracts.length} contract(s): ${failedContracts.join(', ')}`,
+    logger
   )
 
-  console.log(`Successfully verified ${contractNameAddressPairs.length} contract(s).`)
+  logger.info(`Successfully verified ${contractNameAddressPairs.length} contract(s).`)
 }
 
 const parseConfig = (config) => {
   // Truffle handles network stuff, just need network_id
   const networkId = config.network_id
   const apiUrl = API_URLS[networkId]
-  enforce(apiUrl, `Etherscan has no support for network ${config.network} with id ${networkId}`)
+  enforce(apiUrl, `Etherscan has no support for network ${config.network} with id ${networkId}`, logger)
 
   const apiKey = config.api_keys && config.api_keys.etherscan
-  enforce(apiKey, 'No Etherscan API key specified')
+  enforce(apiKey, 'No Etherscan API key specified', logger)
 
-  enforce(config._.length > 1, 'No contract name(s) specified')
+  enforce(config._.length > 1, 'No contract name(s) specified', logger)
 
   const workingDir = config.working_directory
   const contractsBuildDir = config.contracts_build_directory
@@ -84,6 +93,7 @@ const parseConfig = (config) => {
 const getArtifact = (contractName, options) => {
   // Construct artifact path and read artifact
   const artifactPath = `${options.contractsBuildDir}/${contractName}.json`
+  logger.debug(`Reading artifact file at ${artifactPath}`)
   enforceOrThrow(fs.existsSync(artifactPath), `Could not find ${contractName} artifact at ${artifactPath}`)
   // Stringify + parse to make a deep copy (to avoid bugs with PR #19)
   return JSON.parse(JSON.stringify(require(artifactPath)))
@@ -129,12 +139,15 @@ const sendVerifyRequest = async (artifact, options) => {
   // Link libraries as specified in the artifact
   const libraries = artifact.networks[`${options.networkId}`].links || {}
   Object.entries(libraries).forEach(([key, value], i) => {
+    logger.debug(`Adding ${key} as a linked library at address ${value}`)
     enforceOrThrow(i < 10, 'Can not link more than 10 libraries with Etherscan API')
     postQueries[`libraryname${i + 1}`] = key
     postQueries[`libraryaddress${i + 1}`] = value
   })
 
   try {
+    logger.debug('Sending verify request with POST arguments:')
+    logger.debug(JSON.stringify(postQueries, null, 2))
     return axios.post(options.apiUrl, querystring.stringify(postQueries))
   } catch (e) {
     throw new Error(`Failed to connect to Etherscan API at url ${options.apiUrl}`)
@@ -147,16 +160,18 @@ const fetchConstructorValues = async (artifact, options) => {
   // Fetch the contract creation transaction to extract the input data
   let res
   try {
-    res = await axios.get(
-      `${options.apiUrl}?module=account&action=txlist&address=${contractAddress}&page=1&sort=asc&offset=1`
-    )
+    const url = `${options.apiUrl}?module=account&action=txlist&address=${contractAddress}&page=1&sort=asc&offset=1`
+    logger.debug(`Retrieving constructor parameters from ${url}`)
+    res = await axios.get(url)
   } catch (e) {
     throw new Error(`Failed to connect to Etherscan API at url ${options.apiUrl}`)
   }
   enforceOrThrow(res.data && res.data.status === RequestStatus.OK, 'Failed to fetch constructor arguments')
 
   // The last part of the transaction data is the constructor parameters
-  return res.data.result[0].input.substring(artifact.bytecode.length)
+  const constructorParameters = res.data.result[0].input.substring(artifact.bytecode.length)
+  logger.debug(`Constructor parameters received: 0x${constructorParameters}`)
+  return constructorParameters
 }
 
 const fetchMergedSource = async (artifact, options) => {
@@ -165,9 +180,11 @@ const fetchMergedSource = async (artifact, options) => {
     `Could not find ${artifact.contractName} source file at ${artifact.sourcePath}`
   )
 
+  logger.debug(`Flattening source file ${artifact.sourcePath}`)
   let mergedSource = await merge(artifact.sourcePath)
   // Include the preamble if it exists, removing all instances of */ for safety
   if (options.verifyPreamble) {
+    logger.debug('Adding preamble to merged source code')
     const preamble = options.verifyPreamble.replace(/\*+\//g, '')
     mergedSource = `/**\n${preamble}\n*/\n\n${mergedSource}`
   }
@@ -175,6 +192,7 @@ const fetchMergedSource = async (artifact, options) => {
 }
 
 const verificationStatus = async (guid, options) => {
+  logger.debug(`Checking status of verification request ${guid}`)
   // Retry API call every second until status is no longer pending
   while (true) {
     await delay(1000)
