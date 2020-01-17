@@ -181,7 +181,7 @@ const fetchMergedSource = async (artifact, options) => {
   )
 
   logger.debug(`Flattening source file ${artifact.sourcePath}`)
-  let mergedSource = await merge(artifact.sourcePath)
+  let mergedSource = await merge(artifact.sourcePath, { removeComments: false })
   // Include the preamble if it exists, removing all instances of */ for safety
   if (options.verifyPreamble) {
     logger.debug('Adding preamble to merged source code')
