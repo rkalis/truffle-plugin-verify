@@ -24,11 +24,11 @@
   "author": "Rosco Kalis <roscokalis@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.19.0",
-    "delay": "^4.3.0",
-    "querystring": "^0.2.0",
-    "sol-merger": "^1.1.0"
+    "axios": "0.19.0",
     "cli-logger": "0.5.40",
+    "delay": "4.3.0",
+    "querystring": "0.2.0",
+    "sol-merger": "1.2.2"
   },
   "devDependencies": {
     "eslint": "^6.5.1",
