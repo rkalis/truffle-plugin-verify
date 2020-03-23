@@ -166,10 +166,12 @@ const fetchConstructorValues = async (artifact, options) => {
   } catch (e) {
     throw new Error(`Failed to connect to Etherscan API at url ${options.apiUrl}`)
   }
-  enforceOrThrow(res.data && res.data.status === RequestStatus.OK, 'Failed to fetch constructor arguments')
 
-  // The last part of the transaction data is the constructor parameters
-  const constructorParameters = res.data.result[0].input.substring(artifact.bytecode.length)
+  // The last part of the transaction data is the constructor arguments
+  // If it can't be accessed, try using empty constructor arguments
+  const constructorParameters = res.data && res.data.status === RequestStatus.OK && res.data.result[0] !== undefined
+    ? res.data.result[0].input.substring(artifact.bytecode.length)
+    : ''
   logger.debug(`Constructor parameters received: 0x${constructorParameters}`)
   return constructorParameters
 }
