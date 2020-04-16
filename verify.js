@@ -160,7 +160,16 @@ const fetchConstructorValues = async (artifact, options) => {
   // Fetch the contract creation transaction to extract the input data
   let res
   try {
-    const url = `${options.apiUrl}?module=account&action=txlist&address=${contractAddress}&page=1&sort=asc&offset=1`
+    const qs = querystring.stringify({
+      apiKey: options.apiKey,
+      module: 'account',
+      action: 'txlist',
+      address: contractAddress,
+      page: 1,
+      sort: 'asc',
+      offset: 1
+    })
+    const url = `${options.apiUrl}?${qs}`
     logger.debug(`Retrieving constructor parameters from ${url}`)
     res = await axios.get(url)
   } catch (e) {
@@ -200,8 +209,14 @@ const verificationStatus = async (guid, options) => {
     await delay(1000)
 
     try {
+      const qs = querystring.stringify({
+        apiKey: options.apiKey,
+        module: 'contract',
+        action: 'checkverifystatus',
+        guid
+      })
       const verificationResult = await axios.get(
-        `${options.apiUrl}?module=contract&action=checkverifystatus&apikey=${options.apiKey}&guid=${guid}`
+        `${options.apiUrl}?${qs}`
       )
       if (verificationResult.data.result !== VerificationStatus.PENDING) {
         return verificationResult.data.result
