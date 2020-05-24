@@ -6,6 +6,7 @@ const querystring = require('querystring')
 const { merge } = require('sol-merger')
 const { API_URLS, EXPLORER_URLS, RequestStatus, VerificationStatus } = require('./constants')
 const { enforce, enforceOrThrow } = require('./util')
+const { version } = require('./package.json')
 
 const logger = cliLogger({ level: 'info' })
 
@@ -15,6 +16,7 @@ module.exports = async (config) => {
   // Set debug logging
   if (config.debug) logger.level('debug')
   logger.debug('DEBUG logging is turned ON')
+  logger.debug(`Running truffle-plugin-verify v${version}`)
 
   // Verify each contract
   const contractNameAddressPairs = config._.slice(1)
