@@ -86,5 +86,7 @@ This plugin gets compiler optimisation settings from the truffle config file, so
 
 This plugin has a naming conflict with the truffle-security plugin, so when using both truffle-security and truffle-plugin-verify in the same project, `truffle run etherscan` can be used instead of `truffle run verify` for truffle-plugin-verify.
 
+Due to some limitations in the Etherscan verification engine, if you want to use `pragma experimental ABIEncoderV2;`, this statement should be the first line in your contract file (even above the `pragma solidity ^0.6.0;` statement).
+
 ## Donations
 If you've used this plugin and found it helpful in your workflow, please consider sending some Ξ or tokens to `0xe126b3E5d052f1F575828f61fEBA4f4f2603652a`.
