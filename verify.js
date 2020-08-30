@@ -4,7 +4,8 @@ const delay = require('delay')
 const fs = require('fs')
 const querystring = require('querystring')
 const { merge } = require('sol-merger')
-const { API_URLS, EXPLORER_URLS, RequestStatus, VerificationStatus } = require('./constants')
+const { plugins } = require('sol-merger/dist/lib/plugins')
+const { API_URLS, EXPLORER_URLS, RequestStatus, VerificationStatus, EtherscanLicense } = require('./constants')
 const { enforce, enforceOrThrow } = require('./util')
 const { version } = require('./package.json')
 
@@ -88,7 +89,8 @@ const parseConfig = (config) => {
     verifyPreamble,
     optimizationUsed: solcSettings.optimizer.enabled ? 1 : 0,
     runs: solcSettings.optimizer.runs,
-    evmVersion: solcSettings.evmTarget
+    evmVersion: solcSettings.evmTarget,
+    license: config.license
   }
 }
 
@@ -122,6 +124,8 @@ const sendVerifyRequest = async (artifact, options) => {
   const encodedConstructorArgs = await fetchConstructorValues(artifact, options)
   const mergedSource = await fetchMergedSource(artifact, options)
 
+  const license = EtherscanLicense[options.license]
+
   const postQueries = {
     apikey: options.apiKey,
     module: 'contract',
@@ -134,8 +138,8 @@ const sendVerifyRequest = async (artifact, options) => {
     optimizationUsed: options.optimizationUsed,
     runs: options.runs,
     constructorArguements: encodedConstructorArgs,
-    evmversion: options.evmVersion
-    // licenseType: 1 <-- could be inferred from package.json
+    evmversion: options.evmVersion,
+    licenseType: license
   }
 
   // Link libraries as specified in the artifact
@@ -194,13 +198,28 @@ const fetchMergedSource = async (artifact, options) => {
   )
 
   logger.debug(`Flattening source file ${artifact.sourcePath}`)
-  let mergedSource = await merge(artifact.sourcePath, { removeComments: false })
+
+  // If a license is provided, we remove all other SPDX-License-Identifiers
+  const pluginList = options.license ? [plugins.SPDXLicenseRemovePlugin] : []
+  let mergedSource = await merge(artifact.sourcePath, { removeComments: false, exportPlugins: pluginList })
+
   // Include the preamble if it exists, removing all instances of */ for safety
   if (options.verifyPreamble) {
     logger.debug('Adding preamble to merged source code')
     const preamble = options.verifyPreamble.replace(/\*+\//g, '')
     mergedSource = `/**\n${preamble}\n*/\n\n${mergedSource}`
   }
+
+  if (options.license) {
+    mergedSource = `// SPDX-License-Identifier: ${options.license}\n\n${mergedSource}`
+  }
+
+  // Etherscan disallows multiple SPDX-License-Identifier statements
+  enforceOrThrow(
+    (mergedSource.match(/SPDX-License-Identifier:/g) || []).length <= 1,
+    'Found duplicate SPDX-License-Identifiers in the Solidity code, please provide the correct license with --license <license identifier>'
+  )
+
   return mergedSource
 }
 
