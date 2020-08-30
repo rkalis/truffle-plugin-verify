@@ -38,7 +38,7 @@ I wrote a tutorial on my website that goes through the entire process of install
 Before running verification, make sure that you have actually deployed your contracts to a public network with Truffle. After deployment, run the following command with one or more contracts that you wish to verify:
 
 ```
-truffle run verify SomeContractName AnotherContractName --network networkName [--debug]
+truffle run verify SomeContractName AnotherContractName --network networkName [--debug] [--license <license>]
 ```
 
 The network parameter should correspond to a network defined in the Truffle config file, with the correct network id set. The Ethereum mainnet and all main public testnets are supported.
