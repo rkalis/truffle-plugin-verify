@@ -54,7 +54,7 @@ This can take some time, and will eventually either return `Pass - Verified` or 
 If you do receive a `Fail - Unable to verify` and you are sure that you followed the instructions correctly, please [open an issue](/issues/new) and I will look into it. Optionally, a `--debug` flag can also be passed into the CLI to output additional debug messages. It is helpful if you run this once before opening an issue and providing the output in your bug report.
 
 ### SPDX License Identifiers
-Since Solidity v0.6 it is recommended practice to include SPDX License Identifiers at the top of each of your Solidity files. When truffle-plugin-verify flattens these Solidity files, it can cause duplicate identifiers, which is not supported by Etherscan. In this case you need to specifically provide a license identifier using the `--license` parameter. This supports any standard SPDX License Identifier (e.g. `--license MIT`).
+Since Solidity v0.6 it is recommended practice to include SPDX License Identifiers at the top of each of your Solidity files. When truffle-plugin-verify flattens these Solidity files, it can cause duplicate identifiers, which is not supported by Etherscan. In that case you need to provide a license identifier using the `--license` parameter. This supports any SPDX License Identifier (e.g. `--license MIT`).
 
 Note that **the existing SPDX License Identifiers will be removed** and replaced with the provided license. It is your sole responsibility to make sure the license you provide to this plugin is comptible with the licenses of any potential dependencies.
 
