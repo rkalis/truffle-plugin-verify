@@ -7,7 +7,7 @@ This truffle plugin allows you to automatically verify your smart contracts' sou
 
 I wrote a tutorial on my website that goes through the entire process of installing and using this plugin: [Automatically verify Truffle smart contracts on Etherscan](https://kalis.me/verify-truffle-smart-contracts-etherscan/).
 
-**Note:** This version of the plugin uses multi-file verification. If you want to flatten the verification code for any reason, please use the [legacy version (v0.4.x)](https://github.com/rkalis/truffle-plugin-verify/tree/legacy) of the plugin.
+**Note:** This version of the plugin uses **multi-file verification**. If you want to flatten the verification code for any reason, please use the [legacy version (v0.4.x)](https://github.com/rkalis/truffle-plugin-verify/tree/legacy) of the plugin.
 
 ## Installation / preparation
 1. Install the plugin with npm or yarn
