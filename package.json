@@ -27,8 +27,7 @@
     "axios": "0.19.2",
     "cli-logger": "0.5.40",
     "delay": "4.3.0",
-    "querystring": "0.2.0",
-    "sol-merger": "3.1.0"
+    "querystring": "0.2.0"
   },
   "devDependencies": {
     "eslint": "^6.8.0",

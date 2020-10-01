@@ -3,9 +3,7 @@ const cliLogger = require('cli-logger')
 const delay = require('delay')
 const fs = require('fs')
 const querystring = require('querystring')
-const { merge } = require('sol-merger')
-const { plugins } = require('sol-merger/dist/lib/plugins')
-const { API_URLS, EXPLORER_URLS, RequestStatus, VerificationStatus, EtherscanLicense } = require('./constants')
+const { API_URLS, EXPLORER_URLS, RequestStatus, VerificationStatus } = require('./constants')
 const { enforce, enforceOrThrow } = require('./util')
 const { version } = require('./package.json')
 
@@ -40,6 +38,7 @@ module.exports = async (config) => {
       }
 
       let status = await verifyContract(artifact, options)
+
       if (status === VerificationStatus.FAILED) {
         failedContracts.push(`${contractNameAddressPair}`)
       } else {
@@ -65,7 +64,7 @@ module.exports = async (config) => {
 }
 
 const parseConfig = (config) => {
-  // Truffle handles network stuff, just need network_id
+  // Truffle handles network stuff, just need to get network_id
   const networkId = config.network_id
   const apiUrl = API_URLS[networkId]
   enforce(apiUrl, `Etherscan has no support for network ${config.network} with id ${networkId}`, logger)
@@ -77,28 +76,21 @@ const parseConfig = (config) => {
 
   const workingDir = config.working_directory
   const contractsBuildDir = config.contracts_build_directory
-  const solcSettings = config.compilers.solc.settings
-  const verifyPreamble = config.verify && config.verify.preamble
 
   return {
     apiUrl,
     apiKey,
     networkId,
     workingDir,
-    contractsBuildDir,
-    verifyPreamble,
-    optimizationUsed: solcSettings.optimizer.enabled ? 1 : 0,
-    runs: solcSettings.optimizer.runs,
-    evmVersion: solcSettings.evmTarget,
-    license: config.license
+    contractsBuildDir
   }
 }
 
 const getArtifact = (contractName, options) => {
-  // Construct artifact path and read artifact
   const artifactPath = `${options.contractsBuildDir}/${contractName}.json`
   logger.debug(`Reading artifact file at ${artifactPath}`)
   enforceOrThrow(fs.existsSync(artifactPath), `Could not find ${contractName} artifact at ${artifactPath}`)
+
   // Stringify + parse to make a deep copy (to avoid bugs with PR #19)
   return JSON.parse(JSON.stringify(require(artifactPath)))
 }
@@ -122,39 +114,24 @@ const verifyContract = async (artifact, options) => {
 
 const sendVerifyRequest = async (artifact, options) => {
   const encodedConstructorArgs = await fetchConstructorValues(artifact, options)
-  const mergedSource = await fetchMergedSource(artifact, options)
-
-  const license = EtherscanLicense[options.license]
+  const inputJSON = await fetchInputJSON(artifact, options)
 
   const postQueries = {
     apikey: options.apiKey,
     module: 'contract',
     action: 'verifysourcecode',
     contractaddress: artifact.networks[`${options.networkId}`].address,
-    sourceCode: mergedSource,
-    codeformat: 'solidity-single-file',
-    contractname: artifact.contractName,
+    sourceCode: JSON.stringify(inputJSON),
+    codeformat: 'solidity-standard-json-input',
+    contractname: `${artifact.sourcePath}:${artifact.contractName}`,
     compilerversion: `v${artifact.compiler.version.replace('.Emscripten.clang', '')}`,
-    optimizationUsed: options.optimizationUsed,
-    runs: options.runs,
-    constructorArguements: encodedConstructorArgs,
-    evmversion: options.evmVersion,
-    licenseType: license
+    constructorArguements: encodedConstructorArgs
   }
-
-  // Link libraries as specified in the artifact
-  const libraries = artifact.networks[`${options.networkId}`].links || {}
-  Object.entries(libraries).forEach(([key, value], i) => {
-    logger.debug(`Adding ${key} as a linked library at address ${value}`)
-    enforceOrThrow(i < 10, 'Can not link more than 10 libraries with Etherscan API')
-    postQueries[`libraryname${i + 1}`] = key
-    postQueries[`libraryaddress${i + 1}`] = value
-  })
 
   try {
     logger.debug('Sending verify request with POST arguments:')
     logger.debug(JSON.stringify(postQueries, null, 2))
-    return axios.post(options.apiUrl, querystring.stringify(postQueries))
+    return await axios.post(options.apiUrl, querystring.stringify(postQueries))
   } catch (e) {
     throw new Error(`Failed to connect to Etherscan API at url ${options.apiUrl}`)
   }
@@ -183,44 +160,37 @@ const fetchConstructorValues = async (artifact, options) => {
   }
 
   // The last part of the transaction data is the constructor arguments
-  // If it can't be accessed, try using empty constructor arguments
-  const constructorParameters = res.data && res.data.status === RequestStatus.OK && res.data.result[0] !== undefined
-    ? res.data.result[0].input.substring(artifact.bytecode.length)
-    : ''
-  logger.debug(`Constructor parameters received: 0x${constructorParameters}`)
-  return constructorParameters
+  // If it can't be accessed for any reason, try using empty constructor arguments
+  if (res.data && res.data.status === RequestStatus.OK && res.data.result[0] !== undefined) {
+    const constructorArgs = res.data.result[0].input.substring(artifact.bytecode.length)
+    logger.debug(`Constructor parameters retrieved: 0x${constructorArgs}`)
+    return constructorArgs
+  } else {
+    logger.debug('Could not retrieve constructor parameters, using empty parameters as fallback')
+    return ''
+  }
 }
 
-const fetchMergedSource = async (artifact, options) => {
-  enforceOrThrow(
-    fs.existsSync(artifact.sourcePath),
-    `Could not find ${artifact.contractName} source file at ${artifact.sourcePath}`
-  )
+const fetchInputJSON = async (artifact, options) => {
+  const metadata = JSON.parse(artifact.metadata)
 
-  logger.debug(`Flattening source file ${artifact.sourcePath}`)
-
-  // If a license is provided, we remove all other SPDX-License-Identifiers
-  const pluginList = options.license ? [plugins.SPDXLicenseRemovePlugin] : []
-  let mergedSource = await merge(artifact.sourcePath, { removeComments: false, exportPlugins: pluginList })
-
-  // Include the preamble if it exists, removing all instances of */ for safety
-  if (options.verifyPreamble) {
-    logger.debug('Adding preamble to merged source code')
-    const preamble = options.verifyPreamble.replace(/\*+\//g, '')
-    mergedSource = `/**\n${preamble}\n*/\n\n${mergedSource}`
+  const inputJSON = {
+    language: metadata.language,
+    sources: metadata.sources,
+    settings: {
+      remappings: metadata.settings.remappings,
+      optimizer: metadata.settings.optimizer,
+      evmVersion: metadata.settings.evmVersion,
+      libraries: { '': artifact.networks[`${options.networkId}`].links || {} }
+    }
   }
 
-  if (options.license) {
-    mergedSource = `// SPDX-License-Identifier: ${options.license}\n\n${mergedSource}`
+  for (const contractPath in inputJSON.sources) {
+    const content = fs.readFileSync(contractPath, 'utf8')
+    inputJSON.sources[contractPath] = { content }
   }
 
-  // Etherscan disallows multiple SPDX-License-Identifier statements
-  enforceOrThrow(
-    (mergedSource.match(/SPDX-License-Identifier:/g) || []).length <= 1,
-    'Found duplicate SPDX-License-Identifiers in the Solidity code, please provide the correct license with --license <license identifier>'
-  )
-
-  return mergedSource
+  return inputJSON
 }
 
 const verificationStatus = async (guid, options) => {
@@ -236,9 +206,7 @@ const verificationStatus = async (guid, options) => {
         action: 'checkverifystatus',
         guid
       })
-      const verificationResult = await axios.get(
-        `${options.apiUrl}?${qs}`
-      )
+      const verificationResult = await axios.get(`${options.apiUrl}?${qs}`)
       if (verificationResult.data.result !== VerificationStatus.PENDING) {
         return verificationResult.data.result
       }
