@@ -7,12 +7,15 @@ This truffle plugin allows you to automatically verify your smart contracts' sou
 
 I wrote a tutorial on my website that goes through the entire process of installing and using this plugin: [Automatically verify Truffle smart contracts on Etherscan](https://kalis.me/verify-truffle-smart-contracts-etherscan/).
 
-## Installation
-1. Install the plugin with npm
+**Note:** This version of the plugin uses multi-file verification. If you want to flatten the verification code for any reason, please use the [legacy version (v0.4.x)](https://github.com/rkalis/truffle-plugin-verify/tree/legacy) of the plugin.
+
+## Installation / preparation
+1. Install the plugin with npm or yarn
     ```sh
-    npm install truffle-plugin-verify
+    npm install -D truffle-plugin-verify
+    yarn add -D truffle-plugin-verify
     ```
-2. Add the plugin to your `truffle.js` or `truffle-config.js` file
+2. Add the plugin to your `truffle-config.js` file
     ```js
     module.exports = {
       /* ... rest of truffle-config */
@@ -38,7 +41,7 @@ I wrote a tutorial on my website that goes through the entire process of install
 Before running verification, make sure that you have actually deployed your contracts to a public network with Truffle. After deployment, run the following command with one or more contracts that you wish to verify:
 
 ```
-truffle run verify Contract1 Contract2 --network networkName [--debug] [--license <license>]
+truffle run verify SomeContractName AnotherContractName --network networkName [--debug]
 ```
 
 The network parameter should correspond to a network defined in the Truffle config file, with the correct network id set. The Ethereum mainnet and all main public testnets are supported.
@@ -51,31 +54,12 @@ truffle run verify SimpleStorage --network rinkeby
 
 This can take some time, and will eventually either return `Pass - Verified` or `Fail - Unable to verify` for each contract. Since the information we get from the Etherscan API is quite limited, it is currently impossible to retrieve any more information on verification failure. There should be no reason though why the verification should fail if the usage is followed correctly.
 
-If you do receive a `Fail - Unable to verify` and you are sure that you followed the instructions correctly, please [open an issue](/issues/new) and I will look into it. Optionally, a `--debug` flag can also be passed into the CLI to output additional debug messages. It is helpful if you run this once before opening an issue and providing the output in your bug report.
-
-### SPDX License Identifiers
-Since Solidity v0.6 it is recommended practice to include SPDX License Identifiers at the top of each of your Solidity files. When truffle-plugin-verify flattens these Solidity files, it can cause duplicate identifiers, which is not supported by Etherscan. In that case you need to provide a license identifier using the `--license` parameter. This supports any SPDX License Identifier (e.g. `--license MIT`).
-
-Note that **the existing SPDX License Identifiers will be removed** and replaced with the provided license. It is your sole responsibility to make sure the license you provide to this plugin is comptible with the licenses of any potential dependencies.
+If you do receive a `Fail - Unable to verify` and you are sure that you followed the instructions correctly, please [open an issue](/issues/new) and I will look into it. Optionally, a `--debug` flag can also be passed into the CLI to output additional debug messages. It is helpful if you run this once before opening an issue and provide the output in your bug report.
 
 ### Address override (Optional)
 You can optionally provide an explicit address of the contract(s) that you wish to verify. This may be useful when you have deployed multiple instances of the same contract. The address is appended with `@<address>` as follows:
 ```
 truffle run verify SimpleStorage@0x61C9157A9EfCaf6022243fA65Ef4666ECc9FD3D7 --network rinkeby
-```
-
-### Adding Preamble (Optional)
-You can optionally provide a preamble to the beginning of your verified source code. This may be useful for adding authorship information, links to source code, copyright information, or versioning information.
-
-To do so, add the following to your `truffle.js` or `truffle-config.js` file
-```js
-module.exports = {
-  /* ... rest of truffle-config */
-
-  verify: {
-    preamble: "Author: John Citizen.\nVersion: 1.0.1"
-  }
-}
 ```
 
 ### Debugging
@@ -85,13 +69,8 @@ You can pass an optional `--debug` flag into the plugin to display debug message
 truffle run verify SimpleStorage --network rinkeby
 ```
 
-
 ## Notes
-This plugin gets compiler optimisation settings from the truffle config file, so make sure that your truffle config settings are the same as they were when your contracts were compiled.
-
 This plugin has a naming conflict with the truffle-security plugin, so when using both truffle-security and truffle-plugin-verify in the same project, `truffle run etherscan` can be used instead of `truffle run verify` for truffle-plugin-verify.
-
-Due to some limitations in the Etherscan verification engine, if you want to use `pragma experimental ABIEncoderV2;`, this statement should be the first line in your contract file (even above the `pragma solidity ^0.6.0;` statement).
 
 ## Donations
 If you've used this plugin and found it helpful in your workflow, please consider sending some Ξ or tokens to `0xe126b3E5d052f1F575828f61fEBA4f4f2603652a` or `kalis.eth`.
