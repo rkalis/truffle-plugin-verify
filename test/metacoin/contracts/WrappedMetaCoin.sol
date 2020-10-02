@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.25 <0.7.0;
 
-import "./MetaCoin.sol";
+import { MetaCoin as Coin } from "./MetaCoin.sol";
 
 contract WrappedMetaCoin {
-	MetaCoin public underlying;
+	Coin public underlying;
 
-	constructor(MetaCoin _underlying) public {
+	constructor(Coin _underlying) public {
 		underlying = _underlying;
 	}
 
