@@ -186,7 +186,8 @@ const fetchInputJSON = async (artifact, options) => {
   }
 
   for (const contractPath in inputJSON.sources) {
-    const content = fs.readFileSync(contractPath, 'utf8')
+    const absolutePath = require.resolve(contractPath)
+    const content = fs.readFileSync(absolutePath, 'utf8')
     inputJSON.sources[contractPath] = { content }
   }
 
