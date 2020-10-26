@@ -1,20 +1,11 @@
 {
   "name": "casino",
   "version": "1.0.0",
-  "description": "",
-  "main": "truffle.js",
-  "directories": {
-    "test": "test"
-  },
-  "scripts": {
-    "test": "truffle test"
-  },
-  "author": "",
+  "main": "truffle-config.js",
   "license": "MIT",
-  "devDependencies": {},
   "dependencies": {
-    "dotenv": "^8.0.0",
-    "@truffle/hdwallet-provider": "^1.0.28",
-    "truffle-plugin-verify": "^0.3.8"
+    "@truffle/hdwallet-provider": "^1.1.0",
+    "dotenv": "^8.2.0",
+    "truffle-plugin-verify": "^0.5.0"
   }
 }
