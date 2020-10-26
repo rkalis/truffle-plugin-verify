@@ -7,7 +7,7 @@ This truffle plugin allows you to automatically verify your smart contracts' sou
 
 I wrote a tutorial on my website that goes through the entire process of installing and using this plugin: [Automatically verify Truffle smart contracts on Etherscan](https://kalis.me/verify-truffle-smart-contracts-etherscan/).
 
-**Note:** This version of the plugin uses **multi-file verification**. If you want to flatten the verification code for any reason, please use the [legacy version (v0.4.x)](https://github.com/rkalis/truffle-plugin-verify/tree/legacy) of the plugin.
+**Note:** This version of the plugin uses **multi-file verification**. If you want to use source code flattening instead for any reason, please use the [legacy version (v0.4.x)](https://github.com/rkalis/truffle-plugin-verify/tree/legacy) of the plugin.
 
 ## Installation / preparation
 1. Install the plugin with npm or yarn
@@ -61,14 +61,12 @@ You can optionally provide an explicit address of the contract(s) that you wish 
 ```
 truffle run verify SimpleStorage@0x61C9157A9EfCaf6022243fA65Ef4666ECc9FD3D7 --network rinkeby
 ```
-
 ### Debugging
 You can pass an optional `--debug` flag into the plugin to display debug messages during the verification process. This is generally not necessary, but can be used to provide additional information when the plugin appears to malfunction.
 
 ```
 truffle run verify SimpleStorage --network rinkeby
 ```
-
 ## Notes
 This plugin has a naming conflict with the truffle-security plugin, so when using both truffle-security and truffle-plugin-verify in the same project, `truffle run etherscan` can be used instead of `truffle run verify` for truffle-plugin-verify.
 
