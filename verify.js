@@ -2,6 +2,7 @@ const axios = require('axios')
 const cliLogger = require('cli-logger')
 const delay = require('delay')
 const fs = require('fs')
+const path = require('path')
 const querystring = require('querystring')
 const { merge } = require('sol-merger')
 const { plugins } = require('sol-merger/dist/lib/plugins')
@@ -95,10 +96,11 @@ const parseConfig = (config) => {
 }
 
 const getArtifact = (contractName, options) => {
-  // Construct artifact path and read artifact
-  const artifactPath = `${options.contractsBuildDir}/${contractName}.json`
+  const artifactPath = path.resolve(options.contractsBuildDir, `${contractName}.json`)
+
   logger.debug(`Reading artifact file at ${artifactPath}`)
   enforceOrThrow(fs.existsSync(artifactPath), `Could not find ${contractName} artifact at ${artifactPath}`)
+
   // Stringify + parse to make a deep copy (to avoid bugs with PR #19)
   return JSON.parse(JSON.stringify(require(artifactPath)))
 }
