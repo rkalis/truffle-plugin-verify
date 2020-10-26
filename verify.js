@@ -2,6 +2,7 @@ const axios = require('axios')
 const cliLogger = require('cli-logger')
 const delay = require('delay')
 const fs = require('fs')
+const path = require('path')
 const querystring = require('querystring')
 const { API_URLS, EXPLORER_URLS, RequestStatus, VerificationStatus } = require('./constants')
 const { enforce, enforceOrThrow } = require('./util')
@@ -87,7 +88,8 @@ const parseConfig = (config) => {
 }
 
 const getArtifact = (contractName, options) => {
-  const artifactPath = `${options.contractsBuildDir}/${contractName}.json`
+  const artifactPath = path.resolve(options.contractsBuildDir, `${contractName}.json`)
+
   logger.debug(`Reading artifact file at ${artifactPath}`)
   enforceOrThrow(fs.existsSync(artifactPath), `Could not find ${contractName} artifact at ${artifactPath}`)
 
