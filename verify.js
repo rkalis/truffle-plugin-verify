@@ -48,8 +48,8 @@ module.exports = async (config) => {
         status += `: ${explorerUrl}`
       }
       logger.info(status)
-    } catch (e) {
-      logger.error(e.message)
+    } catch (error) {
+      logger.error(error.message)
       failedContracts.push(contractNameAddressPair)
     }
     logger.info()
@@ -134,7 +134,8 @@ const sendVerifyRequest = async (artifact, options) => {
     logger.debug('Sending verify request with POST arguments:')
     logger.debug(JSON.stringify(postQueries, null, 2))
     return await axios.post(options.apiUrl, querystring.stringify(postQueries))
-  } catch (e) {
+  } catch (error) {
+    logger.debug(error.message)
     throw new Error(`Failed to connect to Etherscan API at url ${options.apiUrl}`)
   }
 }
@@ -157,7 +158,8 @@ const fetchConstructorValues = async (artifact, options) => {
     const url = `${options.apiUrl}?${qs}`
     logger.debug(`Retrieving constructor parameters from ${url}`)
     res = await axios.get(url)
-  } catch (e) {
+  } catch (error) {
+    logger.debug(error.message)
     throw new Error(`Failed to connect to Etherscan API at url ${options.apiUrl}`)
   }
 
@@ -213,7 +215,8 @@ const verificationStatus = async (guid, options) => {
       if (verificationResult.data.result !== VerificationStatus.PENDING) {
         return verificationResult.data.result
       }
-    } catch (e) {
+    } catch (error) {
+      logger.debug(error.message)
       throw new Error(`Failed to connect to Etherscan API at url ${options.apiUrl}`)
     }
   }
