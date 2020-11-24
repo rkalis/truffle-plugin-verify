@@ -115,6 +115,7 @@ const verifyContract = async (artifact, options) => {
 }
 
 const sendVerifyRequest = async (artifact, options) => {
+  const compilerVersion = extractCompilerVersion(artifact)
   const encodedConstructorArgs = await fetchConstructorValues(artifact, options)
   const inputJSON = await fetchInputJSON(artifact, options)
 
@@ -126,7 +127,7 @@ const sendVerifyRequest = async (artifact, options) => {
     sourceCode: JSON.stringify(inputJSON),
     codeformat: 'solidity-standard-json-input',
     contractname: `${artifact.sourcePath}:${artifact.contractName}`,
-    compilerversion: `v${artifact.compiler.version.replace('.Emscripten.clang', '')}`,
+    compilerversion: compilerVersion,
     constructorArguements: encodedConstructorArgs
   }
 
@@ -138,6 +139,14 @@ const sendVerifyRequest = async (artifact, options) => {
     logger.debug(error.message)
     throw new Error(`Failed to connect to Etherscan API at url ${options.apiUrl}`)
   }
+}
+
+const extractCompilerVersion = (artifact) => {
+  const metadata = JSON.parse(artifact.metadata)
+
+  const compilerVersion = `v${metadata.compiler.version}`
+
+  return compilerVersion
 }
 
 const fetchConstructorValues = async (artifact, options) => {
