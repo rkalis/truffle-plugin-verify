@@ -5,7 +5,7 @@ const fs = require('fs')
 const path = require('path')
 const querystring = require('querystring')
 const { API_URLS, EXPLORER_URLS, RequestStatus, VerificationStatus } = require('./constants')
-const { enforce, enforceOrThrow } = require('./util')
+const { enforce, enforceOrThrow, normaliseContractPath } = require('./util')
 const { version } = require('./package.json')
 
 const logger = cliLogger({ level: 'info' })
@@ -199,7 +199,8 @@ const fetchInputJSON = async (artifact, options) => {
   }
 
   for (const contractPath in inputJSON.sources) {
-    const absolutePath = require.resolve(contractPath)
+    const normalisedContractPath = normaliseContractPath(contractPath, logger)
+    const absolutePath = require.resolve(normalisedContractPath)
     const content = fs.readFileSync(absolutePath, 'utf8')
     inputJSON.sources[contractPath] = { content }
   }
