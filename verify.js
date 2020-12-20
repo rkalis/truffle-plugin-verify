@@ -70,7 +70,10 @@ const parseConfig = (config) => {
   const apiUrl = API_URLS[networkId]
   enforce(apiUrl, `Etherscan has no support for network ${config.network} with id ${networkId}`, logger)
 
-  const apiKey = config.api_keys && config.api_keys.etherscan
+  const etherscanApiKey = config.api_keys && config.api_keys.etherscan
+  const bscscanApiKey = config.api_keys && config.api_keys.bscscan
+
+  const apiKey = apiUrl.includes('bscscan') && bscscanApiKey ? bscscanApiKey : etherscanApiKey
   enforce(apiKey, 'No Etherscan API key specified', logger)
 
   enforce(config._.length > 1, 'No contract name(s) specified', logger)
