@@ -61,12 +61,30 @@ You can optionally provide an explicit address of the contract(s) that you wish 
 ```
 truffle run verify SimpleStorage@0x61C9157A9EfCaf6022243fA65Ef4666ECc9FD3D7 --network rinkeby
 ```
+
 ### Debugging
 You can pass an optional `--debug` flag into the plugin to display debug messages during the verification process. This is generally not necessary, but can be used to provide additional information when the plugin appears to malfunction.
 
 ```
 truffle run verify SimpleStorage --network rinkeby
 ```
+
+### Usage with Binance Smart Chain
+These instructions were written for verification on Etherscan for Ethereum mainnet and testnets, but it also works for verification on BscScan for BSC mainnet and testnet. To do so make sure that your `truffle-config.js` contains a network config using a BSC `network_id` (56 for BSC mainnet or 97 for BSC testnet). 
+
+Also make sure that you request an API key from [BscScan](https://bscscan.com) and add this in place of your etherscan API key in your `truffle-config.js` file. If you want to verify your contracts on both Etherscan and BscScan, please provide separate API keys. If you take those steps, all other usage is exactly the same.
+
+```js
+module.exports = {
+  /* ... rest of truffle-config */
+
+  api_keys: {
+    etherscan: 'MY_API_KEY',
+    bscscan: 'MY_API_KEY'
+  }
+}
+```
+
 ## Notes
 This plugin has a naming conflict with the truffle-security plugin, so when using both truffle-security and truffle-plugin-verify in the same project, `truffle run etherscan` can be used instead of `truffle run verify` for truffle-plugin-verify.
 
