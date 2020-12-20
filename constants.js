@@ -14,8 +14,8 @@ const EXPLORER_URLS = {
   4: 'https://rinkeby.etherscan.io/address',
   5: 'https://goerli.etherscan.io/address',
   42: 'https://kovan.etherscan.io/address',
-  56: 'https://www.bscscan.com',
-  97: 'https://testnet.bscscan.com'
+  56: 'https://www.bscscan.com/address',
+  97: 'https://testnet.bscscan.com/address'
 }
 
 const RequestStatus = {
