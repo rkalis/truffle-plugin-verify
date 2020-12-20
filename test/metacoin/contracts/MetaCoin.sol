@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma experimental ABIEncoderV2;
-pragma solidity >=0.4.25 <0.7.0;
+pragma solidity >=0.4.25 <0.9.0;
 
 import "./ConvertLib.sol";
 

@@ -5,7 +5,7 @@ const fs = require('fs')
 const path = require('path')
 const querystring = require('querystring')
 const { API_URLS, EXPLORER_URLS, RequestStatus, VerificationStatus } = require('./constants')
-const { enforce, enforceOrThrow } = require('./util')
+const { enforce, enforceOrThrow, normaliseContractPath } = require('./util')
 const { version } = require('./package.json')
 
 const logger = cliLogger({ level: 'info' })
@@ -126,7 +126,7 @@ const sendVerifyRequest = async (artifact, options) => {
     contractaddress: artifact.networks[`${options.networkId}`].address,
     sourceCode: JSON.stringify(inputJSON),
     codeformat: 'solidity-standard-json-input',
-    contractname: `${artifact.sourcePath}:${artifact.contractName}`,
+    contractname: `${artifact.ast.absolutePath}:${artifact.contractName}`,
     compilerversion: compilerVersion,
     constructorArguements: encodedConstructorArgs
   }
@@ -199,7 +199,9 @@ const fetchInputJSON = async (artifact, options) => {
   }
 
   for (const contractPath in inputJSON.sources) {
-    const absolutePath = require.resolve(contractPath)
+    // If we're on Windows we need to de-Unixify the path so that Windows can read the file
+    const normalisedContractPath = normaliseContractPath(contractPath, logger)
+    const absolutePath = require.resolve(normalisedContractPath)
     const content = fs.readFileSync(absolutePath, 'utf8')
     inputJSON.sources[contractPath] = { content }
   }

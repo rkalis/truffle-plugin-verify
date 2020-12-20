@@ -12,9 +12,17 @@ module.exports = {
     etherscan: process.env.ETHERSCAN_API_KEY
   },
   networks: {
+    ropsten: {
+      provider: () => {
+        return new HDWalletProvider(`${process.env.MNEMONIC}`, `wss://ropsten.infura.io/ws/v3/${process.env.INFURA_ID}`)
+      },
+      gas: 0x7a1200,
+      network_id: 3,
+      skipDryRun: true
+    },
     rinkeby: {
       provider: () => {
-        return new HDWalletProvider(`${process.env.MNEMONIC}`, `https://rinkeby.infura.io/v3/${process.env.INFURA_ID}`)
+        return new HDWalletProvider(`${process.env.MNEMONIC}`, `wss://rinkeby.infura.io/ws/v3/${process.env.INFURA_ID}`)
       },
       gas: 0x7a1200,
       network_id: 4,
@@ -22,7 +30,7 @@ module.exports = {
     },
     goerli: {
       provider: () => {
-        return new HDWalletProvider(`${process.env.MNEMONIC}`, `https://goerli.infura.io/v3/${process.env.INFURA_ID}`)
+        return new HDWalletProvider(`${process.env.MNEMONIC}`, `wss://goerli.infura.io/ws/v3/${process.env.INFURA_ID}`)
       },
       gas: 0x7a1200,
       network_id: 5,
