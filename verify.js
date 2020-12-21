@@ -120,7 +120,7 @@ const verifyContract = async (artifact, options) => {
 const sendVerifyRequest = async (artifact, options) => {
   const compilerVersion = extractCompilerVersion(artifact)
   const encodedConstructorArgs = await fetchConstructorValues(artifact, options)
-  const inputJSON = await fetchInputJSON(artifact, options)
+  const inputJSON = getInputJSON(artifact, options)
 
   const postQueries = {
     apikey: options.apiKey,
@@ -187,8 +187,10 @@ const fetchConstructorValues = async (artifact, options) => {
   }
 }
 
-const fetchInputJSON = async (artifact, options) => {
+const getInputJSON = (artifact, options) => {
   const metadata = JSON.parse(artifact.metadata)
+
+  const libraries = getLibraries(artifact, options)
 
   const inputJSON = {
     language: metadata.language,
@@ -197,7 +199,7 @@ const fetchInputJSON = async (artifact, options) => {
       remappings: metadata.settings.remappings,
       optimizer: metadata.settings.optimizer,
       evmVersion: metadata.settings.evmVersion,
-      libraries: { '': artifact.networks[`${options.networkId}`].links || {} }
+      libraries
     }
   }
 
@@ -210,6 +212,31 @@ const fetchInputJSON = async (artifact, options) => {
   }
 
   return inputJSON
+}
+
+const getLibraries = (artifact, options) => {
+  const libraries = {
+    // Example data structure of libraries object in Standard Input JSON
+    // 'ConvertLib.sol': {
+    //   'ConvertLib': '0x...',
+    //   'OtherLibInSameSourceFile': '0x...'
+    // }
+  }
+
+  const links = artifact.networks[`${options.networkId}`].links || {}
+
+  for (const libraryName in links) {
+    // Retrieve the source path for this library
+    const libraryArtifact = getArtifact(libraryName, options)
+    const librarySourceFile = libraryArtifact.ast.absolutePath
+
+    // Add the library to the object of libraries for this source path
+    const librariesForSourceFile = libraries[librarySourceFile] || {}
+    librariesForSourceFile[libraryName] = links[libraryName]
+    libraries[librarySourceFile] = librariesForSourceFile
+  }
+
+  return libraries
 }
 
 const verificationStatus = async (guid, options) => {
