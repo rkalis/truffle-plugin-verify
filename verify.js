@@ -26,7 +26,7 @@ module.exports = async (config) => {
   for (const contractNameAddressPair of contractNameAddressPairs) {
     logger.info(`Verifying ${contractNameAddressPair}`)
     try {
-      const [contractName, contractAddress] = contractNameAddressPair.split('@')
+      const [contractName, contractAddress, forceConstructorArgs] = contractNameAddressPair.split('@')
 
       const artifact = getArtifact(contractName, options)
 
@@ -36,6 +36,11 @@ module.exports = async (config) => {
           artifact.networks[`${options.networkId}`] = {}
         }
         artifact.networks[`${options.networkId}`].address = contractAddress
+      }
+
+      if (forceConstructorArgs) {
+        logger.debug(`Force custructor args: ${forceConstructorArgs}`);
+        options.forceConstructorArgs = forceConstructorArgs;
       }
 
       let status = await verifyContract(artifact, options)
@@ -119,7 +124,7 @@ const verifyContract = async (artifact, options) => {
 
 const sendVerifyRequest = async (artifact, options) => {
   const compilerVersion = extractCompilerVersion(artifact)
-  const encodedConstructorArgs = await fetchConstructorValues(artifact, options)
+  const encodedConstructorArgs = options.forceConstructorArgs || await fetchConstructorValues(artifact, options)
   const inputJSON = getInputJSON(artifact, options)
 
   const postQueries = {
