@@ -17,9 +17,7 @@ const EXPLORER_URLS = {
   42: 'https://kovan.etherscan.io/address',
   56: 'https://bscscan.com/address',
   97: 'https://testnet.bscscan.com/address',
-  250: 'https://ftmscan.com/address',
-  4002: 'https://explorer.testnet.fantom.network/address'
-
+  250: 'https://ftmscan.com/address'
 }
 
 const RequestStatus = {

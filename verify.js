@@ -74,7 +74,12 @@ const parseConfig = (config) => {
   const bscscanApiKey = config.api_keys && config.api_keys.bscscan
   const ftmscanApiKey = config.api_keys && config.api_keys.ftmscan
 
-  const apiKey = apiUrl.includes('bscscan') && bscscanApiKey ? bscscanApiKey : apiUrl.includes('ftmscan') && ftmscanApiKey ? ftmscanApiKey : etherscanApiKey
+  const apiKey = apiUrl.includes('bscscan') && bscscanApiKey
+    ? bscscanApiKey
+    : apiUrl.includes('ftmscan') && ftmscanApiKey
+      ? ftmscanApiKey
+      : etherscanApiKey
+
   enforce(apiKey, 'No Etherscan API key specified', logger)
 
   enforce(config._.length > 1, 'No contract name(s) specified', logger)
