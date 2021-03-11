@@ -79,10 +79,10 @@ You can pass an optional `--debug` flag into the plugin to display debug message
 truffle run verify SimpleStorage --network rinkeby
 ```
 
-### Usage with Binance Smart Chain
-These instructions were written for verification on Etherscan for Ethereum mainnet and testnets, but it also works for verification on BscScan for BSC mainnet and testnet. To do so make sure that your `truffle-config.js` contains a network config using a BSC `network_id` (56 for BSC mainnet or 97 for BSC testnet). 
+### Usage with Binance Smart Chain and Fantom
+These instructions were written for verification on Etherscan for Ethereum mainnet and testnets, but it also works for verification on BscScan and FtmScan. To verify your contracts on these chains make sure that your `truffle-config.js` file contains a network config for BSC or FTM using the correct `network_id` (56 for BSC mainnet, 97 for BSC testnet, 250 for FTM).
 
-Also make sure that you request an API key from [BscScan](https://bscscan.com) and add this in place of your etherscan API key in your `truffle-config.js` file. If you want to verify your contracts on both Etherscan and BscScan, please provide separate API keys. If you take those steps, all other usage is exactly the same.
+Also make sure that you request an API key from either [BscScan](https://bscscan.com) or [FtmScan](https://ftmscan.com) and add this key to your `truffle-config.js` file. If you want to verify your contracts on multiple chains, please provide separate API keys. If you take those steps, all other usage is exactly the same.
 
 ```js
 module.exports = {
@@ -90,7 +90,8 @@ module.exports = {
 
   api_keys: {
     etherscan: 'MY_API_KEY',
-    bscscan: 'MY_API_KEY'
+    bscscan: 'MY_API_KEY',
+    ftmscan: 'MY_API_KEY'
   }
 }
 ```
