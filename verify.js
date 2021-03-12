@@ -24,9 +24,12 @@ module.exports = async (config) => {
   // Track which contracts failed verification
   const failedContracts = []
   for (const contractNameAddressPair of contractNameAddressPairs) {
-    logger.info(`Verifying ${contractNameAddressPair}`)
+    logger.info(`Verifying ${contractNameAddressPair}`, config)
+    if (options.forceConstructorArgs) {
+      logger.info(`Force custructor args: ${options.forceConstructorArgs}`)
+    }
     try {
-      const [contractName, contractAddress, forceConstructorArgs] = contractNameAddressPair.split('@')
+      const [contractName, contractAddress] = contractNameAddressPair.split('@')
 
       const artifact = getArtifact(contractName, options)
 
@@ -36,11 +39,6 @@ module.exports = async (config) => {
           artifact.networks[`${options.networkId}`] = {}
         }
         artifact.networks[`${options.networkId}`].address = contractAddress
-      }
-
-      if (forceConstructorArgs) {
-        logger.debug(`Force custructor args: ${forceConstructorArgs}`);
-        options.forceConstructorArgs = forceConstructorArgs;
       }
 
       let status = await verifyContract(artifact, options)
@@ -91,13 +89,15 @@ const parseConfig = (config) => {
 
   const workingDir = config.working_directory
   const contractsBuildDir = config.contracts_build_directory
+  const forceConstructorArgs = config.forceConstructorArgs
 
   return {
     apiUrl,
     apiKey,
     networkId,
     workingDir,
-    contractsBuildDir
+    contractsBuildDir,
+    forceConstructorArgs
   }
 }
 
