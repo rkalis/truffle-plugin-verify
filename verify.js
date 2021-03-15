@@ -24,7 +24,7 @@ module.exports = async (config) => {
   // Track which contracts failed verification
   const failedContracts = []
   for (const contractNameAddressPair of contractNameAddressPairs) {
-    logger.info(`Verifying ${contractNameAddressPair}`, config)
+    logger.info(`Verifying ${contractNameAddressPair}`)
     if (options.forceConstructorArgs) {
       logger.info(`Force custructor args: ${options.forceConstructorArgs}`)
     }
@@ -89,7 +89,11 @@ const parseConfig = (config) => {
 
   const workingDir = config.working_directory
   const contractsBuildDir = config.contracts_build_directory
-  const forceConstructorArgs = config.forceConstructorArgs
+  let forceConstructorArgsType, forceConstructorArgs
+  if (config.forceConstructorArgs) {
+    [forceConstructorArgsType, forceConstructorArgs] = config.forceConstructorArgs.split(':')
+    enforce(forceConstructorArgsType === 'string', 'Force constructor args must be string type', logger)
+  }
 
   return {
     apiUrl,
