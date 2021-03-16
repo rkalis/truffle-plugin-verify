@@ -79,7 +79,7 @@ const parseConfig = (config) => {
     ? bscscanApiKey
     : apiUrl.includes('ftmscan') && ftmscanApiKey
       ? ftmscanApiKey
-      : apiUrl.includes('hecoinfo') && ftmscanApiKey
+      : apiUrl.includes('hecoinfo') && hecoinfoApiKey
         ? hecoinfoApiKey
         : etherscanApiKey
 
