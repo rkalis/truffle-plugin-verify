@@ -11,12 +11,12 @@ const { version } = require('./package.json')
 const logger = cliLogger({ level: 'info' })
 
 module.exports = async (config) => {
-  const options = parseConfig(config)
-
   // Set debug logging
   if (config.debug) logger.level('debug')
   logger.debug('DEBUG logging is turned ON')
   logger.debug(`Running truffle-plugin-verify v${version}`)
+
+  const options = parseConfig(config)
 
   // Verify each contract
   const contractNameAddressPairs = config._.slice(1)
@@ -90,12 +90,20 @@ const parseConfig = (config) => {
   const workingDir = config.working_directory
   const contractsBuildDir = config.contracts_build_directory
 
+  let forceConstructorArgsType, forceConstructorArgs
+  if (config.forceConstructorArgs) {
+    [forceConstructorArgsType, forceConstructorArgs] = config.forceConstructorArgs.split(':')
+    enforce(forceConstructorArgsType === 'string', 'Force constructor args must be string type', logger)
+    logger.debug(`Force custructor args provided: 0x${forceConstructorArgs}`)
+  }
+
   return {
     apiUrl,
     apiKey,
     networkId,
     workingDir,
-    contractsBuildDir
+    contractsBuildDir,
+    forceConstructorArgs
   }
 }
 
@@ -128,7 +136,7 @@ const verifyContract = async (artifact, options) => {
 
 const sendVerifyRequest = async (artifact, options) => {
   const compilerVersion = extractCompilerVersion(artifact)
-  const encodedConstructorArgs = await fetchConstructorValues(artifact, options)
+  const encodedConstructorArgs = options.forceConstructorArgs || await fetchConstructorValues(artifact, options)
   const inputJSON = getInputJSON(artifact, options)
 
   const postQueries = {

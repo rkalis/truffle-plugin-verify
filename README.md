@@ -62,6 +62,13 @@ You can optionally provide an explicit address of the contract(s) that you wish 
 truffle run verify SimpleStorage@0x61C9157A9EfCaf6022243fA65Ef4666ECc9FD3D7 --network rinkeby
 ```
 
+### Constructor arguments override (Optional)
+You can additionally provide an explicit constructor arguments for the contract using the `--forceConstructorArgs` option. This is useful if the contract was created by another contract rather an EOA, because truffle-plugin-verify cannot automatically retrieve constructor arguments in these cases. Note that the value needs to be prefixed with `string:` (e.g. `--forceConstructorArgs string:0000`).
+
+```
+truffle run verify MetaCoin --forceConstructorArgs string:0000000000000000000000000cb966d6a7702a4eff64009502653e302b3ec365 --network goerli
+```
+
 ### Debugging
 You can pass an optional `--debug` flag into the plugin to display debug messages during the verification process. This is generally not necessary, but can be used to provide additional information when the plugin appears to malfunction.
 
