@@ -3,7 +3,9 @@ const API_URLS = {
   3: 'https://api-ropsten.etherscan.io/api',
   4: 'https://api-rinkeby.etherscan.io/api',
   5: 'https://api-goerli.etherscan.io/api',
-  42: 'https://api-kovan.etherscan.io/api'
+  42: 'https://api-kovan.etherscan.io/api',
+  56: 'https://api.bscscan.com/api',
+  97: 'https://api-testnet.bscscan.com/api'
 }
 
 const EXPLORER_URLS = {
@@ -11,7 +13,9 @@ const EXPLORER_URLS = {
   3: 'https://ropsten.etherscan.io/address',
   4: 'https://rinkeby.etherscan.io/address',
   5: 'https://goerli.etherscan.io/address',
-  42: 'https://kovan.etherscan.io/address'
+  42: 'https://kovan.etherscan.io/address',
+  56: 'https://www.bscscan.com',
+  97: 'https://testnet.bscscan.com'
 }
 
 const RequestStatus = {
