@@ -45,7 +45,7 @@ module.exports = async (config) => {
         failedContracts.push(`${contractNameAddressPair}`)
       } else {
         // Add link to verified contract on Etherscan
-        const explorerUrl = `${EXPLORER_URLS[options.networkId]}/contract/${artifact.networks[`${options.networkId}`].address}#contracts`
+        const explorerUrl = `${EXPLORER_URLS[options.networkId]}/address/${artifact.networks[`${options.networkId}`].address}#contracts`
         status += `: ${explorerUrl}`
       }
       logger.info(status)
