@@ -38,7 +38,9 @@ I wrote a tutorial on my website that goes through the entire process of install
     ```
 
 ## Usage
-Before running verification, make sure that you have actually deployed your contracts to a public network with Truffle. After deployment, run the following command with one or more contracts that you wish to verify:
+Before running verification, make sure that you have successfully deployed your contracts to a public network with Truffle. The contract deployment must have completely finished without errors, including the final step of "saving migration to chain," so that the artifact files are updated with the required information. If this final step fails, try lowering your global gas limit in your `truffle-config.js` file, as saving migrations to chain uses your global gas limit and gas price, which could be problematic if you do not have sufficient ETH in your wallet to cover this maximum hypothetical cost.
+
+After deployment, run the following command with one or more contracts that you wish to verify:
 
 ```
 truffle run verify SomeContractName AnotherContractName --network networkName [--debug]
