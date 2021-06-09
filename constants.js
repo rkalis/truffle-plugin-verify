@@ -7,6 +7,7 @@ const API_URLS = {
   56: 'https://api.bscscan.com/api',
   97: 'https://api-testnet.bscscan.com/api',
   128: 'https://api.hecoinfo.com/api',
+  137: 'https://api.polygonscan.com/api',
   250: 'https://api.ftmscan.com/api',
   256: 'https://api-testnet.hecoinfo.com/api'
 }
@@ -20,6 +21,7 @@ const EXPLORER_URLS = {
   56: 'https://bscscan.com/address',
   97: 'https://testnet.bscscan.com/address',
   128: 'https://hecoinfo.com/address',
+  137: 'https://api.polygonscan.com/address',
   250: 'https://ftmscan.com/address',
   256: 'https://testnet.hecoinfo.com/address'
 }
