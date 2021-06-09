@@ -16,7 +16,8 @@ module.exports = {
   },
   plugins: ['truffle-plugin-verify'],
   api_keys: {
-    etherscan: process.env.ETHERSCAN_API_KEY
+    etherscan: process.env.ETHERSCAN_API_KEY,
+    polygonscan: process.env.POLYGONSCAN_API_KEY,
   },
   networks: {
     ropsten: {
@@ -41,6 +42,14 @@ module.exports = {
       },
       gas: 0x7a1200,
       network_id: 5,
+      skipDryRun: true
+    },
+    polygon: {
+      provider: () => {
+        return new HDWalletProvider(`${process.env.MNEMONIC}`, `wss://ws-matic-mainnet.chainstacklabs.com`)
+      },
+      gas: 0x7a1200,
+      network_id: 137,
       skipDryRun: true
     }
   }
