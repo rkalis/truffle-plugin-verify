@@ -25,7 +25,7 @@ const EXPLORER_URLS = {
   137: 'https://polygonscan.com/address',
   250: 'https://ftmscan.com/address',
   256: 'https://testnet.hecoinfo.com/address',
-  80001: 'https://mumbai.polygonscan.com/address
+  80001: 'https://mumbai.polygonscan.com/address'
 }
 
 const RequestStatus = {
