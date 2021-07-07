@@ -92,6 +92,7 @@ const parseConfig = (config) => {
 
   const workingDir = config.working_directory
   const contractsBuildDir = config.contracts_build_directory
+  const contractsDir = config.contracts_directory
 
   let forceConstructorArgsType, forceConstructorArgs
   if (config.forceConstructorArgs) {
@@ -106,6 +107,7 @@ const parseConfig = (config) => {
     networkId,
     workingDir,
     contractsBuildDir,
+    contractsDir,
     forceConstructorArgs
   }
 }
@@ -142,6 +144,9 @@ const sendVerifyRequest = async (artifact, options) => {
   const encodedConstructorArgs = options.forceConstructorArgs || await fetchConstructorValues(artifact, options)
   const inputJSON = getInputJSON(artifact, options)
 
+  // Remove the 'project:' prefix that was added in Truffle v5.3.14
+  const relativeFilePath = artifact.ast.absolutePath.replace('project:', '')
+
   const postQueries = {
     apikey: options.apiKey,
     module: 'contract',
@@ -149,7 +154,7 @@ const sendVerifyRequest = async (artifact, options) => {
     contractaddress: artifact.networks[`${options.networkId}`].address,
     sourceCode: JSON.stringify(inputJSON),
     codeformat: 'solidity-standard-json-input',
-    contractname: `${artifact.ast.absolutePath}:${artifact.contractName}`,
+    contractname: `${relativeFilePath}:${artifact.contractName}`,
     compilerversion: compilerVersion,
     constructorArguements: encodedConstructorArgs
   }
@@ -209,26 +214,31 @@ const fetchConstructorValues = async (artifact, options) => {
 
 const getInputJSON = (artifact, options) => {
   const metadata = JSON.parse(artifact.metadata)
-
   const libraries = getLibraries(artifact, options)
+
+  const sources = {}
+  for (const contractPath in metadata.sources) {
+    // If we're on Windows we need to de-Unixify the path so that Windows can read the file
+    // We also need to replace the 'project:' prefix so that the file can be read
+    const normalisedContractPath = normaliseContractPath(contractPath, options.contractsDir)
+    const absolutePath = require.resolve(normalisedContractPath)
+    const content = fs.readFileSync(absolutePath, 'utf8')
+
+    // Remove the 'project:' prefix that was added in Truffle v5.3.14
+    const relativeContractPath = contractPath.replace('project:', '')
+
+    sources[relativeContractPath] = { content }
+  }
 
   const inputJSON = {
     language: metadata.language,
-    sources: metadata.sources,
+    sources,
     settings: {
       remappings: metadata.settings.remappings,
       optimizer: metadata.settings.optimizer,
       evmVersion: metadata.settings.evmVersion,
       libraries
     }
-  }
-
-  for (const contractPath in inputJSON.sources) {
-    // If we're on Windows we need to de-Unixify the path so that Windows can read the file
-    const normalisedContractPath = normaliseContractPath(contractPath, logger)
-    const absolutePath = require.resolve(normalisedContractPath)
-    const content = fs.readFileSync(absolutePath, 'utf8')
-    inputJSON.sources[contractPath] = { content }
   }
 
   return inputJSON
@@ -248,7 +258,9 @@ const getLibraries = (artifact, options) => {
   for (const libraryName in links) {
     // Retrieve the source path for this library
     const libraryArtifact = getArtifact(libraryName, options)
-    const librarySourceFile = libraryArtifact.ast.absolutePath
+
+    // Remove the 'project:' prefix that was added in Truffle v5.3.14
+    const librarySourceFile = libraryArtifact.ast.absolutePath.replace('project:', '')
 
     // Add the library to the object of libraries for this source path
     const librariesForSourceFile = libraries[librarySourceFile] || {}
