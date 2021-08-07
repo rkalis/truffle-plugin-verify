@@ -52,7 +52,8 @@ const getAbsolutePath = (contractPath, contractsDir) => {
 
   // Figure out the project path and use it to construct the absolute path
   const relativeContractPath = contractPath.replace('project:/', '')
-  const projectPath = findProjectPath(relativeContractPath, contractsDir)
+  const projectPath = findProjectPath(relativeContractPath, contractsDir) ||
+        findProjectPath(relativeContractPath, contractsDir.split('/').slice(0,-1).join('/') + "/node_modules/")
   const absolutePath = path.join(projectPath, relativeContractPath)
 
   return absolutePath
