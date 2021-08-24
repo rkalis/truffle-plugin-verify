@@ -79,7 +79,7 @@ truffle run verify SimpleStorage --network rinkeby
 ```
 
 ### Usage with Polygon, Binance Smart Chain, Huobi ECO Chain and Fantom
-These instructions were written for verification on Etherscan for Ethereum mainnet and testnets, but it also works for verification on PolygonScan, BscScan, HecoInfo and FtmScan. To verify your contracts on these chains make sure that your `truffle-config.js` file contains a network config for Polygon, BSC, HECO or FTM using the correct `network_id` (56 for BSC mainnet, 97 for BSC testnet, 128 for HECO mainnet, 137 for Polygon, 250 for FTM, 256 for HECO testnet, 80001 for Polygon testnet).
+These instructions were written for verification on Etherscan for Ethereum mainnet and testnets, but it also works for verification on PolygonScan, BscScan, HecoInfo and FtmScan. To verify your contracts on these chains make sure that your `truffle-config.js` file contains a network config for Polygon, BSC, HECO or FTM using the correct `network_id` (56 for BSC mainnet, 97 for BSC testnet, 128 for HECO mainnet, 137 for Polygon, 250 for FTM, 256 for HECO testnet, 4002 for FTM testnet, 80001 for Polygon testnet).
 
 Also make sure that you request an API key from [PolygonScan](https://polygonscan.com), [BscScan](https://bscscan.com), [HecoInfo](https://hecoinfo.com) or [FtmScan](https://ftmscan.com) and add this key to your `truffle-config.js` file. If you want to verify your contracts on multiple chains, please provide separate API keys. If you take those steps, all other usage is exactly the same.
 

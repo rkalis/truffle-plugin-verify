@@ -10,6 +10,7 @@ const API_URLS = {
   137: 'https://api.polygonscan.com/api',
   250: 'https://api.ftmscan.com/api',
   256: 'https://api-testnet.hecoinfo.com/api',
+  4002: 'https://api-testnet.ftmscan.com/api',
   80001: 'https://api-testnet.polygonscan.com/api'
 }
 
@@ -25,6 +26,7 @@ const EXPLORER_URLS = {
   137: 'https://polygonscan.com/address',
   250: 'https://ftmscan.com/address',
   256: 'https://testnet.hecoinfo.com/address',
+  4002: 'https://testnet.ftmscan.com/address',
   80001: 'https://mumbai.polygonscan.com/address'
 }
 
