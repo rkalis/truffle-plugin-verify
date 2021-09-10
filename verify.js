@@ -44,7 +44,7 @@ module.exports = async (config) => {
         failedContracts.push(`${contractNameAddressPair}`)
       } else {
         // Add link to verified contract on Etherscan
-        const explorerUrl = `${EXPLORER_URLS[options.networkId]}/${artifact.networks[`${options.networkId}`].address}#contracts`
+        const explorerUrl = `${EXPLORER_URLS[options.networkId]}/${artifact.networks[`${options.networkId}`].address}#code`
         status += `: ${explorerUrl}`
       }
       logger.info(status)
@@ -216,8 +216,17 @@ const getInputJSON = (artifact, options) => {
   const metadata = JSON.parse(artifact.metadata)
   const libraries = getLibraries(artifact, options)
 
+  // Sort the source files so that the "main" contract is on top
+  const orderedSources = Object.keys(metadata.sources)
+    .reverse()
+    .sort((a, b) => {
+      if (a === artifact.ast.absolutePath) return -1
+      if (b === artifact.ast.absolutePath) return 1
+      return 0
+    })
+
   const sources = {}
-  for (const contractPath in metadata.sources) {
+  for (const contractPath of orderedSources) {
     // If we're on Windows we need to de-Unixify the path so that Windows can read the file
     // We also need to replace the 'project:' prefix so that the file can be read
     const normalisedContractPath = normaliseContractPath(contractPath, options.contractsDir)
