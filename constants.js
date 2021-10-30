@@ -13,6 +13,7 @@ const API_URLS = {
   256: 'https://api-testnet.hecoinfo.com/api',
   4002: 'https://api-testnet.ftmscan.com/api',
   42161: 'https://api.arbiscan.io/api',
+  421611: 'https://api-testnet.arbiscan.io/api',
   80001: 'https://api-testnet.polygonscan.com/api'
 }
 
@@ -31,6 +32,7 @@ const EXPLORER_URLS = {
   256: 'https://testnet.hecoinfo.com/address',
   4002: 'https://testnet.ftmscan.com/address',
   42161: 'https://arbiscan.io/address',
+  421611: 'https://testnet.arbiscan.io/address',
   80001: 'https://mumbai.polygonscan.com/address'
 }
 
