@@ -75,6 +75,7 @@ const parseConfig = (config) => {
   const hecoinfoApiKey = config.api_keys && config.api_keys.hecoinfo
   const ftmscanApiKey = config.api_keys && config.api_keys.ftmscan
   const polygonscanApiKey = config.api_keys && config.api_keys.polygonscan
+  const snowtraceApiKey = config.api_keys && config.api_keys.snowtrace
 
   const apiKey = apiUrl.includes('bscscan') && bscscanApiKey
     ? bscscanApiKey
@@ -84,10 +85,11 @@ const parseConfig = (config) => {
         ? hecoinfoApiKey
         : apiUrl.includes('polygonscan') && polygonscanApiKey
           ? polygonscanApiKey
-          : etherscanApiKey
+          : apiUrl.includes('snowtrace') && snowtraceApiKey
+            ? snowtraceApiKey
+            : etherscanApiKey
 
   enforce(apiKey, 'No Etherscan API key specified', logger)
-
   enforce(config._.length > 1, 'No contract name(s) specified', logger)
 
   const projectDir = config.working_directory
