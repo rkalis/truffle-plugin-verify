@@ -43,32 +43,18 @@ const normaliseContractPath = (contractPath, options) => {
 
 /**
  * @param {string} contractPath path to a contract file in any format.
- * @param {string} contractsDir path to the directory containing contract source files.
+ * @param {any} options Options object containing the parsed truffle-plugin-verify options
  * @returns {string} absolute path to the contract source file
  */
-const getAbsolutePath = (contractPath, contractsDir) => {
+const getAbsolutePath = (contractPath, options) => {
   // Older versions of truffle already used the absolute path
+  // Also node_modules contracts don't use the project: prefix
   if (!contractPath.startsWith('project:/')) return contractPath
 
-  // Figure out the project path and use it to construct the absolute path
   const relativeContractPath = contractPath.replace('project:/', '')
-  const projectPath = findProjectPath(relativeContractPath, contractsDir)
-  const absolutePath = path.join(projectPath, relativeContractPath)
+  const absolutePath = path.join(options.projectDir, relativeContractPath)
 
   return absolutePath
-}
-
-/**
- * @param {string} relativeContractPath path to a contract file in any format.
- * @param {string} contractsPath path to the directory containing contract source files.
- * @returns {string} project path
- */
-const findProjectPath = (relativeContractPath, contractsDir) => {
-  for (let currentPath = relativeContractPath; currentPath.length > 0; currentPath = currentPath.slice(0, -1)) {
-    if (contractsDir.endsWith(currentPath)) {
-      return contractsDir.slice(0, -1 * currentPath.length)
-    }
-  }
 }
 
 module.exports = {

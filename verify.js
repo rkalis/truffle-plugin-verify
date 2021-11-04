@@ -90,7 +90,7 @@ const parseConfig = (config) => {
 
   enforce(config._.length > 1, 'No contract name(s) specified', logger)
 
-  const workingDir = config.working_directory
+  const projectDir = config.working_directory
   const contractsBuildDir = config.contracts_build_directory
   const contractsDir = config.contracts_directory
 
@@ -105,7 +105,7 @@ const parseConfig = (config) => {
     apiUrl,
     apiKey,
     networkId,
-    workingDir,
+    projectDir,
     contractsBuildDir,
     contractsDir,
     forceConstructorArgs
@@ -229,7 +229,7 @@ const getInputJSON = (artifact, options) => {
   for (const contractPath of orderedSources) {
     // If we're on Windows we need to de-Unixify the path so that Windows can read the file
     // We also need to replace the 'project:' prefix so that the file can be read
-    const normalisedContractPath = normaliseContractPath(contractPath, options.contractsDir)
+    const normalisedContractPath = normaliseContractPath(contractPath, options)
     const absolutePath = require.resolve(normalisedContractPath)
     const content = fs.readFileSync(absolutePath, 'utf8')
 
