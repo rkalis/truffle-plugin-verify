@@ -5,7 +5,7 @@ const fs = require('fs')
 const path = require('path')
 const querystring = require('querystring')
 const { API_URLS, EXPLORER_URLS, RequestStatus, VerificationStatus } = require('./constants')
-const { enforce, enforceOrThrow, normaliseContractPath } = require('./util')
+const { enforce, enforceOrThrow, normaliseContractPath, getChainId } = require('./util')
 const { version } = require('./package.json')
 
 const logger = cliLogger({ level: 'info' })
@@ -16,7 +16,7 @@ module.exports = async (config) => {
   logger.debug('DEBUG logging is turned ON')
   logger.debug(`Running truffle-plugin-verify v${version}`)
 
-  const options = parseConfig(config)
+  const options = await parseConfig(config)
 
   // Verify each contract
   const contractNameAddressPairs = config._.slice(1)
@@ -44,7 +44,7 @@ module.exports = async (config) => {
         failedContracts.push(`${contractNameAddressPair}`)
       } else {
         // Add link to verified contract on Etherscan
-        const explorerUrl = `${EXPLORER_URLS[options.networkId]}/${artifact.networks[`${options.networkId}`].address}#code`
+        const explorerUrl = `${EXPLORER_URLS[options.chainId]}/${artifact.networks[`${options.networkId}`].address}#code`
         status += `: ${explorerUrl}`
       }
       logger.info(status)
@@ -64,11 +64,12 @@ module.exports = async (config) => {
   logger.info(`Successfully verified ${contractNameAddressPairs.length} contract(s).`)
 }
 
-const parseConfig = (config) => {
+const parseConfig = async (config) => {
   // Truffle handles network stuff, just need to get network_id
   const networkId = config.network_id
-  const apiUrl = API_URLS[networkId]
-  enforce(apiUrl, `Etherscan has no support for network ${config.network} with id ${networkId}`, logger)
+  const chainId = await getChainId(config, logger)
+  const apiUrl = API_URLS[chainId]
+  enforce(apiUrl, `Etherscan has no support for network ${config.network} with chain id ${chainId}`, logger)
 
   const etherscanApiKey = config.api_keys && config.api_keys.etherscan
   const bscscanApiKey = config.api_keys && config.api_keys.bscscan
@@ -107,6 +108,7 @@ const parseConfig = (config) => {
     apiUrl,
     apiKey,
     networkId,
+    chainId,
     projectDir,
     contractsBuildDir,
     contractsDir,

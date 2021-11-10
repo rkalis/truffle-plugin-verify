@@ -1,4 +1,5 @@
 const path = require('path')
+const { promisify } = require('util')
 
 const abort = (message, logger = console, code = 1) => {
   logger.error(message)
@@ -57,9 +58,54 @@ const getAbsolutePath = (contractPath, options) => {
   return absolutePath
 }
 
+/**
+ * If the network config includes a provider we use it to retrieve the chain ID
+ * for the network. If that fails, we fall back to the network ID.
+ * @param {any} config
+ * @param {any} logger
+ * @returns {Promise<number>} Chain ID if it could be retrieved, or else network ID
+ */
+const getChainId = async (config, logger) => {
+  // Use sendAsync or send depending on availability
+  const send = config.provider && config.provider.sendAsync
+    ? promisify(config.provider.sendAsync.bind(config.provider))
+    : config.provider && config.provider.send
+      ? promisify(config.provider.send.bind(config.provider))
+      : undefined
+
+  if (!send) {
+    logger.debug('No (valid) provider configured, using network ID in place of chain ID')
+    return config.network_id
+  }
+
+  try {
+    logger.debug('Retrieving network\'s chain ID')
+
+    const result = await send({
+      jsonrpc: '2.0',
+      id: Date.now(),
+      method: 'eth_chainId',
+      params: []
+    })
+
+    const chainId = result && Number.parseInt(result.result, 16)
+
+    // Throw an error that gets caught by the try-catch
+    if (!chainId) {
+      throw new Error('Could not retrieve chain ID')
+    }
+
+    return chainId
+  } catch {
+    logger.debug('Failed to retrieve chain ID, using network ID instead')
+    return config.network_id
+  }
+}
+
 module.exports = {
   abort,
   enforce,
   enforceOrThrow,
-  normaliseContractPath
+  normaliseContractPath,
+  getChainId
 }

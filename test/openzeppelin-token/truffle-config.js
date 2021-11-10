@@ -4,12 +4,13 @@ require('dotenv').config()
 module.exports = {
   compilers: {
     solc: {
-      version: '0.6.11',
+      version: '0.8.9',
     }
   },
   plugins: ['truffle-plugin-verify'],
   api_keys: {
-    etherscan: process.env.ETHERSCAN_API_KEY
+    etherscan: process.env.ETHERSCAN_API_KEY,
+    snowtrace: process.env.SNOWTRACE_API_KEY,
   },
   networks: {
     ropsten: {
@@ -35,6 +36,18 @@ module.exports = {
       gas: 0x7a1200,
       network_id: 5,
       skipDryRun: true
-    }
+    },
+    fuji: {
+      provider: () =>
+        new HDWalletProvider(`${process.env.MNEMONIC}`, `https://api.avax-test.network/ext/bc/C/rpc`),
+      network_id: 1,
+      confirmations: 2,
+    },
+    avax: {
+      provider: () =>
+        new HDWalletProvider(`${process.env.MNEMONIC}`, `https://api.avax.network/ext/bc/C/rpc`),
+      network_id: 1,
+      confirmations: 2,
+    },
   }
 }

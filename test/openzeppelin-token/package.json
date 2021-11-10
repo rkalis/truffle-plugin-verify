@@ -4,9 +4,9 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "@openzeppelin/contracts": "^3.2.0",
-    "@truffle/hdwallet-provider": "^1.1.0",
-    "dotenv": "^8.2.0",
+    "@openzeppelin/contracts": "^4.3.0",
+    "@truffle/hdwallet-provider": "^1.5.0",
+    "dotenv": "^10.0.0",
     "truffle-plugin-verify": "../.."
   }
 }
