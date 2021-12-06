@@ -79,7 +79,6 @@ const parseConfig = async (config) => {
   const snowtraceApiKey = config.api_keys && config.api_keys.snowtrace
   const moonscanApiKey = config.api_keys && config.api_keys.moonscan
 
-
   const apiKey = apiUrl.includes('bscscan') && bscscanApiKey
     ? bscscanApiKey
     : apiUrl.includes('ftmscan') && ftmscanApiKey
@@ -91,8 +90,8 @@ const parseConfig = async (config) => {
           : apiUrl.includes('snowtrace') && snowtraceApiKey
             ? snowtraceApiKey
             : apiUrl.includes('moonscan') && moonscanApiKey
-            ? moonscanApiKey
-            : etherscanApiKey
+              ? moonscanApiKey
+              : etherscanApiKey
 
   enforce(apiKey, 'No Etherscan API key specified', logger)
   enforce(config._.length > 1, 'No contract name(s) specified', logger)
