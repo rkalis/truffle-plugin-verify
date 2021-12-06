@@ -79,9 +79,9 @@ truffle run verify SimpleStorage --network rinkeby
 ```
 
 ### Usage with other chains
-These instructions were written for verification on Etherscan for Ethereum mainnet and testnets, but it also works for verification on Snowtrace, PolygonScan, Optimistic Etherscan, Arbiscan, BscScan, HecoInfo and FtmScan. To verify your contracts on these chains make sure that your `truffle-config.js` file contains a network config for Avalanche, Polygon, Optimistic Ethereum, Artbitrum, BSC, HECO or FTM using the correct `network_id` (10 for Optimistic Ethereum, 56 for BSC mainnet, 97 for BSC testnet, 128 for HECO mainnet, 137 for Polygon, 250 for FTM, 256 for HECO testnet, 4002 for FTM testnet, 42161 for Arbitrum, 43113 for Avalanche testnet, 43114 for Avalanche mainnet, 80001 for Polygon testnet, 421611 for Arbitrum testnet).
+These instructions were written for verification on Etherscan for Ethereum mainnet and testnets, but it also works for verification on Moonscan, Snowtrace, PolygonScan, Optimistic Etherscan, Arbiscan, BscScan, HecoInfo and FtmScan. To verify your contracts on these chains make sure that your `truffle-config.js` file contains a network config for Moonriver, Avalanche, Polygon, Optimistic Ethereum, Artbitrum, BSC, HECO or FTM using the correct `network_id` (10 for Optimistic Ethereum, 56 for BSC mainnet, 97 for BSC testnet, 128 for HECO mainnet, 137 for Polygon, 250 for FTM, 256 for HECO testnet, 1285 for Moonriver, 4002 for FTM testnet, 42161 for Arbitrum, 43113 for Avalanche testnet, 43114 for Avalanche mainnet, 80001 for Polygon testnet, 421611 for Arbitrum testnet).
 
-Also make sure that you request an API key from [Snowtrace](https://snowtrace.io/), [PolygonScan](https://polygonscan.com), [BscScan](https://bscscan.com), [HecoInfo](https://hecoinfo.com) or [FtmScan](https://ftmscan.com) and add this key to your `truffle-config.js` file - [Optimistic Etherscan](https://optimistic.etherscan.io/) and [Arbiscan](https://arbiscan.io) do not require additional API keys. If you want to verify your contracts on multiple chains, please provide separate API keys. If you take those steps, all other usage is exactly the same.
+Also make sure that you request an API key from [Moonscan](https://moonriver.moonscan.io/), [Snowtrace](https://snowtrace.io/), [PolygonScan](https://polygonscan.com), [BscScan](https://bscscan.com), [HecoInfo](https://hecoinfo.com) or [FtmScan](https://ftmscan.com) and add this key to your `truffle-config.js` file - [Optimistic Etherscan](https://optimistic.etherscan.io/) and [Arbiscan](https://arbiscan.io) do not require additional API keys. If you want to verify your contracts on multiple chains, please provide separate API keys. If you take those steps, all other usage is exactly the same.
 
 ```js
 module.exports = {
@@ -94,6 +94,7 @@ module.exports = {
     ftmscan: 'MY_API_KEY',
     polygonscan: 'MY_API_KEY',
     snowtrace: 'MY_API_KEY',
+    moonscan: 'MY_API_KEY'
   }
 }
 ```
