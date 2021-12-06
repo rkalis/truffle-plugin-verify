@@ -11,31 +11,31 @@ I wrote a tutorial on my website that goes through the entire process of install
 
 ## Installation / preparation
 1. Install the plugin with npm or yarn
-    ```sh
-    npm install -D truffle-plugin-verify
-    yarn add -D truffle-plugin-verify
-    ```
+   ```sh
+   npm install -D truffle-plugin-verify
+   yarn add -D truffle-plugin-verify
+   ```
 2. Add the plugin to your `truffle-config.js` file
-    ```js
-    module.exports = {
-      /* ... rest of truffle-config */
+   ```js
+   module.exports = {
+     /* ... rest of truffle-config */
 
-      plugins: [
-        'truffle-plugin-verify'
-      ]
-    }
-    ```
+     plugins: ['truffle-plugin-verify']
+   }
+   ```
+
 3. Generate an API Key on your Etherscan account (see the [Etherscan website](https://etherscan.io/apis))
 4. Add your Etherscan API key to your truffle config (make sure to use something like `dotenv` so you don't commit the api key)
-    ```js
-    module.exports = {
-      /* ... rest of truffle-config */
 
-      api_keys: {
-        etherscan: 'MY_API_KEY'
-      }
-    }
-    ```
+   ```js
+   module.exports = {
+     /* ... rest of truffle-config */
+
+     api_keys: {
+       etherscan: 'MY_API_KEY'
+     }
+   }
+   ```
 
 ## Usage
 Before running verification, make sure that you have successfully deployed your contracts to a public network with Truffle. The contract deployment must have completely finished without errors, including the final step of "saving migration to chain," so that the artifact files are updated with the required information. If this final step fails, try lowering your global gas limit in your `truffle-config.js` file, as saving migrations to chain uses your global gas limit and gas price, which could be problematic if you do not have sufficient ETH in your wallet to cover this maximum hypothetical cost.
@@ -60,6 +60,7 @@ If you do receive a `Fail - Unable to verify` and you are sure that you followed
 
 ### Address override (Optional)
 You can optionally provide an explicit address of the contract(s) that you wish to verify. This may be useful when you have deployed multiple instances of the same contract. The address is appended with `@<address>` as follows:
+
 ```
 truffle run verify SimpleStorage@0x61C9157A9EfCaf6022243fA65Ef4666ECc9FD3D7 --network rinkeby
 ```
@@ -79,7 +80,7 @@ truffle run verify SimpleStorage --network rinkeby
 ```
 
 ### Usage with other chains
-These instructions were written for verification on Etherscan for Ethereum mainnet and testnets, but it also works for verification on Moonscan, Snowtrace, PolygonScan, Optimistic Etherscan, Arbiscan, BscScan, HecoInfo and FtmScan. To verify your contracts on these chains make sure that your `truffle-config.js` file contains a network config for Moonriver, Avalanche, Polygon, Optimistic Ethereum, Artbitrum, BSC, HECO or FTM using the correct `network_id` (10 for Optimistic Ethereum, 56 for BSC mainnet, 97 for BSC testnet, 128 for HECO mainnet, 137 for Polygon, 250 for FTM, 256 for HECO testnet, 1285 for Moonriver, 4002 for FTM testnet, 42161 for Arbitrum, 43113 for Avalanche testnet, 43114 for Avalanche mainnet, 80001 for Polygon testnet, 421611 for Arbitrum testnet).
+These instructions were written for verification on Etherscan for Ethereum mainnet and testnets, but it also works for verification on Moonscan, Snowtrace, PolygonScan, Optimistic Etherscan, Arbiscan, BscScan, HecoInfo and FtmScan. To verify your contracts on these chains make sure that your `truffle-config.js` file contains a network config for Moonriver, Avalanche, Polygon, Optimistic Ethereum, Artbitrum, BSC, HECO or FTM using the correct `network_id` (10 for Optimistic Ethereum, 56 for BSC mainnet, 69 for Optimistic Kovan, 97 for BSC testnet, 128 for HECO mainnet, 137 for Polygon, 250 for FTM, 256 for HECO testnet, 1285 for Moonriver, 4002 for FTM testnet, 42161 for Arbitrum, 43113 for Avalanche testnet, 43114 for Avalanche mainnet, 80001 for Polygon testnet, 421611 for Arbitrum testnet).
 
 Also make sure that you request an API key from [Moonscan](https://moonriver.moonscan.io/), [Snowtrace](https://snowtrace.io/), [PolygonScan](https://polygonscan.com), [BscScan](https://bscscan.com), [HecoInfo](https://hecoinfo.com) or [FtmScan](https://ftmscan.com) and add this key to your `truffle-config.js` file - [Optimistic Etherscan](https://optimistic.etherscan.io/) and [Arbiscan](https://arbiscan.io) do not require additional API keys. If you want to verify your contracts on multiple chains, please provide separate API keys. If you take those steps, all other usage is exactly the same.
 
