@@ -5,7 +5,7 @@ const fs = require('fs')
 const path = require('path')
 const querystring = require('querystring')
 const { API_URLS, EXPLORER_URLS, RequestStatus, VerificationStatus } = require('./constants')
-const { enforce, enforceOrThrow, normaliseContractPath, getChainId } = require('./util')
+const { enforce, enforceOrThrow, normaliseContractPath, getChainId, getImplementationAddress, deepCopy } = require('./util')
 const { version } = require('./package.json')
 
 const logger = cliLogger({ level: 'info' })
@@ -38,7 +38,15 @@ module.exports = async (config) => {
         artifact.networks[`${options.networkId}`].address = contractAddress
       }
 
-      let status = await verifyContract(artifact, options)
+      const proxyImplementationAddress = await getImplementationAddress(
+        options.provider,
+        artifact.networks[`${options.networkId}`].address,
+        logger
+      )
+
+      let status = proxyImplementationAddress
+        ? await verifyProxyContract(artifact, proxyImplementationAddress, options)
+        : await verifyContract(artifact, options)
 
       if (status === VerificationStatus.FAILED) {
         failedContracts.push(`${contractNameAddressPair}`)
@@ -65,8 +73,8 @@ module.exports = async (config) => {
 }
 
 const parseConfig = async (config) => {
-  // Truffle handles network stuff, just need to get network_id
   const networkId = config.network_id
+  const provider = config.provider
   const chainId = await getChainId(config, logger)
   const apiUrl = API_URLS[chainId]
   enforce(apiUrl, `Etherscan has no support for network ${config.network} with chain id ${chainId}`, logger)
@@ -112,6 +120,7 @@ const parseConfig = async (config) => {
     apiKey,
     networkId,
     chainId,
+    provider,
     projectDir,
     contractsBuildDir,
     contractsDir,
@@ -287,7 +296,7 @@ const getLibraries = (artifact, options) => {
   return libraries
 }
 
-const verificationStatus = async (guid, options) => {
+const verificationStatus = async (guid, options, action = 'checkverifystatus') => {
   logger.debug(`Checking status of verification request ${guid}`)
   // Retry API call every second until status is no longer pending
   while (true) {
@@ -297,7 +306,7 @@ const verificationStatus = async (guid, options) => {
       const qs = querystring.stringify({
         apiKey: options.apiKey,
         module: 'contract',
-        action: 'checkverifystatus',
+        action,
         guid
       })
       const verificationResult = await axios.get(`${options.apiUrl}?${qs}`)
@@ -308,5 +317,44 @@ const verificationStatus = async (guid, options) => {
       logger.debug(error.message)
       throw new Error(`Failed to connect to Etherscan API at url ${options.apiUrl}`)
     }
+  }
+}
+
+const verifyProxyContract = async (artifact, implementationAddress, options) => {
+  logger.info(`Verifying proxy implementation at ${implementationAddress}`)
+
+  const artifactCopy = deepCopy(artifact)
+  artifactCopy.networks[`${options.networkId}`].address = implementationAddress
+
+  const status = await verifyContract(artifactCopy, options)
+  if ([VerificationStatus.SUCCESS, VerificationStatus.ALREADY_VERIFIED, VerificationStatus.AUTOMATICALLY_VERIFIED].includes(status)) {
+    await verifyProxy(artifact.networks[`${options.networkId}`].address, options)
+  }
+
+  return status
+}
+
+const verifyProxy = async (proxyAddress, options) => {
+  const res = await sendProxyVerifyRequest(proxyAddress, options)
+  enforceOrThrow(res.data, `Failed to connect to Etherscan API at url ${options.apiUrl}`)
+  const status = await verificationStatus(res.data.result, options, 'checkproxyverification')
+  logger.debug(status)
+}
+
+const sendProxyVerifyRequest = async (address, options) => {
+  const postQueries = { address }
+  const qs = querystring.stringify({
+    apiKey: options.apiKey,
+    module: 'contract',
+    action: 'verifyproxycontract'
+  })
+
+  try {
+    logger.debug('Sending verify proxy request with POST arguments:')
+    logger.debug(JSON.stringify(postQueries, null, 2))
+    return await axios.post(`${options.apiUrl}?${qs}`, querystring.stringify(postQueries))
+  } catch (error) {
+    logger.info(error.message)
+    throw new Error(`Failed to connect to Etherscan API at url ${options.apiUrl}`)
   }
 }

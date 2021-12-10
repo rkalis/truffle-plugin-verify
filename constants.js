@@ -53,12 +53,22 @@ const VerificationStatus = {
   FAILED: 'Fail - Unable to verify',
   SUCCESS: 'Pass - Verified',
   PENDING: 'Pending in queue',
-  ALREADY_VERIFIED: 'Contract source code already verified'
+  ALREADY_VERIFIED: 'Contract source code already verified',
+  AUTOMATICALLY_VERIFIED: 'Already Verified'
 }
+
+const StorageSlot = {
+  LOGIC: '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc',
+  BEACON: '0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50'
+}
+
+const STORAGE_ZERO = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
 module.exports = {
   API_URLS,
   EXPLORER_URLS,
   RequestStatus,
-  VerificationStatus
+  VerificationStatus,
+  StorageSlot,
+  STORAGE_ZERO
 }

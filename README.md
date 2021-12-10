@@ -58,6 +58,9 @@ This can take some time, and will eventually either return `Pass - Verified` or 
 
 If you do receive a `Fail - Unable to verify` and you are sure that you followed the instructions correctly, please [open an issue](/issues/new) and I will look into it. Optionally, a `--debug` flag can also be passed into the CLI to output additional debug messages. It is helpful if you run this once before opening an issue and provide the output in your bug report.
 
+### Proxy Contracts
+This plugin supports [EIP1967](https://eips.ethereum.org/EIPS/eip-1967) proxies out of the box. If you try to verify a proxy contract (e.g. contracts deployed with OpenZeppelin's `deployProxy`), it will correctly verify the implementation contract and call Etherscan's "proxy verification" so that the proxy contract gets marked as a proxy on Etherscan (enabling Read/Write as Proxy). Note that EIP1967 *Beacon* contracts are not yet supported, and other types of non-standard proxies are also not supported.
+
 ### Address override (Optional)
 You can optionally provide an explicit address of the contract(s) that you wish to verify. This may be useful when you have deployed multiple instances of the same contract. The address is appended with `@<address>` as follows:
 

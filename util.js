@@ -1,5 +1,6 @@
 const path = require('path')
 const { promisify } = require('util')
+const { StorageSlot, STORAGE_ZERO } = require('./constants')
 
 const abort = (message, logger = console, code = 1) => {
   logger.error(message)
@@ -66,12 +67,7 @@ const getAbsolutePath = (contractPath, options) => {
  * @returns {Promise<number>} Chain ID if it could be retrieved, or else network ID
  */
 const getChainId = async (config, logger) => {
-  // Use sendAsync or send depending on availability
-  const send = config.provider && config.provider.sendAsync
-    ? promisify(config.provider.sendAsync.bind(config.provider))
-    : config.provider && config.provider.send
-      ? promisify(config.provider.send.bind(config.provider))
-      : undefined
+  const send = getRpcSendFunction(config.provider)
 
   if (!send) {
     logger.debug('No (valid) provider configured, using network ID in place of chain ID')
@@ -102,10 +98,61 @@ const getChainId = async (config, logger) => {
   }
 }
 
+/**
+ * Check whether the address is an EIP1967 proxy and if so, return its implementation
+ * address. Note that only the LOGIC variety of EIP1967 is supported, not the BEACON
+ * variety. If support for BEACON proxies is added to the openzeppelin plugin,
+ * I will add it here as well
+ * @param {any | undefined} provider a provider or undefined
+ * @param {string} address the address of a potential proxy contract
+ * @param {any} logger
+ * @returns {Promise<string | undefined>} address of the implementation or undefined if its not a proxy
+ */
+const getImplementationAddress = async (provider, address, logger) => {
+  const send = getRpcSendFunction(provider)
+
+  if (!send) {
+    logger.debug('No (valid) provider configured, assuming no proxy')
+    return undefined
+  }
+
+  const { result } = await send({
+    jsonrpc: '2.0',
+    id: Date.now(),
+    method: 'eth_getStorageAt',
+    params: [address, StorageSlot.LOGIC, 'latest']
+  })
+
+  if (typeof result === 'string' && result !== STORAGE_ZERO) {
+    return getAddressFromStorage(result)
+  }
+
+  return undefined
+}
+
+/**
+ * Get a promisified RPC Send function from a provider
+ * @param {any | undefined} provider a provider or undefined
+ * @returns {any | undefined} a promisified RPC send function
+ */
+const getRpcSendFunction = (provider) => (
+  provider && provider.sendAsync
+    ? promisify(provider.sendAsync.bind(provider))
+    : provider && provider.send
+      ? promisify(provider.send.bind(provider))
+      : undefined
+)
+
+const deepCopy = (obj) => JSON.parse(JSON.stringify(obj))
+
+const getAddressFromStorage = (storage) => `0x${storage.slice(12 * 2 + 2)}`
+
 module.exports = {
   abort,
   enforce,
   enforceOrThrow,
   normaliseContractPath,
-  getChainId
+  getChainId,
+  getImplementationAddress,
+  deepCopy
 }
