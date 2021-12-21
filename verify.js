@@ -1,4 +1,5 @@
 const axios = require('axios')
+const tunnel = require('tunnel')
 const cliLogger = require('cli-logger')
 const delay = require('delay')
 const fs = require('fs')
@@ -15,6 +16,20 @@ module.exports = async (config) => {
   if (config.debug) logger.level('debug')
   logger.debug('DEBUG logging is turned ON')
   logger.debug(`Running truffle-plugin-verify v${version}`)
+
+  if (config.verify_proxy) {
+    logger.debug('Enable verify proxy ', config.verify_proxy)
+    axios.interceptors.request.use(function (conf) {
+      conf.httpsAgent = tunnel.httpsOverHttp({
+        proxy: {
+          host: config.verify_proxy.host,
+          port: config.verify_proxy.port
+        }
+      })
+      conf.proxy = false
+      return conf
+    })
+  }
 
   const options = await parseConfig(config)
 
