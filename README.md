@@ -112,7 +112,8 @@ module.exports = {
 - [PolygonScan](https://polygonscan.com) (Polygon Mainnet & Mumbai Testnet)
 - [FtmScan](https://ftmscan.com) (Fantom Mainnet & Testnet)
 - [HecoInfo](https://hecoinfo.com) (HECO Mainnet & Testnet)
-- [Moonscan](https://moonscan.io/) (Moonriver Mainnet)
+- [Moonscan](https://moonscan.io/) (Moonbeam, Moonriver Mainnets & Moonbase Alpha TestNet)
+
 
 ## Notes
 This plugin has a naming conflict with the truffle-security plugin, so when using both truffle-security and truffle-plugin-verify in the same project, `truffle run etherscan` can be used instead of `truffle run verify` for truffle-plugin-verify.
