@@ -116,15 +116,19 @@ const getImplementationAddress = async (provider, address, logger) => {
     return undefined
   }
 
-  const { result } = await send({
-    jsonrpc: '2.0',
-    id: Date.now(),
-    method: 'eth_getStorageAt',
-    params: [address, StorageSlot.LOGIC, 'latest']
-  })
+  try {
+    const { result } = await send({
+      jsonrpc: '2.0',
+      id: Date.now(),
+      method: 'eth_getStorageAt',
+      params: [address, StorageSlot.LOGIC, 'latest']
+    })
 
-  if (typeof result === 'string' && result !== STORAGE_ZERO) {
-    return getAddressFromStorage(result)
+    if (typeof result === 'string' && result !== STORAGE_ZERO) {
+      return getAddressFromStorage(result)
+    }
+  } catch {
+    // ignored
   }
 
   return undefined
