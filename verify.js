@@ -17,15 +17,11 @@ module.exports = async (config) => {
   logger.debug('DEBUG logging is turned ON')
   logger.debug(`Running truffle-plugin-verify v${version}`)
 
-  if (config.verify_proxy) {
+  if (config.verify && config.verify.proxy) {
     logger.debug('Enable verify proxy ', config.verify_proxy)
-    axios.interceptors.request.use(function (conf) {
-      conf.httpsAgent = tunnel.httpsOverHttp({
-        proxy: {
-          host: config.verify_proxy.host,
-          port: config.verify_proxy.port
-        }
-      })
+    const { proxy } = config.verify
+    axios.interceptors.request.use((conf) => {
+      conf.httpsAgent = tunnel.httpsOverHttp({ proxy })
       conf.proxy = false
       return conf
     })
