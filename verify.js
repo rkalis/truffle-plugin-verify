@@ -38,6 +38,11 @@ module.exports = async (config) => {
         artifact.networks[`${options.networkId}`].address = contractAddress
       }
 
+      enforceOrThrow(
+        artifact.networks && artifact.networks[`${options.networkId}`],
+        `No instance of contract ${artifact.contractName} found for network id ${options.networkId}`
+      )
+
       const proxyImplementationAddress = await getImplementationAddress(
         options.provider,
         artifact.networks[`${options.networkId}`].address,
@@ -139,11 +144,6 @@ const getArtifact = (contractName, options) => {
 }
 
 const verifyContract = async (artifact, options) => {
-  enforceOrThrow(
-    artifact.networks && artifact.networks[`${options.networkId}`],
-    `No instance of contract ${artifact.contractName} found for network id ${options.networkId}`
-  )
-
   const res = await sendVerifyRequest(artifact, options)
   enforceOrThrow(res.data, `Failed to connect to Etherscan API at url ${options.apiUrl}`)
 
