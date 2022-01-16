@@ -18,8 +18,8 @@ module.exports = async (config) => {
   logger.debug(`Running truffle-plugin-verify v${version}`)
 
   if (config.verify && config.verify.proxy) {
-    logger.debug('Enable verify proxy ', config.verify.proxy)
     const { proxy } = config.verify
+    logger.debug('Enable verify proxy ', proxy)
     axios.interceptors.request.use((conf) => {
       conf.httpsAgent = tunnel.httpsOverHttp({ proxy })
       conf.proxy = false
