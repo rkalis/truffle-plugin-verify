@@ -108,6 +108,7 @@ const parseConfig = async (config) => {
 
   enforce(apiKey, 'No Etherscan API key specified', logger)
   enforce(config._.length > 1, 'No contract name(s) specified', logger)
+  enforce(networkId !== "*",'network_id bypassed with "*" in truffle-config.js.',logger)
 
   const projectDir = config.working_directory
   const contractsBuildDir = config.contracts_build_directory
