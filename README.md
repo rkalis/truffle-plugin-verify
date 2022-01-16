@@ -83,9 +83,7 @@ truffle run verify SimpleStorage --network rinkeby
 ```
 
 ### Usage with other chains
-These instructions were written for verification on Etherscan for Ethereum mainnet and testnets, but it also works for verification on other platforms for other chains. To verify your contracts on these chains make sure that your `truffle-config.js` file contains a network config for your preferred network.
-
-Also make sure that you request an API key from the platform that you're using and add it to your `truffle-config.js` file. If you want to verify your contracts on multiple chains, please provide separate API keys. Note that Optimistic Etherscan and Arbiscan do not require additional API keys.
+These instructions were written for verification on Etherscan for Ethereum mainnet and testnets, but it also works for verification on other platforms for other chains. To verify your contracts on these chains make sure that your `truffle-config.js` file contains a network config for your preferred network. Also make sure that you request an API key from the platform that you're using and add it to your `truffle-config.js` file. If you want to verify your contracts on multiple chains, please provide separate API keys.
 
 ```js
 module.exports = {
@@ -93,6 +91,8 @@ module.exports = {
 
   api_keys: {
     etherscan: 'MY_API_KEY',
+    optimistic_etherscan: 'MY_API_KEY',
+    arbiscan: 'MY_API_KEY',
     bscscan: 'MY_API_KEY',
     snowtrace: 'MY_API_KEY',
     polygonscan: 'MY_API_KEY',

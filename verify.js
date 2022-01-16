@@ -5,7 +5,7 @@ const fs = require('fs')
 const path = require('path')
 const querystring = require('querystring')
 const { API_URLS, EXPLORER_URLS, RequestStatus, VerificationStatus } = require('./constants')
-const { enforce, enforceOrThrow, normaliseContractPath, getChainId, getImplementationAddress, deepCopy } = require('./util')
+const { enforce, enforceOrThrow, normaliseContractPath, getChainId, getImplementationAddress, deepCopy, getApiKey } = require('./util')
 const { version } = require('./package.json')
 
 const logger = cliLogger({ level: 'info' })
@@ -84,29 +84,8 @@ const parseConfig = async (config) => {
   const apiUrl = API_URLS[chainId]
   enforce(apiUrl, `Etherscan has no support for network ${config.network} with chain id ${chainId}`, logger)
 
-  const etherscanApiKey = config.api_keys && config.api_keys.etherscan
-  const bscscanApiKey = config.api_keys && config.api_keys.bscscan
-  const hecoinfoApiKey = config.api_keys && config.api_keys.hecoinfo
-  const ftmscanApiKey = config.api_keys && config.api_keys.ftmscan
-  const polygonscanApiKey = config.api_keys && config.api_keys.polygonscan
-  const snowtraceApiKey = config.api_keys && config.api_keys.snowtrace
-  const moonscanApiKey = config.api_keys && config.api_keys.moonscan
+  const apiKey = getApiKey(config, apiUrl, logger)
 
-  const apiKey = apiUrl.includes('bscscan') && bscscanApiKey
-    ? bscscanApiKey
-    : apiUrl.includes('ftmscan') && ftmscanApiKey
-      ? ftmscanApiKey
-      : apiUrl.includes('hecoinfo') && hecoinfoApiKey
-        ? hecoinfoApiKey
-        : apiUrl.includes('polygonscan') && polygonscanApiKey
-          ? polygonscanApiKey
-          : apiUrl.includes('snowtrace') && snowtraceApiKey
-            ? snowtraceApiKey
-            : apiUrl.includes('moonscan') && moonscanApiKey
-              ? moonscanApiKey
-              : etherscanApiKey
-
-  enforce(apiKey, 'No Etherscan API key specified', logger)
   enforce(config._.length > 1, 'No contract name(s) specified', logger)
   enforce(networkId !== "*",'network_id bypassed with "*" in truffle-config.js.',logger)
 
@@ -338,6 +317,7 @@ const verifyProxyContract = async (artifact, implementationAddress, options) => 
 const verifyProxy = async (proxyAddress, options) => {
   const res = await sendProxyVerifyRequest(proxyAddress, options)
   enforceOrThrow(res.data, `Failed to connect to Etherscan API at url ${options.apiUrl}`)
+  enforceOrThrow(res.data.status === RequestStatus.OK, res.data.result)
   const status = await verificationStatus(res.data.result, options, 'checkproxyverification')
   logger.debug(status)
 }
@@ -351,7 +331,7 @@ const sendProxyVerifyRequest = async (address, options) => {
   })
 
   try {
-    logger.debug('Sending verify proxy request with POST arguments:')
+    logger.debug(`Sending verify proxy request to ${options.apiUrl}?${qs} with POST arguments:`)
     logger.debug(JSON.stringify(postQueries, null, 2))
     return await axios.post(`${options.apiUrl}?${qs}`, querystring.stringify(postQueries))
   } catch (error) {

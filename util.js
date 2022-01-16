@@ -151,6 +151,40 @@ const deepCopy = (obj) => JSON.parse(JSON.stringify(obj))
 
 const getAddressFromStorage = (storage) => `0x${storage.slice(12 * 2 + 2)}`
 
+const getApiKey = (config, apiUrl, logger) => {
+  enforce(config.api_keys, 'No API Keys provided', logger)
+
+  if (apiUrl.includes('bscscan')) return getApiKeyForPlatform(config, 'BscScan', logger)
+  if (apiUrl.includes('snowtrace')) return getApiKeyForPlatform(config, 'Snowtrace', logger)
+  if (apiUrl.includes('polygonscan')) return getApiKeyForPlatform(config, 'PolygonScan', logger)
+  if (apiUrl.includes('ftmscan')) return getApiKeyForPlatform(config, 'FtmScan', logger)
+  if (apiUrl.includes('hecoinfo')) return getApiKeyForPlatform(config, 'HecoInfo', logger)
+  if (apiUrl.includes('moonscan')) return getApiKeyForPlatform(config, 'Moonscan', logger)
+  if (apiUrl.includes('optimistic')) return getApiKeyForPlatform(config, 'Optimistic Etherscan', logger)
+  if (apiUrl.includes('arbiscan')) return getApiKeyForPlatform(config, 'Arbiscan', logger)
+
+  return getApiKeyForPlatform(config, 'Etherscan', logger)
+}
+
+const getApiKeyForPlatform = (config, platform, logger) => {
+  const mapping = {
+    Etherscan: config.api_keys.etherscan,
+    'Optimistic Etherscan': config.api_keys.optimistic_etherscan,
+    Arbiscan: config.api_keys.arbiscan,
+    BscScan: config.api_keys.bscscan,
+    Snowtrace: config.api_keys.snowtrace,
+    PolygonScan: config.api_keys.polygonscan,
+    FtmScan: config.api_keys.ftmscan,
+    HecoInfo: config.api_keys.hecoinfo,
+    Moonscan: config.api_keys.moonscan
+  }
+
+  const apiKey = mapping[platform]
+  enforce(apiKey, `No ${platform} API Key provided`, logger)
+
+  return apiKey
+}
+
 module.exports = {
   abort,
   enforce,
@@ -158,5 +192,6 @@ module.exports = {
   normaliseContractPath,
   getChainId,
   getImplementationAddress,
-  deepCopy
+  deepCopy,
+  getApiKey
 }
