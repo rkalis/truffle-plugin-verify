@@ -40,7 +40,7 @@ module.exports = async (config) => {
 
       enforceOrThrow(
         artifact.networks && artifact.networks[`${options.networkId}`],
-        `No instance of contract ${artifact.contractName} found for chain id ${options.networkId}`
+        `No instance of contract ${artifact.contractName} found for network id ${options.networkId}`
       )
 
       const proxyImplementationAddress = await getImplementationAddress(
