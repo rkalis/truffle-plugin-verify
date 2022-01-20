@@ -27,7 +27,8 @@
     "axios": "^0.21.1",
     "cli-logger": "^0.5.40",
     "delay": "^5.0.0",
-    "querystring": "^0.2.1"
+    "querystring": "^0.2.1",
+    "tunnel": "0.0.6"
   },
   "devDependencies": {
     "eslint": "^7.32.0",

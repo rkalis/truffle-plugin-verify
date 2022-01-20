@@ -68,6 +68,21 @@ You can optionally provide an explicit address of the contract(s) that you wish 
 truffle run verify SimpleStorage@0x61C9157A9EfCaf6022243fA65Ef4666ECc9FD3D7 --network rinkeby
 ```
 
+### Run with a proxy (Optional)
+In some cases the Etherscan website may not be directly accessible. In this case it is possible to configure proxy settings so that the Etherscan requests will be made through this proxy. To use this feature, please add the relevant proxy settings to your truffle-config under `proxy.verify`.
+   ```js
+   module.exports = {
+     /* ... rest of truffle-config */
+
+     verify: {
+       proxy: {
+        host: '127.0.0.1',
+        port: '1080'
+      }
+     }
+   }
+   ```
+
 ### Constructor arguments override (Optional)
 You can additionally provide an explicit constructor arguments for the contract using the `--forceConstructorArgs` option. This is useful if the contract was created by another contract rather an EOA, because truffle-plugin-verify cannot automatically retrieve constructor arguments in these cases. Note that the value needs to be prefixed with `string:` (e.g. `--forceConstructorArgs string:0000`).
 
