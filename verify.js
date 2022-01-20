@@ -98,7 +98,7 @@ const parseConfig = async (config) => {
   const apiKey = getApiKey(config, apiUrl, logger)
 
   enforce(config._.length > 1, 'No contract name(s) specified', logger)
-  enforce(networkId !== "*",'network_id bypassed with "*" in truffle-config.js.',logger)
+  enforce(networkId !== '*', 'network_id bypassed with "*" in truffle-config.js.', logger)
 
   const projectDir = config.working_directory
   const contractsBuildDir = config.contracts_build_directory
