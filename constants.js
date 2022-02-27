@@ -10,8 +10,10 @@ const API_URLS = {
   97: 'https://api-testnet.bscscan.com/api',
   128: 'https://api.hecoinfo.com/api',
   137: 'https://api.polygonscan.com/api',
+  199: 'https://api.bttcscan.com/api',
   250: 'https://api.ftmscan.com/api',
   256: 'https://api-testnet.hecoinfo.com/api',
+  1029: 'https://api-testnet.bttcscan.com/api',
   1284: 'https://api-moonbeam.moonscan.io/api',
   1285: 'https://api-moonriver.moonscan.io/api',
   1287: 'https://api-moonbase.moonscan.io/api',
@@ -20,7 +22,9 @@ const API_URLS = {
   43113: 'https://api-testnet.snowtrace.io/api',
   43114: 'https://api.snowtrace.io/api',
   421611: 'https://api-testnet.arbiscan.io/api',
-  80001: 'https://api-testnet.polygonscan.com/api'
+  80001: 'https://api-testnet.polygonscan.com/api',
+  1313161554: 'https://api.aurorascan.dev/api',
+  1313161555: 'https://api-testnet.aurorascan.dev/api'
 }
 
 const EXPLORER_URLS = {
@@ -35,8 +39,10 @@ const EXPLORER_URLS = {
   97: 'https://testnet.bscscan.com/address',
   128: 'https://hecoinfo.com/address',
   137: 'https://polygonscan.com/address',
+  199: 'https://bttcscan.com/address',
   250: 'https://ftmscan.com/address',
   256: 'https://testnet.hecoinfo.com/address',
+  1029: 'https://testnet.bttcscan.com/address',
   1284: 'https://moonbeam.moonscan.io/address',
   1285: 'https://moonriver.moonscan.io/address',
   1287: 'https://moonbase.moonscan.io/address',
@@ -45,7 +51,9 @@ const EXPLORER_URLS = {
   43113: 'https://testnet.snowtrace.io/address',
   43114: 'https://snowtrace.io/address',
   421611: 'https://testnet.arbiscan.io/address',
-  80001: 'https://mumbai.polygonscan.com/address'
+  80001: 'https://mumbai.polygonscan.com/address',
+  1313161554: 'https://aurorascan.dev/address',
+  1313161555: 'https://testnet.aurorascan.dev/address'
 }
 
 const RequestStatus = {
