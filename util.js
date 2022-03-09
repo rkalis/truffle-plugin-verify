@@ -162,6 +162,8 @@ const getApiKey = (config, apiUrl, logger) => {
   if (apiUrl.includes('moonscan')) return getApiKeyForPlatform(config, 'Moonscan', logger)
   if (apiUrl.includes('optimistic')) return getApiKeyForPlatform(config, 'Optimistic Etherscan', logger)
   if (apiUrl.includes('arbiscan')) return getApiKeyForPlatform(config, 'Arbiscan', logger)
+  if (apiUrl.includes('bttcscan')) return getApiKeyForPlatform(config, 'BTTCScan', logger)
+  if (apiUrl.includes('aurorascan')) return getApiKeyForPlatform(config, 'Aurorascan', logger)
 
   return getApiKeyForPlatform(config, 'Etherscan', logger)
 }
@@ -176,7 +178,9 @@ const getApiKeyForPlatform = (config, platform, logger) => {
     PolygonScan: config.api_keys.polygonscan,
     FtmScan: config.api_keys.ftmscan,
     HecoInfo: config.api_keys.hecoinfo,
-    Moonscan: config.api_keys.moonscan
+    Moonscan: config.api_keys.moonscan,
+    BTTCScan: config.api_keys.bttcscan,
+    Aurorascan: config.api_keys.aurorascan
   }
 
   const apiKey = mapping[platform]
