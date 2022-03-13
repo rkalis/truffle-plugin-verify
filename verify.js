@@ -6,7 +6,7 @@ const fs = require('fs')
 const path = require('path')
 const querystring = require('querystring')
 const { API_URLS, EXPLORER_URLS, RequestStatus, VerificationStatus } = require('./constants')
-const { enforce, enforceOrThrow, normaliseContractPath, getChainId, getImplementationAddress, deepCopy, getApiKey } = require('./util')
+const { enforce, enforceOrThrow, normaliseContractPath, getImplementationAddress, deepCopy, getApiKey, getNetworkId, getNetwork } = require('./util')
 const { version } = require('./package.json')
 
 const logger = cliLogger({ level: 'info' })
@@ -89,9 +89,8 @@ module.exports = async (config) => {
 }
 
 const parseConfig = async (config) => {
-  const networkId = config.network_id
   const provider = config.provider
-  const chainId = await getChainId(config, logger)
+  const { chainId, networkId } = await getNetwork(config, logger)
   const apiUrl = API_URLS[chainId]
   enforce(apiUrl, `Etherscan has no support for network ${config.network} with chain id ${chainId}`, logger)
 

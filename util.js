@@ -60,41 +60,40 @@ const getAbsolutePath = (contractPath, options) => {
 }
 
 /**
- * If the network config includes a provider we use it to retrieve the chain ID
- * for the network. If that fails, we fall back to the network ID.
+ * If the network config includes a provider we use it to retrieve the network info
+ * for the network. If that fails, we fall back to the config's network ID.
  * @param {any} config
  * @param {any} logger
- * @returns {Promise<number>} Chain ID if it could be retrieved, or else network ID
+ * @returns {Promise<number>} Chain ID & Network ID if they could be retrieved, or else config'd network ID
  */
-const getChainId = async (config, logger) => {
+const getNetwork = async (config, logger) => {
   const send = getRpcSendFunction(config.provider)
 
+  const fallback = { chainId: config.network_id, networkId: config.network_id }
+
   if (!send) {
-    logger.debug('No (valid) provider configured, using network ID in place of chain ID')
-    return config.network_id
+    logger.debug('No (valid) provider configured, using config network ID as fallback')
+    return fallback
   }
 
   try {
-    logger.debug('Retrieving network\'s chain ID')
+    logger.debug('Retrieving network\'s network ID & chain ID')
 
-    const result = await send({
-      jsonrpc: '2.0',
-      id: Date.now(),
-      method: 'eth_chainId',
-      params: []
-    })
+    const chainIdResult = await send({ jsonrpc: '2.0', id: Date.now(), method: 'eth_chainId', params: [] })
+    const networkIdResult = await send({ jsonrpc: '2.0', id: Date.now(), method: 'net_version', params: [] })
 
-    const chainId = result && Number.parseInt(result.result, 16)
+    const chainId = chainIdResult && Number.parseInt(chainIdResult.result, 16)
+    const networkId = networkIdResult && Number.parseInt(networkIdResult.result, 10)
 
     // Throw an error that gets caught by the try-catch
-    if (!chainId) {
-      throw new Error('Could not retrieve chain ID')
+    if (!networkId || !chainId) {
+      throw new Error('Could not retrieve network chain ID or network ID')
     }
 
-    return chainId
+    return { chainId, networkId }
   } catch {
-    logger.debug('Failed to retrieve chain ID, using network ID instead')
-    return config.network_id
+    logger.debug('Failed to retrieve network information, using configurated network ID instead')
+    return fallback
   }
 }
 
@@ -194,7 +193,7 @@ module.exports = {
   enforce,
   enforceOrThrow,
   normaliseContractPath,
-  getChainId,
+  getNetwork,
   getImplementationAddress,
   deepCopy,
   getApiKey

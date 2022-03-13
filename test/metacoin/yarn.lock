@@ -2735,12 +2735,13 @@ tough-cookie@~2.5.0:
     punycode "^2.1.1"
 
 truffle-plugin-verify@../..:
-  version "0.5.4"
+  version "0.5.22"
   dependencies:
     axios "^0.21.1"
     cli-logger "^0.5.40"
     delay "^5.0.0"
     querystring "^0.2.1"
+    tunnel "0.0.6"
 
 tunnel-agent@^0.6.0:
   version "0.6.0"
@@ -2748,6 +2749,11 @@ tunnel-agent@^0.6.0:
   integrity sha1-J6XeoGs2sEoKmWZ3SykIaPD8QP0=
   dependencies:
     safe-buffer "^5.0.1"
+
+tunnel@0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/tunnel/-/tunnel-0.0.6.tgz#72f1314b34a5b192db012324df2cc587ca47f92c"
+  integrity sha512-1h/Lnq9yajKY2PEbBadPXj3VxsDDu844OnaAo52UVmIzIvwwtBPIuNvkjuzBlTWpfJyUbG3ez0KSBibQkj4ojg==
 
 tweetnacl@^0.14.3, tweetnacl@~0.14.0:
   version "0.14.5"

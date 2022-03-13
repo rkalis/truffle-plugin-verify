@@ -58,6 +58,9 @@ This can take some time, and will eventually either return `Pass - Verified` or 
 
 If you do receive a `Fail - Unable to verify` and you are sure that you followed the instructions correctly, please [open an issue](/issues/new) and I will look into it. Optionally, a `--debug` flag can also be passed into the CLI to output additional debug messages. It is helpful if you run this once before opening an issue and provide the output in your bug report.
 
+### Usage with the Truffle Dashboard
+In 2022, Truffle launched an awesome new feature called the Truffle Dashboard that allows you to deploy your contracts using your Metamask wallet. truffle-plugin-verify works with the Truffle Dashboard out of the box, but for it to work correctly you need to make sure that you are running the truffle dashboard, **connected to the same network** as you used for deployment *while* you're running `truffle run verify ...`
+
 ### Proxy Contracts
 This plugin supports [EIP1967](https://eips.ethereum.org/EIPS/eip-1967) proxies out of the box. If you try to verify a proxy contract (e.g. contracts deployed with OpenZeppelin's `deployProxy`), it will correctly verify the implementation contract and call Etherscan's "proxy verification" so that the proxy contract gets marked as a proxy on Etherscan (enabling Read/Write as Proxy). Note that EIP1967 *Beacon* contracts are not yet supported, and other types of non-standard proxies are also not supported.
 
