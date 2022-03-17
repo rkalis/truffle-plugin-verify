@@ -105,7 +105,7 @@ const parseConfig = async (config) => {
 
   let forceConstructorArgsType, forceConstructorArgs
   if (config.forceConstructorArgs) {
-    [forceConstructorArgsType, forceConstructorArgs] = config.forceConstructorArgs.split(':')
+    [forceConstructorArgsType, forceConstructorArgs] = String(config.forceConstructorArgs).split(':')
     enforce(forceConstructorArgsType === 'string', 'Force constructor args must be string type', logger)
     logger.debug(`Force custructor args provided: 0x${forceConstructorArgs}`)
   }
@@ -147,7 +147,9 @@ const verifyContract = async (artifact, options) => {
 
 const sendVerifyRequest = async (artifact, options) => {
   const compilerVersion = extractCompilerVersion(artifact)
-  const encodedConstructorArgs = options.forceConstructorArgs || await fetchConstructorValues(artifact, options)
+  const encodedConstructorArgs = options.forceConstructorArgs !== undefined
+    ? options.forceConstructorArgs
+    : await fetchConstructorValues(artifact, options)
   const inputJSON = getInputJSON(artifact, options)
 
   // Remove the 'project:' prefix that was added in Truffle v5.3.14
