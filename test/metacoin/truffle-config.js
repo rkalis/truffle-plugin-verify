@@ -19,7 +19,8 @@ module.exports = {
     polygonscan: process.env.POLYGONSCAN_API_KEY,
     snowtrace: process.env.SNOWTRACE_API_KEY,
     bttcscan: process.env.BTTCSCAN_API_KEY,
-    aurorascan: process.env.AURORASCAN_API_KEY
+    aurorascan: process.env.AURORASCAN_API_KEY,
+    celoscan: process.env.CELOSCAN_API_KEY
   },
   networks: {
     ropsten: {
@@ -92,6 +93,15 @@ module.exports = {
       network_id: 1313161555,
       confirmations: 4,
       gasPrice: 0
+    },
+    celo_mainnet: {
+      provider: () =>
+        new HDWalletProvider({
+          mnemonic: process.env.MNEMONIC, providerOrUrl: 'https://forno.celo.org', derivationPath: "m/44'/52752'/0'/0/"
+        }),
+      network_id: 42220,
+      gas: 0x7a1200,
+      confirmations: 1
     }
   }
 }

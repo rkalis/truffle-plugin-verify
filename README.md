@@ -119,7 +119,8 @@ module.exports = {
     moonscan: 'MY_API_KEY',
     bttcscan: 'MY_API_KEY',
     aurorascan: 'MY_API_KEY',
-    cronoscan: 'MY_API_KEY'
+    cronoscan: 'MY_API_KEY',
+    celoscan: 'MY_API_KEY'
   }
 }
 ```
@@ -137,6 +138,7 @@ module.exports = {
 - [BTTCScan](https://bttcscan.com/) (BitTorrent Mainnet & Donau Testnet)
 - [Aurorascan](https://aurorascan.dev/) (Aurora Mainnet & Testnet)
 - [Cronoscan](https://cronoscan.com) (Cronos Mainnet)
+- [Celoscan](https://celoscan.xyz) (Celo Mainnet)
 
 ## Notes
 This plugin has a naming conflict with the truffle-security plugin, so when using both truffle-security and truffle-plugin-verify in the same project, `truffle run etherscan` can be used instead of `truffle run verify` for truffle-plugin-verify.
