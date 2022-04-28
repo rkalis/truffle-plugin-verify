@@ -102,7 +102,7 @@ const parseConfig = async (config) => {
   const projectDir = config.working_directory
   const contractsBuildDir = config.contracts_build_directory
   const contractsDir = config.contracts_directory
-
+  const implementation = config.implementation
   let forceConstructorArgsType, forceConstructorArgs
   if (config.forceConstructorArgs) {
     [forceConstructorArgsType, forceConstructorArgs] = String(config.forceConstructorArgs).split(':')
@@ -119,7 +119,8 @@ const parseConfig = async (config) => {
     projectDir,
     contractsBuildDir,
     contractsDir,
-    forceConstructorArgs
+    forceConstructorArgs,
+    implementation
   }
 }
 
@@ -313,12 +314,20 @@ const verificationStatus = async (guid, options, action = 'checkverifystatus') =
 }
 
 const verifyProxyContract = async (artifact, implementationAddress, options) => {
-  logger.info(`Verifying proxy implementation at ${implementationAddress}`)
-
-  const artifactCopy = deepCopy(artifact)
-  artifactCopy.networks[`${options.networkId}`].address = implementationAddress
-
-  const status = await verifyContract(artifactCopy, options)
+  let status;
+  const proxyImplementation = options.implementation;
+  if(proxyImplementation){
+    const proxyArtifact = getArtifact(proxyImplementation, options);
+    logger.info(`Verifying ${proxyImplementation} at ${implementationAddress}`);
+    const artifactCopy = deepCopy(proxyArtifact)
+    artifactCopy.networks[`${options.networkId}`].address = implementationAddress
+    await verifyContract(artifactCopy, options)
+  }
+  else{
+    logger.info(`No implimentation contract found, skipping implementation verification.`);
+  }
+  logger.info("Verifying Proxy Contract")
+  status = await verifyContract(artifact,options)
   if ([VerificationStatus.SUCCESS, VerificationStatus.ALREADY_VERIFIED, VerificationStatus.AUTOMATICALLY_VERIFIED].includes(status)) {
     await verifyProxy(artifact.networks[`${options.networkId}`].address, options)
   }
