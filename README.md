@@ -64,7 +64,7 @@ In 2022, Truffle launched an awesome new feature called the Truffle Dashboard th
 ### Proxy Contracts
 This plugin supports [EIP1967](https://eips.ethereum.org/EIPS/eip-1967) proxies out of the box. If you try to verify a proxy contract (e.g. contracts deployed with OpenZeppelin's `deployProxy`), it will correctly verify the implementation contract and call Etherscan's "proxy verification" so that the proxy contract gets marked as a proxy on Etherscan (enabling Read/Write as Proxy). Note that EIP1967 *Beacon* contracts are not yet supported, and other types of non-standard proxies are also not supported.
 
-To verify custom deployed proxy contract and its implementation, you can use the optional `--implementation` flag. The name of the implementation contract should be passed after this flag. 
+When using OpenZeppelin's `deployProxy` functionality, proxy verification should work automatically. For custom proxy contracts you need to use the  `--implementation` flag. The name of the implementation contract should be passed after this flag.
 
 ```
 truffle run verify SimpleProxy --implementation SimpleTokenUpgradeable --network rinkeby
