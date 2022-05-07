@@ -6,7 +6,7 @@ const fs = require('fs')
 const path = require('path')
 const querystring = require('querystring')
 const { API_URLS, EXPLORER_URLS, RequestStatus, VerificationStatus } = require('./constants')
-const { enforce, enforceOrThrow, normaliseContractPath, getImplementationAddress, deepCopy, getApiKey, getNetworkId, getNetwork } = require('./util')
+const { enforce, enforceOrThrow, normaliseContractPath, getImplementationAddress, deepCopy, getApiKey, getNetwork } = require('./util')
 const { version } = require('./package.json')
 
 const logger = cliLogger({ level: 'info' })
@@ -314,20 +314,20 @@ const verificationStatus = async (guid, options, action = 'checkverifystatus') =
 }
 
 const verifyProxyContract = async (artifact, implementationAddress, options) => {
-  let status;
-  const proxyImplementation = options.implementation;
-  if(proxyImplementation){
-    const proxyArtifact = getArtifact(proxyImplementation, options);
-    logger.info(`Verifying ${proxyImplementation} at ${implementationAddress}`);
+  const proxyImplementation = options.implementation
+  if (proxyImplementation) {
+    const proxyArtifact = getArtifact(proxyImplementation, options)
+    logger.info(`Verifying ${proxyImplementation} at ${implementationAddress}`)
     const artifactCopy = deepCopy(proxyArtifact)
     artifactCopy.networks[`${options.networkId}`].address = implementationAddress
     await verifyContract(artifactCopy, options)
+  } else {
+    logger.info('No implimentation contract found, skipping implementation verification.')
   }
-  else{
-    logger.info(`No implimentation contract found, skipping implementation verification.`);
-  }
-  logger.info("Verifying Proxy Contract")
-  status = await verifyContract(artifact,options)
+
+  logger.info('Verifying Proxy Contract')
+  const status = await verifyContract(artifact, options)
+
   if ([VerificationStatus.SUCCESS, VerificationStatus.ALREADY_VERIFIED, VerificationStatus.AUTOMATICALLY_VERIFIED].includes(status)) {
     await verifyProxy(artifact.networks[`${options.networkId}`].address, options)
   }
