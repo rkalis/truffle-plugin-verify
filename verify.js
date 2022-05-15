@@ -66,9 +66,9 @@ module.exports = async (config) => {
 
       if (status === VerificationStatus.FAILED) {
         failedContracts.push(`${contractNameAddressPair}`)
-      } else {
+      } else if (options.explorerUrl) {
         // Add link to verified contract on Etherscan
-        const explorerUrl = `${EXPLORER_URLS[options.chainId]}/${artifact.networks[`${options.networkId}`].address}#code`
+        const explorerUrl = `${options.explorerUrl}/${artifact.networks[`${options.networkId}`].address}#code`
         status += `: ${explorerUrl}`
       }
       logger.info(status)
@@ -90,11 +90,22 @@ module.exports = async (config) => {
 
 const parseConfig = async (config) => {
   const provider = config.provider
+  const networkConfig = config.networks && config.networks[config.network]
   const { chainId, networkId } = await getNetwork(config, logger)
-  const apiUrl = API_URLS[chainId]
+
+  let apiUrl = API_URLS[chainId]
+  if (networkConfig && networkConfig.verify && networkConfig.verify.apiUrl) {
+    apiUrl = networkConfig.verify.apiUrl
+  }
+
   enforce(apiUrl, `Etherscan has no support for network ${config.network} with chain id ${chainId}`, logger)
 
   const apiKey = getApiKey(config, apiUrl, logger)
+
+  let explorerUrl = EXPLORER_URLS[chainId]
+  if (networkConfig && networkConfig.verify && networkConfig.verify.explorerUrl) {
+    explorerUrl = networkConfig.verify.explorerUrl
+  }
 
   enforce(config._.length > 1, 'No contract name(s) specified', logger)
   enforce(networkId !== '*', 'network_id bypassed with "*" in truffle-config.js.', logger)
@@ -113,6 +124,7 @@ const parseConfig = async (config) => {
   return {
     apiUrl,
     apiKey,
+    explorerUrl,
     networkId,
     chainId,
     provider,
