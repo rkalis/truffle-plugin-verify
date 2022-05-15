@@ -151,6 +151,11 @@ const deepCopy = (obj) => JSON.parse(JSON.stringify(obj))
 const getAddressFromStorage = (storage) => `0x${storage.slice(12 * 2 + 2)}`
 
 const getApiKey = (config, apiUrl, logger) => {
+  const networkConfig = config.networks[config.network]
+  if (networkConfig && networkConfig.verify && networkConfig.verify.apiKey) {
+    return networkConfig.verify.apiKey
+  }
+
   enforce(config.api_keys, 'No API Keys provided', logger)
 
   if (apiUrl.includes('bscscan')) return getApiKeyForPlatform(config, 'BscScan', logger)
