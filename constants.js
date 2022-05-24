@@ -76,7 +76,7 @@ const StorageSlot = {
   BEACON: '0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50'
 }
 
-const STORAGE_ZERO = '0x0000000000000000000000000000000000000000000000000000000000000000'
+const NULL_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 module.exports = {
   API_URLS,
@@ -84,5 +84,5 @@ module.exports = {
   RequestStatus,
   VerificationStatus,
   StorageSlot,
-  STORAGE_ZERO
+  NULL_ADDRESS
 }
