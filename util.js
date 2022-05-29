@@ -1,6 +1,6 @@
 const path = require('path')
 const { promisify } = require('util')
-const { StorageSlot, STORAGE_ZERO } = require('./constants')
+const { StorageSlot, NULL_ADDRESS } = require('./constants')
 
 const abort = (message, logger = console, code = 1) => {
   logger.error(message)
@@ -123,8 +123,10 @@ const getImplementationAddress = async (provider, address, logger) => {
       params: [address, StorageSlot.LOGIC, 'latest']
     })
 
-    if (typeof result === 'string' && result !== STORAGE_ZERO) {
-      return getAddressFromStorage(result)
+    const implementationAddress = getAddressFromStorage(result)
+
+    if (typeof result === 'string' && implementationAddress !== NULL_ADDRESS) {
+      return implementationAddress
     }
   } catch {
     // ignored
@@ -148,9 +150,14 @@ const getRpcSendFunction = (provider) => (
 
 const deepCopy = (obj) => JSON.parse(JSON.stringify(obj))
 
-const getAddressFromStorage = (storage) => `0x${storage.slice(12 * 2 + 2)}`
+const getAddressFromStorage = (storage) => `0x${storage.slice(2).slice(-40).padStart(40, '0')}`
 
 const getApiKey = (config, apiUrl, logger) => {
+  const networkConfig = config.networks[config.network]
+  if (networkConfig && networkConfig.verify && networkConfig.verify.apiKey) {
+    return networkConfig.verify.apiKey
+  }
+
   enforce(config.api_keys, 'No API Keys provided', logger)
 
   if (apiUrl.includes('bscscan')) return getApiKeyForPlatform(config, 'BscScan', logger)

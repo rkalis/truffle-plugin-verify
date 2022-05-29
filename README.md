@@ -100,7 +100,7 @@ You can pass an optional `--debug` flag into the plugin to display debug message
 truffle run verify SimpleStorage --network rinkeby
 ```
 
-### Usage with other chains
+### Usage with supported chains
 These instructions were written for verification on Etherscan for Ethereum mainnet and testnets, but it also works for verification on other platforms for other chains. To verify your contracts on these chains make sure that your `truffle-config.js` file contains a network config for your preferred network. Also make sure that you request an API key from the platform that you're using and add it to your `truffle-config.js` file. If you want to verify your contracts on multiple chains, please provide separate API keys.
 
 ```js
@@ -137,6 +137,27 @@ module.exports = {
 - [BTTCScan](https://bttcscan.com/) (BitTorrent Mainnet & Donau Testnet)
 - [Aurorascan](https://aurorascan.dev/) (Aurora Mainnet & Testnet)
 - [Cronoscan](https://cronoscan.com) (Cronos Mainnet)
+
+### Usage with unsupported chains
+In cases where the platform you want to use supports an Etherscan compatible API but is not listed above, you may manually specify the `apiUrl` and `explorerUrl` (optional) for the platform. To use this feature, please add the relevant settings to your truffle-config under `networks.<name of your network>.verify`.
+
+```js
+module.exports = {
+  /* ... rest of truffle-config */
+
+  networks: {
+    /* ... other networks */
+  
+    network_with_custom_platform: {
+      verify: {
+        apiUrl: 'http://localhost:4000/api',
+        apiKey: 'MY_API_KEY',
+        explorerUrl: 'http://localhost:4000/address',
+      }
+    }
+  }
+}
+```
 
 ## Notes
 This plugin has a naming conflict with the truffle-security plugin, so when using both truffle-security and truffle-plugin-verify in the same project, `truffle run etherscan` can be used instead of `truffle run verify` for truffle-plugin-verify.
