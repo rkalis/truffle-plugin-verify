@@ -319,10 +319,12 @@ const verifyProxyContract = async (artifact, implementationAddress, options) => 
     const proxyArtifact = getArtifact(proxyImplementation, options)
     logger.info(`Verifying ${proxyImplementation} at ${implementationAddress}`)
     const artifactCopy = deepCopy(proxyArtifact)
-    artifactCopy.networks[`${options.networkId}`].address = implementationAddress
+    artifactCopy.networks[`${options.networkId}`] = {
+      address: implementationAddress
+    }
     await verifyContract(artifactCopy, options)
   } else {
-    logger.info('No implimentation contract found, skipping implementation verification.')
+    logger.info('No implementation contract found, skipping implementation verification.')
   }
 
   logger.info('Verifying Proxy Contract')
