@@ -46,6 +46,18 @@ module.exports = {
       network_id: 5,
       skipDryRun: true
     },
+    'goerli-custom': {
+      provider: () => {
+        return new HDWalletProvider(`${process.env.MNEMONIC}`, `wss://goerli.infura.io/ws/v3/${process.env.INFURA_ID}`)
+      },
+      gas: 0x7a1200,
+      network_id: 5,
+      skipDryRun: true,
+      verify: {
+        apiUrl: 'https://api-goerli.etherscan.io/api',
+        apiKey: process.env.ETHERSCAN_API_KEY
+      }
+    },
     polygon: {
       provider: () => {
         return new HDWalletProvider(`${process.env.MNEMONIC}`, `wss://ws-matic-mainnet.chainstacklabs.com`)
