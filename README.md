@@ -61,8 +61,15 @@ If you do receive a `Fail - Unable to verify` and you are sure that you followed
 ### Usage with the Truffle Dashboard
 In 2022, Truffle launched an awesome new feature called the Truffle Dashboard that allows you to deploy your contracts using your Metamask wallet. truffle-plugin-verify works with the Truffle Dashboard out of the box, but for it to work correctly you need to make sure that you are running the truffle dashboard, **connected to the same network** as you used for deployment *while* you're running `truffle run verify ...`
 
-### Proxy Contracts
+### Usage with proxy contracts
 This plugin supports [EIP1967](https://eips.ethereum.org/EIPS/eip-1967) proxies out of the box. If you try to verify a proxy contract (e.g. contracts deployed with OpenZeppelin's `deployProxy`), it will correctly verify the implementation contract and call Etherscan's "proxy verification" so that the proxy contract gets marked as a proxy on Etherscan (enabling Read/Write as Proxy). Note that EIP1967 *Beacon* contracts are not yet supported, and other types of non-standard proxies are also not supported.
+
+When using OpenZeppelin's `deployProxy` functionality, proxy verification should work automatically. For custom proxy contracts you need to use the `--custom-proxy` flag. The name of the proxy contract should be passed after this flag.
+
+```
+truffle run verify SimpleTokenUpgradeable --network rinkeby
+truffle run verify SimpleTokenUpgradeable --custom-proxy SimpleProxy --network rinkeby
+```
 
 ### Address override (Optional)
 You can optionally provide an explicit address of the contract(s) that you wish to verify. This may be useful when you have deployed multiple instances of the same contract. The address is appended with `@<address>` as follows:
@@ -71,7 +78,7 @@ You can optionally provide an explicit address of the contract(s) that you wish 
 truffle run verify SimpleStorage@0x61C9157A9EfCaf6022243fA65Ef4666ECc9FD3D7 --network rinkeby
 ```
 
-### Run with a proxy (Optional)
+### Run verification through an HTTP proxy (Optional)
 In some cases the Etherscan website may not be directly accessible. In this case it is possible to configure proxy settings so that the Etherscan requests will be made through this proxy. To use this feature, please add the relevant proxy settings to your truffle-config under `proxy.verify`.
    ```js
    module.exports = {
@@ -147,7 +154,7 @@ module.exports = {
 
   networks: {
     /* ... other networks */
-  
+
     network_with_custom_platform: {
       verify: {
         apiUrl: 'http://localhost:4000/api',

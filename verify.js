@@ -6,7 +6,7 @@ const fs = require('fs')
 const path = require('path')
 const querystring = require('querystring')
 const { API_URLS, EXPLORER_URLS, RequestStatus, VerificationStatus } = require('./constants')
-const { enforce, enforceOrThrow, normaliseContractPath, getImplementationAddress, deepCopy, getApiKey, getNetworkId, getNetwork } = require('./util')
+const { enforce, enforceOrThrow, normaliseContractPath, getImplementationAddress, deepCopy, getApiKey, getNetwork } = require('./util')
 const { version } = require('./package.json')
 
 const logger = cliLogger({ level: 'info' })
@@ -39,7 +39,8 @@ module.exports = async (config) => {
     try {
       const [contractName, contractAddress] = contractNameAddressPair.split('@')
 
-      const artifact = getArtifact(contractName, options)
+      // If we pass a custom proxy contract, we use its artifact to trigger proxy verification
+      const artifact = getArtifact(options.customProxy ?? contractName, options)
 
       if (contractAddress) {
         logger.debug(`Custom address ${contractAddress} specified`)
@@ -61,7 +62,7 @@ module.exports = async (config) => {
       )
 
       let status = proxyImplementationAddress
-        ? await verifyProxyContract(artifact, proxyImplementationAddress, options)
+        ? await verifyProxyContract(artifact, contractName, proxyImplementationAddress, options)
         : await verifyContract(artifact, options)
 
       if (status === VerificationStatus.FAILED) {
@@ -113,7 +114,7 @@ const parseConfig = async (config) => {
   const projectDir = config.working_directory
   const contractsBuildDir = config.contracts_build_directory
   const contractsDir = config.contracts_directory
-
+  const customProxy = config['custom-proxy']
   let forceConstructorArgsType, forceConstructorArgs
   if (config.forceConstructorArgs) {
     [forceConstructorArgsType, forceConstructorArgs] = String(config.forceConstructorArgs).split(':')
@@ -131,7 +132,8 @@ const parseConfig = async (config) => {
     projectDir,
     contractsBuildDir,
     contractsDir,
-    forceConstructorArgs
+    forceConstructorArgs,
+    customProxy
   }
 }
 
@@ -324,15 +326,24 @@ const verificationStatus = async (guid, options, action = 'checkverifystatus') =
   }
 }
 
-const verifyProxyContract = async (artifact, implementationAddress, options) => {
-  logger.info(`Verifying proxy implementation at ${implementationAddress}`)
+const verifyProxyContract = async (proxyArtifact, implementationName, implementationAddress, options) => {
+  if (options.customProxy) {
+    logger.info(`Verifying custom proxy contract ${options.customProxy} at ${proxyArtifact.networks[`${options.networkId}`].address}`)
+    const status = await verifyContract(proxyArtifact, options)
+    if (status === VerificationStatus.FAILED) return status
+  }
 
-  const artifactCopy = deepCopy(artifact)
-  artifactCopy.networks[`${options.networkId}`].address = implementationAddress
+  const implementationArtifact = deepCopy(getArtifact(implementationName, options))
+  implementationArtifact.networks[`${options.networkId}`] = {
+    address: implementationAddress
+  }
 
-  const status = await verifyContract(artifactCopy, options)
+  logger.info(`Verifying proxy implementation ${implementationName} at ${implementationAddress}`)
+  const status = await verifyContract(implementationArtifact, options)
+
   if ([VerificationStatus.SUCCESS, VerificationStatus.ALREADY_VERIFIED, VerificationStatus.AUTOMATICALLY_VERIFIED].includes(status)) {
-    await verifyProxy(artifact.networks[`${options.networkId}`].address, options)
+    logger.info('Linking proxy and implementation addresses')
+    await verifyProxy(proxyArtifact.networks[`${options.networkId}`].address, options)
   }
 
   return status
