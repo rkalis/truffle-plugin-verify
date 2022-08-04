@@ -326,9 +326,8 @@ const verificationStatus = async (guid, options, action = 'checkverifystatus') =
   }
 }
 
-const verifyProxyContract = async (artifact, implementationName, implementationAddress, options) => {
+const verifyProxyContract = async (proxyArtifact, implementationName, implementationAddress, options) => {
   if (options.customProxy) {
-    const proxyArtifact = getArtifact(options.customProxy, options)
     logger.info(`Verifying custom proxy contract ${options.customProxy} at ${proxyArtifact.networks[`${options.networkId}`].address}`)
     const status = await verifyContract(proxyArtifact, options)
     if (status === VerificationStatus.FAILED) return status
@@ -344,7 +343,7 @@ const verifyProxyContract = async (artifact, implementationName, implementationA
 
   if ([VerificationStatus.SUCCESS, VerificationStatus.ALREADY_VERIFIED, VerificationStatus.AUTOMATICALLY_VERIFIED].includes(status)) {
     logger.info('Linking proxy and implementation addresses')
-    await verifyProxy(artifact.networks[`${options.networkId}`].address, options)
+    await verifyProxy(proxyArtifact.networks[`${options.networkId}`].address, options)
   }
 
   return status
