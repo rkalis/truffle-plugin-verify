@@ -171,6 +171,7 @@ const getApiKey = (config, apiUrl, logger) => {
   if (apiUrl.includes('bttcscan')) return getApiKeyForPlatform(config, 'BTTCScan', logger)
   if (apiUrl.includes('aurorascan')) return getApiKeyForPlatform(config, 'Aurorascan', logger)
   if (apiUrl.includes('cronoscan')) return getApiKeyForPlatform(config, 'Cronoscan', logger)
+  if (apiUrl.includes('gnosisscan')) return getApiKeyForPlatform(config, 'Gnosisscan', logger)
 
   return getApiKeyForPlatform(config, 'Etherscan', logger)
 }
@@ -188,7 +189,8 @@ const getApiKeyForPlatform = (config, platform, logger) => {
     Moonscan: config.api_keys.moonscan,
     BTTCScan: config.api_keys.bttcscan,
     Aurorascan: config.api_keys.aurorascan,
-    Cronoscan: config.api_keys.cronoscan
+    Cronoscan: config.api_keys.cronoscan,
+    Gnosisscan: config.api_keys.gnosisscan
   }
 
   const apiKey = mapping[platform]
