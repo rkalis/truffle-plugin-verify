@@ -127,6 +127,7 @@ module.exports = {
     bttcscan: 'MY_API_KEY',
     aurorascan: 'MY_API_KEY',
     cronoscan: 'MY_API_KEY'
+    gnosisscan: 'MY_API_KEY'
   }
 }
 ```
@@ -144,6 +145,7 @@ module.exports = {
 - [BTTCScan](https://bttcscan.com/) (BitTorrent Mainnet & Donau Testnet)
 - [Aurorascan](https://aurorascan.dev/) (Aurora Mainnet & Testnet)
 - [Cronoscan](https://cronoscan.com) (Cronos Mainnet)
+- [Gnosisscan](https://gnosisscan.io) (Gnosis Mainnet)
 
 ### Usage with unsupported chains
 In cases where the platform you want to use supports an Etherscan compatible API but is not listed above, you may manually specify the `apiUrl` and `explorerUrl` (optional) for the platform. To use this feature, please add the relevant settings to your truffle-config under `networks.<name of your network>.verify`.
