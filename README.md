@@ -134,7 +134,7 @@ module.exports = {
 
 #### All supported platforms & networks
 - [Etherscan](https://etherscan.io/) (Ethereum Mainnet & Ropsten, Kovan, Rinkeby, Goerli Testnets)
-- [Optimistic Etherscan](https://optimistic.etherscan.io/) (Optimistic Ethereum Mainnet & Kovan Testnet)
+- [Optimistic Etherscan](https://optimistic.etherscan.io/) (Optimistic Ethereum Mainnet & Kovan Testnet & Goerli Testnet)
 - [Arbiscan](https://arbiscan.io) (Arbitrum Mainnet & Rinkeby Testnet)
 - [BscScan](https://bscscan.com) (BSC Mainnet & Testnet)
 - [Snowtrace](https://snowtrace.io/) (Avalanche Mainnet & Fuji Testnet)
