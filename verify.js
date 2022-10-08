@@ -252,7 +252,7 @@ const getInputJSON = (artifact, options) => {
     // If we're on Windows we need to de-Unixify the path so that Windows can read the file
     // We also need to replace the 'project:' prefix so that the file can be read
     const normalisedContractPath = normaliseContractPath(contractPath, options)
-    const absolutePath = require.resolve(normalisedContractPath)
+    const absolutePath = require.resolve(normalisedContractPath, { paths: [options.projectDir] })
     const content = fs.readFileSync(absolutePath, 'utf8')
 
     // Remove the 'project:' prefix that was added in Truffle v5.3.14
