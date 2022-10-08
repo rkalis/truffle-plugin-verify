@@ -25,6 +25,7 @@ const API_URLS = {
   43113: 'https://api-testnet.snowtrace.io/api',
   43114: 'https://api.snowtrace.io/api',
   421611: 'https://api-testnet.arbiscan.io/api',
+  421613: 'https://api-goerli.arbiscan.io/api',
   80001: 'https://api-testnet.polygonscan.com/api',
   1313161554: 'https://api.aurorascan.dev/api',
   1313161555: 'https://api-testnet.aurorascan.dev/api'
@@ -57,6 +58,7 @@ const EXPLORER_URLS = {
   43113: 'https://testnet.snowtrace.io/address',
   43114: 'https://snowtrace.io/address',
   421611: 'https://testnet.arbiscan.io/address',
+  421613: 'https://goerli.arbiscan.io/address',
   80001: 'https://mumbai.polygonscan.com/address',
   1313161554: 'https://aurorascan.dev/address',
   1313161555: 'https://testnet.aurorascan.dev/address'
