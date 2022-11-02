@@ -1,6 +1,6 @@
 {
-    "commands": {
-        "verify": "verify.js",
-        "etherscan": "verify.js"
-    }
+  "commands": {
+    "verify": "verify.js",
+    "etherscan": "verify.js"
+  }
 }

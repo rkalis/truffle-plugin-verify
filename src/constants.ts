@@ -1,4 +1,6 @@
-const API_URLS = {
+export const VERSION = '0.5.32';
+
+export const API_URLS: { [chainId: number]: string } = {
   1: 'https://api.etherscan.io/api',
   3: 'https://api-ropsten.etherscan.io/api',
   4: 'https://api-rinkeby.etherscan.io/api',
@@ -29,10 +31,10 @@ const API_URLS = {
   80001: 'https://api-testnet.polygonscan.com/api',
   11155111: 'https://api-sepolia.etherscan.io/api',
   1313161554: 'https://api.aurorascan.dev/api',
-  1313161555: 'https://api-testnet.aurorascan.dev/api'
-}
+  1313161555: 'https://api-testnet.aurorascan.dev/api',
+};
 
-const EXPLORER_URLS = {
+export const EXPLORER_URLS: { [chainId: number]: string } = {
   1: 'https://etherscan.io/address',
   3: 'https://ropsten.etherscan.io/address',
   4: 'https://rinkeby.etherscan.io/address',
@@ -63,34 +65,25 @@ const EXPLORER_URLS = {
   80001: 'https://mumbai.polygonscan.com/address',
   11155111: 'https://sepolia.etherscan.io/address',
   1313161554: 'https://aurorascan.dev/address',
-  1313161555: 'https://testnet.aurorascan.dev/address'
-}
+  1313161555: 'https://testnet.aurorascan.dev/address',
+};
 
-const RequestStatus = {
+export const RequestStatus = {
   OK: '1',
-  NOTOK: '0'
-}
+  NOTOK: '0',
+};
 
-const VerificationStatus = {
+export const VerificationStatus = {
   FAILED: 'Fail - Unable to verify',
   SUCCESS: 'Pass - Verified',
   PENDING: 'Pending in queue',
   ALREADY_VERIFIED: 'Contract source code already verified',
-  AUTOMATICALLY_VERIFIED: 'Already Verified'
-}
+  AUTOMATICALLY_VERIFIED: 'Already Verified',
+};
 
-const StorageSlot = {
+export const StorageSlot = {
   LOGIC: '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc',
-  BEACON: '0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50'
-}
+  BEACON: '0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50',
+};
 
-const NULL_ADDRESS = '0x0000000000000000000000000000000000000000'
-
-module.exports = {
-  API_URLS,
-  EXPLORER_URLS,
-  RequestStatus,
-  VerificationStatus,
-  StorageSlot,
-  NULL_ADDRESS
-}
+export const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
