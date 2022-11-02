@@ -130,35 +130,43 @@ module.exports = {
     etherscan: 'MY_API_KEY',
     optimistic_etherscan: 'MY_API_KEY',
     arbiscan: 'MY_API_KEY',
+    nova_arbiscan: 'MY_API_KEY',
     bscscan: 'MY_API_KEY',
     snowtrace: 'MY_API_KEY',
     polygonscan: 'MY_API_KEY',
     ftmscan: 'MY_API_KEY',
     hecoinfo: 'MY_API_KEY',
     moonscan: 'MY_API_KEY',
+    moonriver_moonscan: 'MY_API_KEY',
     bttcscan: 'MY_API_KEY',
     aurorascan: 'MY_API_KEY',
-    cronoscan: 'MY_API_KEY'
-    gnosisscan: 'MY_API_KEY'
-  }
-}
+    cronoscan: 'MY_API_KEY',
+    gnosisscan: 'MY_API_KEY',
+    celoscan: 'MY_API_KEY',
+    clvscan: 'MY_API_KEY',
+  },
+};
 ```
 
 #### All supported platforms & networks
 
-- [Etherscan](https://etherscan.io/) (Ethereum Mainnet & Ropsten, Kovan, Rinkeby, Goerli Testnets)
-- [Optimistic Etherscan](https://optimistic.etherscan.io/) (Optimistic Ethereum Mainnet & Kovan Testnet & Goerli Testnet)
-- [Arbiscan](https://arbiscan.io) (Arbitrum Mainnet & Rinkeby Testnet & Goerli Testnet)
+- [Etherscan](https://etherscan.io/) (Ethereum Mainnet & Goerli, Sepolia Testnets)
+- [Optimistic Etherscan](https://optimistic.etherscan.io/) (Optimistic Ethereum Mainnet & Goerli Testnet)
+- [Arbiscan](https://arbiscan.io) (Arbitrum Mainnet & Goerli Testnet)
+- [Arbiscan Nova](https://nova.arbiscan.io) (Arbitrum Nova)
 - [BscScan](https://bscscan.com) (BSC Mainnet & Testnet)
 - [Snowtrace](https://snowtrace.io/) (Avalanche Mainnet & Fuji Testnet)
 - [PolygonScan](https://polygonscan.com) (Polygon Mainnet & Mumbai Testnet)
 - [FtmScan](https://ftmscan.com) (Fantom Mainnet & Testnet)
 - [HecoInfo](https://hecoinfo.com) (HECO Mainnet & Testnet)
-- [Moonscan](https://moonscan.io/) (Moonbeam, Moonriver Mainnets & Moonbase Alpha TestNet)
+- [Moonscan](https://moonscan.io/) (Moonbeam Mainnet & Moonbase Alpha Testnet)
+- [Moonriver Moonscan](https://moonriver.moonscan.io/) (Moonriver Mainnet)
 - [BTTCScan](https://bttcscan.com/) (BitTorrent Mainnet & Donau Testnet)
 - [Aurorascan](https://aurorascan.dev/) (Aurora Mainnet & Testnet)
-- [Cronoscan](https://cronoscan.com) (Cronos Mainnet)
+- [Cronoscan](https://cronoscan.com) (Cronos Mainnet & Testnet)
 - [Gnosisscan](https://gnosisscan.io) (Gnosis Mainnet)
+- [CLVScan](https://clvscan.com/) (CLV Mainnet)
+- [Celoscan](https://celoscan.io/) (Celo Mainnet & Alfajores Testnet)
 
 ### Usage with unsupported chains
 

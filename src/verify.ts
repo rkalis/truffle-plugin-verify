@@ -5,6 +5,7 @@ import path from 'path';
 import querystring from 'querystring';
 import tunnel from 'tunnel';
 import { API_URLS, EXPLORER_URLS, RequestStatus, VerificationStatus, VERSION } from './constants';
+import { Artifact, Options, TruffleConfig } from './types';
 import {
   deepCopy,
   enforce,
@@ -18,7 +19,7 @@ import {
 const cliLogger = require('cli-logger');
 const logger = cliLogger({ level: 'info' });
 
-module.exports = async (config: any) => {
+module.exports = async (config: TruffleConfig) => {
   // Set debug logging
   if (config.debug) logger.level('debug');
   logger.debug('DEBUG logging is turned ON');
@@ -63,9 +64,9 @@ module.exports = async (config: any) => {
       );
 
       const proxyImplementationAddress = await getImplementationAddress(
-        options.provider,
         artifact.networks[`${options.networkId}`].address,
-        logger
+        logger,
+        options.provider
       );
 
       let status = proxyImplementationAddress
@@ -96,7 +97,7 @@ module.exports = async (config: any) => {
   logger.info(`Successfully verified ${contractNameAddressPairs.length} contract(s).`);
 };
 
-const parseConfig = async (config: any) => {
+const parseConfig = async (config: TruffleConfig): Promise<Options> => {
   const provider = config.provider;
   const networkConfig = config.networks && config.networks[config.network];
   const { chainId, networkId } = await getNetwork(config, logger);
@@ -144,7 +145,7 @@ const parseConfig = async (config: any) => {
   };
 };
 
-const getArtifact = (contractName: string, options: any) => {
+const getArtifact = (contractName: string, options: Options) => {
   const artifactPath = path.resolve(options.contractsBuildDir, `${contractName}.json`);
 
   logger.debug(`Reading artifact file at ${artifactPath}`);
@@ -154,7 +155,7 @@ const getArtifact = (contractName: string, options: any) => {
   return JSON.parse(JSON.stringify(require(artifactPath)));
 };
 
-const verifyContract = async (artifact: any, options: any) => {
+const verifyContract = async (artifact: Artifact, options: Options) => {
   const res = await sendVerifyRequest(artifact, options);
   enforceOrThrow(res.data, `Failed to connect to Etherscan API at url ${options.apiUrl}`);
 
@@ -166,7 +167,7 @@ const verifyContract = async (artifact: any, options: any) => {
   return verificationStatus(res.data.result, options);
 };
 
-const sendVerifyRequest = async (artifact: any, options: any) => {
+const sendVerifyRequest = async (artifact: Artifact, options: Options) => {
   const compilerVersion = extractCompilerVersion(artifact);
   const encodedConstructorArgs =
     options.forceConstructorArgs !== undefined
@@ -199,7 +200,7 @@ const sendVerifyRequest = async (artifact: any, options: any) => {
   }
 };
 
-const extractCompilerVersion = (artifact: any) => {
+const extractCompilerVersion = (artifact: Artifact) => {
   const metadata = JSON.parse(artifact.metadata);
 
   const compilerVersion = `v${metadata.compiler.version}`;
@@ -207,7 +208,7 @@ const extractCompilerVersion = (artifact: any) => {
   return compilerVersion;
 };
 
-const fetchConstructorValues = async (artifact: any, options: any) => {
+const fetchConstructorValues = async (artifact: Artifact, options: Options) => {
   const contractAddress = artifact.networks[`${options.networkId}`].address;
 
   // Fetch the contract creation transaction to extract the input data
@@ -242,7 +243,7 @@ const fetchConstructorValues = async (artifact: any, options: any) => {
   }
 };
 
-const getInputJSON = (artifact: any, options: any) => {
+const getInputJSON = (artifact: Artifact, options: Options) => {
   const metadata = JSON.parse(artifact.metadata);
   const libraries = getLibraries(artifact, options);
 
@@ -283,7 +284,7 @@ const getInputJSON = (artifact: any, options: any) => {
   return inputJSON;
 };
 
-const getLibraries = (artifact: any, options: any) => {
+const getLibraries = (artifact: Artifact, options: Options) => {
   const libraries: { [fileName: string]: { [libraryName: string]: string } } = {
     // Example data structure of libraries object in Standard Input JSON
     // 'ConvertLib.sol': {
@@ -310,7 +311,7 @@ const getLibraries = (artifact: any, options: any) => {
   return libraries;
 };
 
-const verificationStatus = async (guid: string, options: any, action: string = 'checkverifystatus') => {
+const verificationStatus = async (guid: string, options: Options, action: string = 'checkverifystatus') => {
   logger.debug(`Checking status of verification request ${guid}`);
   // Retry API call every second until status is no longer pending
   while (true) {
@@ -335,10 +336,10 @@ const verificationStatus = async (guid: string, options: any, action: string = '
 };
 
 const verifyProxyContract = async (
-  proxyArtifact: any,
+  proxyArtifact: Artifact,
   implementationName: string,
   implementationAddress: string,
-  options: any
+  options: Options
 ) => {
   if (options.customProxy) {
     logger.info(
@@ -372,7 +373,7 @@ const verifyProxyContract = async (
   return status;
 };
 
-const verifyProxy = async (proxyAddress: string, options: any) => {
+const verifyProxy = async (proxyAddress: string, options: Options) => {
   const res = await sendProxyVerifyRequest(proxyAddress, options);
   enforceOrThrow(res.data, `Failed to connect to Etherscan API at url ${options.apiUrl}`);
   enforceOrThrow(res.data.status === RequestStatus.OK, res.data.result);
@@ -380,7 +381,7 @@ const verifyProxy = async (proxyAddress: string, options: any) => {
   logger.debug(status);
 };
 
-const sendProxyVerifyRequest = async (address: string, options: any) => {
+const sendProxyVerifyRequest = async (address: string, options: Options) => {
   const postQueries = { address };
   const qs = querystring.stringify({
     apiKey: options.apiKey,
