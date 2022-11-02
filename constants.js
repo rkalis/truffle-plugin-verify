@@ -27,6 +27,7 @@ const API_URLS = {
   421611: 'https://api-testnet.arbiscan.io/api',
   421613: 'https://api-goerli.arbiscan.io/api',
   80001: 'https://api-testnet.polygonscan.com/api',
+  11155111: 'https://api-sepolia.etherscan.io/api',
   1313161554: 'https://api.aurorascan.dev/api',
   1313161555: 'https://api-testnet.aurorascan.dev/api'
 }
@@ -60,6 +61,7 @@ const EXPLORER_URLS = {
   421611: 'https://testnet.arbiscan.io/address',
   421613: 'https://goerli.arbiscan.io/address',
   80001: 'https://mumbai.polygonscan.com/address',
+  11155111: 'https://sepolia.etherscan.io/address',
   1313161554: 'https://aurorascan.dev/address',
   1313161555: 'https://testnet.aurorascan.dev/address'
 }
