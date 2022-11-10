@@ -1,4 +1,4 @@
-export const VERSION = '0.5.32';
+export const VERSION = '0.5.33';
 
 export const API_URLS: { [chainId: number]: string } = {
   1: 'https://api.etherscan.io/api',
