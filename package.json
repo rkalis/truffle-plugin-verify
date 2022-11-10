@@ -14,7 +14,8 @@
     "compile": "tsc",
     "clean": "rm -rf dist",
     "build": "yarn clean && yarn compile",
-    "update-version": "ts-node update-version.ts"
+    "update-version": "ts-node update-version.ts",
+    "prepublishOnly": "yarn build"
   },
   "keywords": [
     "truffle",

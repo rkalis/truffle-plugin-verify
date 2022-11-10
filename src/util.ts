@@ -143,7 +143,7 @@ export const getApiKey = (config: TruffleConfig, apiUrl: string, logger: Logger)
   enforce(config.api_keys, 'No API Keys provided', logger);
 
   const platform = new URL(apiUrl).hostname.split('.').at(-2)!;
-  let subPlatform = new URL(apiUrl).hostname.split('.').at(-3)!.split('-').at(-1);
+  let subPlatform = new URL(apiUrl).hostname.split('.').at(-3)?.split('-').at(-1);
 
   // For some reason Etherscan uses both optimistic.etherscan.io and optimism.etherscan.io
   if (subPlatform === 'optimism') subPlatform = 'optimistic';
