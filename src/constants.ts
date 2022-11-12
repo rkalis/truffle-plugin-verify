@@ -90,3 +90,6 @@ export const StorageSlot = {
 };
 
 export const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
+
+export const INDENT_SIZE = 3;
+export const INDENT = ' '.repeat(INDENT_SIZE);

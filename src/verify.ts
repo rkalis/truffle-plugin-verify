@@ -1,12 +1,13 @@
 import axios from 'axios';
 import tunnel from 'tunnel';
 import { API_URLS, EXPLORER_URLS, VERSION } from './constants';
-import { Options, TruffleConfig } from './types';
+import { Logger, Options, TruffleConfig } from './types';
 import { enforce, getApiKey, getNetwork } from './util';
+import { EtherscanVerifier } from './verifier/EtherscanVerifier';
 import { SourcifyVerifier } from './verifier/SourcifyVerifier';
 
 const cliLogger = require('cli-logger');
-const logger = cliLogger({ level: 'info' });
+const logger: Logger = cliLogger({ level: 'info' });
 
 module.exports = async (config: TruffleConfig) => {
   // Set debug logging
@@ -26,16 +27,22 @@ module.exports = async (config: TruffleConfig) => {
 
   const options = await parseConfig(config);
 
-  const verifier = new SourcifyVerifier(logger, options);
+  const verifiers = [
+    new SourcifyVerifier(options),
+    new EtherscanVerifier(options),
+  ]
 
   // Verify each contract
   const contractNameAddressPairs = config._.slice(1);
-  await verifier.verifyAll(contractNameAddressPairs);
+  for (const verifier of verifiers) {
+    logger.info(`Verifying contracts on ${verifier.name}`);
+    await verifier.verifyAll(contractNameAddressPairs);
+  }
 };
 
 const parseConfig = async (config: TruffleConfig): Promise<Options> => {
-  const provider = config.provider;
-  const networkConfig = config.networks && config.networks[config.network];
+  const { provider, debug } = config;
+  const networkConfig = config.networks?.[config.network];
   const { chainId, networkId } = await getNetwork(config, logger);
 
   const apiUrl = networkConfig?.verify?.apiUrl ?? API_URLS[Number(chainId)];
@@ -75,5 +82,6 @@ const parseConfig = async (config: TruffleConfig): Promise<Options> => {
     contractsDir,
     forceConstructorArgs,
     customProxy,
+    debug,
   };
 };

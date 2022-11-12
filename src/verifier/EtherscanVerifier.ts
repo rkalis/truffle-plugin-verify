@@ -3,15 +3,15 @@ import delay from 'delay';
 import querystring from 'querystring';
 import { RequestStatus, VerificationStatus } from '../constants';
 import { Artifact, Logger, Options } from '../types';
-import { deepCopy, enforceOrThrow, extractCompilerVersion, getArtifact, getInputJSON, getPlatform } from '../util';
+import { deepCopy, enforceOrThrow, extractCompilerVersion, getArtifact, getInputJSON, getPlatform, logObject } from '../util';
 import { AbstractVerifier } from './AbstractVerifier';
 import { Verifier } from './Verifier';
 
 export class EtherscanVerifier extends AbstractVerifier implements Verifier {
   name: string;
 
-  constructor(public logger: Logger, public options: Options) {
-    super();
+  constructor(options: Options) {
+    super(options);
     this.name = getPlatform(options.apiUrl).platform;
   }
 
@@ -89,7 +89,7 @@ export class EtherscanVerifier extends AbstractVerifier implements Verifier {
 
     try {
       this.logger.debug('Sending verify request with POST arguments:');
-      this.logger.debug(JSON.stringify(postQueries, null, 2));
+      logObject(this.logger, 'debug', postQueries, 2);
       return await axios.post(this.options.apiUrl, querystring.stringify(postQueries));
     } catch (error: any) {
       this.logger.debug(error.message);
@@ -166,7 +166,7 @@ export class EtherscanVerifier extends AbstractVerifier implements Verifier {
 
     try {
       this.logger.debug(`Sending verify proxy request to ${this.options.apiUrl}?${qs} with POST arguments:`);
-      this.logger.debug(JSON.stringify(postQueries, null, 2));
+      logObject(this.logger, 'debug', postQueries, 2);
       return await axios.post(`${this.options.apiUrl}?${qs}`, querystring.stringify(postQueries));
     } catch (error: any) {
       this.logger.info(error.message);

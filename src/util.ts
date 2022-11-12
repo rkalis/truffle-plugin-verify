@@ -1,15 +1,15 @@
 import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
-import { NULL_ADDRESS, StorageSlot } from './constants';
+import { INDENT, NULL_ADDRESS, StorageSlot } from './constants';
 import { Artifact, Logger, Options, RetrievedNetworkInfo, TruffleConfig, TruffleProvider } from './types';
 
-export const abort = (message: string, logger: Logger = console, code: number = 1) => {
+export const abort = (message: string, logger: Console = console, code: number = 1) => {
   logger.error(message);
   process.exit(code);
 };
 
-export const enforce = (condition: any, message: string, logger?: Logger, code?: number) => {
+export const enforce = (condition: any, message: string, logger?: Console, code?: number) => {
   if (!condition) abort(message, logger, code);
 };
 
@@ -147,7 +147,7 @@ export const getPlatform = (apiUrl: string) => {
 
 export const getApiKey = (config: TruffleConfig, apiUrl: string, logger: Logger) => {
   const networkConfig = config.networks[config.network];
-  if (networkConfig && networkConfig.verify && networkConfig.verify.apiKey) {
+  if (networkConfig?.verify?.apiKey) {
     return networkConfig.verify.apiKey;
   }
 
@@ -245,3 +245,9 @@ export const getLibraries = (artifact: Artifact, options: Options, logger: Logge
 
   return libraries;
 };
+
+export const logObject = (logger: Logger, level: 'debug' | 'info', obj: any, indent: number) => {
+  const prefix = INDENT.repeat(Math.min(indent - 1));
+  const stringified = `${prefix}${JSON.stringify(obj, null, 2).replace(/\n/g, `\n${INDENT.repeat(indent)}`)}`;
+  logger[level](stringified);
+}

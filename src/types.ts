@@ -1,7 +1,6 @@
-export interface Logger {
-  info: (message?: any) => void;
-  debug: (message?: any) => void;
-  error: (message?: any) => void;
+export interface Logger extends Console {
+  level(level: string): void;
+  prefix(prefix: string): void;
 }
 
 // Incomplete typing
@@ -80,6 +79,7 @@ export interface Options {
   contractsDir: string;
   forceConstructorArgs?: string;
   customProxy?: string;
+  debug?: boolean;
 }
 
 export interface RetrievedNetworkInfo {

@@ -1,16 +1,15 @@
 import axios from 'axios';
 import { SOURCIFY_API_URL, VerificationStatus } from '../constants';
 import { Artifact, Logger, Options } from '../types';
-import { deepCopy, enforceOrThrow, getArtifact, getInputJSON, getPlatform } from '../util';
+import { deepCopy, enforceOrThrow, getArtifact, getInputJSON, getPlatform, logObject } from '../util';
 import { AbstractVerifier } from './AbstractVerifier';
 import { Verifier } from './Verifier';
 
 export class SourcifyVerifier extends AbstractVerifier implements Verifier {
   name: string = 'sourcify';
 
-  constructor(public logger: Logger, public options: Options) {
-    super();
-    this.name = getPlatform(options.apiUrl).platform;
+  constructor(options: Options) {
+    super(options);
   }
 
   getContractUrl(address: string) {
@@ -71,7 +70,7 @@ export class SourcifyVerifier extends AbstractVerifier implements Verifier {
 
     try {
       this.logger.debug('Sending verify request with POST arguments:');
-      this.logger.debug(JSON.stringify(postQueries, null, 2));
+      logObject(this.logger, 'debug', postQueries, 2);
       return await axios.post(SOURCIFY_API_URL, postQueries);
     } catch (error: any) {
       this.logger.debug(error.message);

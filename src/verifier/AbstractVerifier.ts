@@ -1,11 +1,11 @@
-import { VerificationStatus } from '../constants';
+import { INDENT, VerificationStatus } from '../constants';
 import { Artifact, Logger, Options } from '../types';
 import { enforce, enforceOrThrow, getArtifact, getImplementationAddress } from '../util';
 
+const cliLogger = require('cli-logger');
+
 export abstract class AbstractVerifier {
   abstract name: string;
-  abstract logger: Logger;
-  abstract options: Options;
 
   abstract getContractUrl(address: string): string | undefined;
   abstract verifyContract(artifact: Artifact): Promise<VerificationStatus>;
@@ -14,6 +14,13 @@ export abstract class AbstractVerifier {
     implementationName: string,
     implementationAddress: string
   ): Promise<VerificationStatus>;
+
+  logger: Logger;
+
+  constructor(public options: Options) {
+    this.logger = cliLogger({ level: 'info', prefix: () => INDENT });
+    if (options.debug) this.logger.level('debug');
+  }
 
   async verifyAll(contractNameAddressPairs: string[]) {
     const failedContracts = [];
@@ -63,12 +70,10 @@ export abstract class AbstractVerifier {
       this.logger.info();
     }
 
-    enforce(
-      failedContracts.length === 0,
-      `Failed to verify ${failedContracts.length} contract(s): ${failedContracts.join(', ')}`,
-      this.logger
-    );
-
-    this.logger.info(`Successfully verified ${contractNameAddressPairs.length} contract(s).`);
+    if (failedContracts.length === 0) {
+      this.logger.info(`Successfully verified ${contractNameAddressPairs.length} contract(s).`);
+    } else {
+      this.logger.info(`Failed to verify ${failedContracts.length} contract(s): ${failedContracts.join(', ')}`)
+    }
   }
 }
