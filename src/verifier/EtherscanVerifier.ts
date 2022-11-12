@@ -4,13 +4,19 @@ import querystring from 'querystring';
 import { RequestStatus, VerificationStatus } from '../constants';
 import { Artifact, Logger, Options } from '../types';
 import { deepCopy, enforceOrThrow, extractCompilerVersion, getArtifact, getInputJSON, getPlatform } from '../util';
+import { AbstractVerifier } from './AbstractVerifier';
 import { Verifier } from './Verifier';
 
-export class EtherscanVerifier implements Verifier {
+export class EtherscanVerifier extends AbstractVerifier implements Verifier {
   name: string;
 
-  constructor(private logger: Logger, private options: Options) {
+  constructor(public logger: Logger, public options: Options) {
+    super();
     this.name = getPlatform(options.apiUrl).platform;
+  }
+
+  getContractUrl(address: string) {
+    return `${this.options.explorerUrl}/${address}#code`;
   }
 
   async verifyContract(artifact: Artifact): Promise<VerificationStatus> {

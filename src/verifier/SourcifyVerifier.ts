@@ -2,13 +2,19 @@ import axios from 'axios';
 import { SOURCIFY_API_URL, VerificationStatus } from '../constants';
 import { Artifact, Logger, Options } from '../types';
 import { deepCopy, enforceOrThrow, getArtifact, getInputJSON, getPlatform } from '../util';
+import { AbstractVerifier } from './AbstractVerifier';
 import { Verifier } from './Verifier';
 
-export class SourcifyVerifier implements Verifier {
-  name: string;
+export class SourcifyVerifier extends AbstractVerifier implements Verifier {
+  name: string = 'sourcify';
 
-  constructor(private logger: Logger, private options: Options) {
+  constructor(public logger: Logger, public options: Options) {
+    super();
     this.name = getPlatform(options.apiUrl).platform;
+  }
+
+  getContractUrl(address: string) {
+    return `https://sourcify.dev/#/lookup/${address}`;
   }
 
   async verifyContract(artifact: Artifact): Promise<VerificationStatus> {
@@ -22,7 +28,6 @@ export class SourcifyVerifier implements Verifier {
     }
 
     return VerificationStatus.SUCCESS;
-    // logger.info(`   Sourcify url: https://sourcify.dev/#/lookup/${contract.address}`)
   }
 
   async verifyProxyContract(

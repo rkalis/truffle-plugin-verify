@@ -1,7 +1,7 @@
 export interface Logger {
-  info: (message: any) => void;
-  debug: (message: any) => void;
-  error: (message: any) => void;
+  info: (message?: any) => void;
+  debug: (message?: any) => void;
+  error: (message?: any) => void;
 }
 
 // Incomplete typing
