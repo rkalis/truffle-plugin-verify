@@ -3,7 +3,7 @@ import tunnel from 'tunnel';
 import { API_URLS, EXPLORER_URLS, VerificationStatus, VERSION } from './constants';
 import { Options, TruffleConfig } from './types';
 import { enforce, enforceOrThrow, getApiKey, getArtifact, getImplementationAddress, getNetwork } from './util';
-import { EtherscanVerifier } from './verifier/EtherscanVerifier';
+import { SourcifyVerifier } from './verifier/SourcifyVerifier';
 
 const cliLogger = require('cli-logger');
 const logger = cliLogger({ level: 'info' });
@@ -26,7 +26,7 @@ module.exports = async (config: TruffleConfig) => {
 
   const options = await parseConfig(config);
 
-  const verifier = new EtherscanVerifier(logger, options);
+  const verifier = new SourcifyVerifier(logger, options);
 
   // Verify each contract
   const contractNameAddressPairs = config._.slice(1);
@@ -60,7 +60,7 @@ module.exports = async (config: TruffleConfig) => {
         options.provider
       );
 
-      let status = proxyImplementationAddress
+      let status: string = proxyImplementationAddress
         ? await verifier.verifyProxyContract(artifact, contractName, proxyImplementationAddress)
         : await verifier.verifyContract(artifact);
 

@@ -1,13 +1,12 @@
 import { VerificationStatus } from '../constants';
-import { Artifact, Options } from '../types';
+import { Artifact } from '../types';
 
 export interface Verifier {
   name: string;
-  verifyContract: (artifact: Artifact, options: Options) => Promise<VerificationStatus>;
-  verifyProxyContract?: (
+  verifyContract(artifact: Artifact): Promise<VerificationStatus>;
+  verifyProxyContract(
     proxyArtifact: Artifact,
     implementationName: string,
-    implementationAddress: string,
-    options: Options
-  ) => Promise<VerificationStatus>;
+    implementationAddress: string
+  ): Promise<VerificationStatus>;
 }

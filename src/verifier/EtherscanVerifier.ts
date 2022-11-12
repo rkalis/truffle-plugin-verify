@@ -13,7 +13,7 @@ export class EtherscanVerifier implements Verifier {
     this.name = getPlatform(options.apiUrl).platform;
   }
 
-  async verifyContract(artifact: Artifact) {
+  async verifyContract(artifact: Artifact): Promise<VerificationStatus> {
     const res = await this.sendVerifyRequest(artifact);
     enforceOrThrow(res.data, `Failed to connect to Etherscan API at url ${this.options.apiUrl}`);
 
@@ -23,6 +23,39 @@ export class EtherscanVerifier implements Verifier {
 
     enforceOrThrow(res.data.status === RequestStatus.OK, res.data.result);
     return this.verificationStatus(res.data.result);
+  }
+
+  async verifyProxyContract(proxyArtifact: Artifact, implementationName: string, implementationAddress: string) {
+    if (this.options.customProxy) {
+      this.logger.info(
+        `Verifying custom proxy contract ${this.options.customProxy} at ${
+          proxyArtifact.networks[`${this.options.networkId}`].address
+        }`
+      );
+      const status = await this.verifyContract(proxyArtifact);
+      if (status === VerificationStatus.FAILED) return status;
+    }
+
+    const implementationArtifact = deepCopy(getArtifact(implementationName, this.options, this.logger));
+    implementationArtifact.networks[`${this.options.networkId}`] = {
+      address: implementationAddress,
+    };
+
+    this.logger.info(`Verifying proxy implementation ${implementationName} at ${implementationAddress}`);
+    const status = await this.verifyContract(implementationArtifact);
+
+    if (
+      [
+        VerificationStatus.SUCCESS,
+        VerificationStatus.ALREADY_VERIFIED,
+        VerificationStatus.AUTOMATICALLY_VERIFIED,
+      ].includes(status)
+    ) {
+      this.logger.info('Linking proxy and implementation addresses');
+      await this.verifyProxy(proxyArtifact.networks[`${this.options.networkId}`].address);
+    }
+
+    return status;
   }
 
   private async sendVerifyRequest(artifact: Artifact) {
@@ -115,39 +148,6 @@ export class EtherscanVerifier implements Verifier {
         throw new Error(`Failed to connect to Etherscan API at url ${this.options.apiUrl}`);
       }
     }
-  }
-
-  async verifyProxyContract(proxyArtifact: Artifact, implementationName: string, implementationAddress: string) {
-    if (this.options.customProxy) {
-      this.logger.info(
-        `Verifying custom proxy contract ${this.options.customProxy} at ${
-          proxyArtifact.networks[`${this.options.networkId}`].address
-        }`
-      );
-      const status = await this.verifyContract(proxyArtifact);
-      if (status === VerificationStatus.FAILED) return status;
-    }
-
-    const implementationArtifact = deepCopy(getArtifact(implementationName, this.options, this.logger));
-    implementationArtifact.networks[`${this.options.networkId}`] = {
-      address: implementationAddress,
-    };
-
-    this.logger.info(`Verifying proxy implementation ${implementationName} at ${implementationAddress}`);
-    const status = await this.verifyContract(implementationArtifact);
-
-    if (
-      [
-        VerificationStatus.SUCCESS,
-        VerificationStatus.ALREADY_VERIFIED,
-        VerificationStatus.AUTOMATICALLY_VERIFIED,
-      ].includes(status)
-    ) {
-      this.logger.info('Linking proxy and implementation addresses');
-      await this.verifyProxy(proxyArtifact.networks[`${this.options.networkId}`].address);
-    }
-
-    return status;
   }
 
   private async sendProxyVerifyRequest(address: string) {
