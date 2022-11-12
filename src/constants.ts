@@ -1,5 +1,7 @@
 export const VERSION = '0.5.33';
 
+export const SOURCIFY_API_URL = 'https://sourcify.dev/server/';
+
 export const API_URLS: { [chainId: number]: string } = {
   1: 'https://api.etherscan.io/api',
   5: 'https://api-goerli.etherscan.io/api',
@@ -74,13 +76,13 @@ export const RequestStatus = {
   NOTOK: '0',
 };
 
-export const VerificationStatus = {
-  FAILED: 'Fail - Unable to verify',
-  SUCCESS: 'Pass - Verified',
-  PENDING: 'Pending in queue',
-  ALREADY_VERIFIED: 'Contract source code already verified',
-  AUTOMATICALLY_VERIFIED: 'Already Verified',
-};
+export enum VerificationStatus {
+  FAILED = 'Fail - Unable to verify',
+  SUCCESS = 'Pass - Verified',
+  PENDING = 'Pending in queue',
+  ALREADY_VERIFIED = 'Contract source code already verified',
+  AUTOMATICALLY_VERIFIED = 'Already Verified',
+}
 
 export const StorageSlot = {
   LOGIC: '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc',

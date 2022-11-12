@@ -1,7 +1,8 @@
+import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
 import { NULL_ADDRESS, StorageSlot } from './constants';
-import { Logger, Options, TruffleConfig, TruffleProvider } from './types';
+import { Artifact, Logger, Options, RetrievedNetworkInfo, TruffleConfig, TruffleProvider } from './types';
 
 export const abort = (message: string, logger: Logger = console, code: number = 1) => {
   logger.error(message);
@@ -55,7 +56,7 @@ export const getAbsolutePath = (contractPath: string, options: Options) => {
  * If the network config includes a provider we use it to retrieve the network info
  * for the network. If that fails, we fall back to the config's network ID.
  */
-export const getNetwork = async (config: TruffleConfig, logger: Logger) => {
+export const getNetwork = async (config: TruffleConfig, logger: Logger): Promise<RetrievedNetworkInfo> => {
   const send = getRpcSendFunction(config.provider);
 
   const fallback = { chainId: config.network_id, networkId: config.network_id };
@@ -134,6 +135,16 @@ export const deepCopy = <T>(obj: T): T => JSON.parse(JSON.stringify(obj));
 
 export const getAddressFromStorage = (storage: string) => `0x${storage.slice(2).slice(-40).padStart(40, '0')}`;
 
+export const getPlatform = (apiUrl: string) => {
+  const platform = new URL(apiUrl).hostname.split('.').at(-2)!;
+  let subPlatform = new URL(apiUrl).hostname.split('.').at(-3)?.split('-').at(-1);
+
+  // For some reason Etherscan uses both optimistic.etherscan.io and optimism.etherscan.io
+  if (subPlatform === 'optimism') subPlatform = 'optimistic';
+
+  return { platform, subPlatform };
+};
+
 export const getApiKey = (config: TruffleConfig, apiUrl: string, logger: Logger) => {
   const networkConfig = config.networks[config.network];
   if (networkConfig && networkConfig.verify && networkConfig.verify.apiKey) {
@@ -142,15 +153,95 @@ export const getApiKey = (config: TruffleConfig, apiUrl: string, logger: Logger)
 
   enforce(config.api_keys, 'No API Keys provided', logger);
 
-  const platform = new URL(apiUrl).hostname.split('.').at(-2)!;
-  let subPlatform = new URL(apiUrl).hostname.split('.').at(-3)?.split('-').at(-1);
-
-  // For some reason Etherscan uses both optimistic.etherscan.io and optimism.etherscan.io
-  if (subPlatform === 'optimism') subPlatform = 'optimistic';
+  const { platform, subPlatform } = getPlatform(apiUrl);
 
   const apiKey = config.api_keys![`${subPlatform}_${platform}`] ?? config.api_keys![platform];
 
   enforce(apiKey, `No ${platform} or ${subPlatform}_${platform} API Key provided`, logger);
 
   return apiKey;
+};
+
+export const getArtifact = (contractName: string, options: Options, logger: Logger) => {
+  const artifactPath = path.resolve(options.contractsBuildDir, `${contractName}.json`);
+
+  logger.debug(`Reading artifact file at ${artifactPath}`);
+  enforceOrThrow(fs.existsSync(artifactPath), `Could not find ${contractName} artifact at ${artifactPath}`);
+
+  // Stringify + parse to make a deep copy (to avoid bugs with PR #19)
+  return JSON.parse(JSON.stringify(require(artifactPath)));
+};
+
+export const extractCompilerVersion = (artifact: Artifact) => {
+  const metadata = JSON.parse(artifact.metadata);
+  const compilerVersion = `v${metadata.compiler.version}`;
+  return compilerVersion;
+};
+
+export const getInputJSON = (artifact: Artifact, options: Options, logger: Logger) => {
+  const metadata = JSON.parse(artifact.metadata);
+  const libraries = getLibraries(artifact, options, logger);
+
+  // Sort the source files so that the "main" contract is on top
+  const orderedSources = Object.keys(metadata.sources)
+    .reverse()
+    .sort((a, b) => {
+      if (a === artifact.ast.absolutePath) return -1;
+      if (b === artifact.ast.absolutePath) return 1;
+      return 0;
+    });
+
+  const sources: { [contractPath: string]: { content: string } } = {};
+  for (const contractPath of orderedSources) {
+    // If we're on Windows we need to de-Unixify the path so that Windows can read the file
+    // We also need to replace the 'project:' prefix so that the file can be read
+    const normalisedContractPath = normaliseContractPath(contractPath, options);
+    const absolutePath = require.resolve(normalisedContractPath, { paths: [options.projectDir] });
+    const content = fs.readFileSync(absolutePath, 'utf8');
+
+    // Remove the 'project:' prefix that was added in Truffle v5.3.14
+    const relativeContractPath = contractPath.replace('project:', '');
+
+    sources[relativeContractPath] = { content };
+  }
+
+  const inputJSON = {
+    language: metadata.language,
+    sources,
+    settings: {
+      remappings: metadata.settings.remappings,
+      optimizer: metadata.settings.optimizer,
+      evmVersion: metadata.settings.evmVersion,
+      libraries,
+    },
+  };
+
+  return inputJSON;
+};
+
+export const getLibraries = (artifact: Artifact, options: Options, logger: Logger) => {
+  const libraries: { [fileName: string]: { [libraryName: string]: string } } = {
+    // Example data structure of libraries object in Standard Input JSON
+    // 'ConvertLib.sol': {
+    //   'ConvertLib': '0x...',
+    //   'OtherLibInSameSourceFile': '0x...'
+    // }
+  };
+
+  const links = artifact.networks[`${options.networkId}`].links || {};
+
+  for (const libraryName in links) {
+    // Retrieve the source path for this library
+    const libraryArtifact = getArtifact(libraryName, options, logger);
+
+    // Remove the 'project:' prefix that was added in Truffle v5.3.14
+    const librarySourceFile = libraryArtifact.ast.absolutePath.replace('project:', '');
+
+    // Add the library to the object of libraries for this source path
+    const librariesForSourceFile = libraries[librarySourceFile] || {};
+    librariesForSourceFile[libraryName] = links[libraryName];
+    libraries[librarySourceFile] = librariesForSourceFile;
+  }
+
+  return libraries;
 };

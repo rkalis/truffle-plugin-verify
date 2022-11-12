@@ -81,3 +81,8 @@ export interface Options {
   forceConstructorArgs?: string;
   customProxy?: string;
 }
+
+export interface RetrievedNetworkInfo {
+  chainId: string;
+  networkId: string;
+}
