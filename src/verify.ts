@@ -9,7 +9,7 @@ import { SourcifyVerifier } from './verifier/SourcifyVerifier';
 const cliLogger = require('cli-logger');
 const logger: Logger = cliLogger({ level: 'info' });
 
-module.exports = async (config: TruffleConfig) => {
+module.exports = async (config: TruffleConfig): Promise<void> => {
   // Set debug logging
   if (config.debug) logger.level('debug');
   logger.debug('DEBUG logging is turned ON');

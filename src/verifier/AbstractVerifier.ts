@@ -22,7 +22,7 @@ export abstract class AbstractVerifier {
     if (options.debug) this.logger.level('debug');
   }
 
-  async verifyAll(contractNameAddressPairs: string[]) {
+  async verifyAll(contractNameAddressPairs: string[]): Promise<void> {
     const failedContracts = [];
     for (const contractNameAddressPair of contractNameAddressPairs) {
       this.logger.info(`Verifying ${contractNameAddressPair}`);
@@ -34,10 +34,10 @@ export abstract class AbstractVerifier {
 
         if (contractAddress) {
           this.logger.debug(`Custom address ${contractAddress} specified`);
-          if (!artifact.networks[`${this.options.networkId}`]) {
-            artifact.networks[`${this.options.networkId}`] = {};
+          artifact.networks[`${this.options.networkId}`] = {
+            ...(artifact.networks[`${this.options.networkId}`] ?? {}),
+            address: contractAddress
           }
-          artifact.networks[`${this.options.networkId}`].address = contractAddress;
         }
 
         enforceOrThrow(

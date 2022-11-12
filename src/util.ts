@@ -2,18 +2,18 @@ import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
 import { INDENT, NULL_ADDRESS, StorageSlot } from './constants';
-import { Artifact, Logger, Options, RetrievedNetworkInfo, TruffleConfig, TruffleProvider } from './types';
+import { Artifact, InputJson, Libraries, Logger, Options, RetrievedNetworkInfo, TruffleConfig, TruffleProvider } from './types';
 
-export const abort = (message: string, logger: Console = console, code: number = 1) => {
+export const abort = (message: string, logger: Console = console, code: number = 1): void => {
   logger.error(message);
   process.exit(code);
 };
 
-export const enforce = (condition: any, message: string, logger?: Console, code?: number) => {
+export const enforce = (condition: any, message: string, logger?: Console, code?: number): void => {
   if (!condition) abort(message, logger, code);
 };
 
-export const enforceOrThrow = (condition: any, message: string) => {
+export const enforceOrThrow = (condition: any, message: string): void => {
   if (!condition) throw new Error(message);
 };
 
@@ -25,7 +25,7 @@ export const enforceOrThrow = (condition: any, message: string) => {
  * files. It does not change regular Unix paths, only Unixified Windows paths. It also does
  * not make any changes on platforms that aren't Windows.
  */
-export const normaliseContractPath = (contractPath: string, options: Options) => {
+export const normaliseContractPath = (contractPath: string, options: Options): string => {
   // Replace the 'project:' prefix that was added in Truffle v5.3.14 with the actual project path
   const absolutePath = getAbsolutePath(contractPath, options);
 
@@ -41,7 +41,7 @@ export const normaliseContractPath = (contractPath: string, options: Options) =>
   return normalisedContractPath;
 };
 
-export const getAbsolutePath = (contractPath: string, options: Options) => {
+export const getAbsolutePath = (contractPath: string, options: Options): string => {
   // Older versions of truffle already used the absolute path
   // Also node_modules contracts don't use the project: prefix
   if (!contractPath.startsWith('project:/')) return contractPath;
@@ -124,7 +124,7 @@ export const getImplementationAddress = async (
   return undefined;
 };
 
-export const getRpcSendFunction = (provider?: TruffleProvider) =>
+export const getRpcSendFunction = (provider?: TruffleProvider): any | undefined =>
   provider?.sendAsync
     ? promisify(provider.sendAsync.bind(provider))
     : provider?.send
@@ -133,9 +133,9 @@ export const getRpcSendFunction = (provider?: TruffleProvider) =>
 
 export const deepCopy = <T>(obj: T): T => JSON.parse(JSON.stringify(obj));
 
-export const getAddressFromStorage = (storage: string) => `0x${storage.slice(2).slice(-40).padStart(40, '0')}`;
+export const getAddressFromStorage = (storage: string): string => `0x${storage.slice(2).slice(-40).padStart(40, '0')}`;
 
-export const getPlatform = (apiUrl: string) => {
+export const getPlatform = (apiUrl: string): { platform: string, subPlatform?: string } => {
   const platform = new URL(apiUrl).hostname.split('.').at(-2)!;
   let subPlatform = new URL(apiUrl).hostname.split('.').at(-3)?.split('-').at(-1);
 
@@ -145,7 +145,7 @@ export const getPlatform = (apiUrl: string) => {
   return { platform, subPlatform };
 };
 
-export const getApiKey = (config: TruffleConfig, apiUrl: string, logger: Logger) => {
+export const getApiKey = (config: TruffleConfig, apiUrl: string, logger: Logger): string => {
   const networkConfig = config.networks[config.network];
   if (networkConfig?.verify?.apiKey) {
     return networkConfig.verify.apiKey;
@@ -159,10 +159,10 @@ export const getApiKey = (config: TruffleConfig, apiUrl: string, logger: Logger)
 
   enforce(apiKey, `No ${platform} or ${subPlatform}_${platform} API Key provided`, logger);
 
-  return apiKey;
+  return apiKey!;
 };
 
-export const getArtifact = (contractName: string, options: Options, logger: Logger) => {
+export const getArtifact = (contractName: string, options: Options, logger: Logger): Artifact => {
   const artifactPath = path.resolve(options.contractsBuildDir, `${contractName}.json`);
 
   logger.debug(`Reading artifact file at ${artifactPath}`);
@@ -172,13 +172,13 @@ export const getArtifact = (contractName: string, options: Options, logger: Logg
   return JSON.parse(JSON.stringify(require(artifactPath)));
 };
 
-export const extractCompilerVersion = (artifact: Artifact) => {
+export const extractCompilerVersion = (artifact: Artifact): string => {
   const metadata = JSON.parse(artifact.metadata);
   const compilerVersion = `v${metadata.compiler.version}`;
   return compilerVersion;
 };
 
-export const getInputJSON = (artifact: Artifact, options: Options, logger: Logger) => {
+export const getInputJSON = (artifact: Artifact, options: Options, logger: Logger): InputJson => {
   const metadata = JSON.parse(artifact.metadata);
   const libraries = getLibraries(artifact, options, logger);
 
@@ -219,8 +219,8 @@ export const getInputJSON = (artifact: Artifact, options: Options, logger: Logge
   return inputJSON;
 };
 
-export const getLibraries = (artifact: Artifact, options: Options, logger: Logger) => {
-  const libraries: { [fileName: string]: { [libraryName: string]: string } } = {
+export const getLibraries = (artifact: Artifact, options: Options, logger: Logger): Libraries => {
+  const libraries: Libraries = {
     // Example data structure of libraries object in Standard Input JSON
     // 'ConvertLib.sol': {
     //   'ConvertLib': '0x...',
@@ -239,14 +239,14 @@ export const getLibraries = (artifact: Artifact, options: Options, logger: Logge
 
     // Add the library to the object of libraries for this source path
     const librariesForSourceFile = libraries[librarySourceFile] || {};
-    librariesForSourceFile[libraryName] = links[libraryName];
+    librariesForSourceFile[libraryName] = links[libraryName]!;
     libraries[librarySourceFile] = librariesForSourceFile;
   }
 
   return libraries;
 };
 
-export const logObject = (logger: Logger, level: 'debug' | 'info', obj: any, indent: number) => {
+export const logObject = (logger: Logger, level: 'debug' | 'info', obj: any, indent: number): void => {
   const prefix = INDENT.repeat(Math.min(indent - 1));
   const stringified = `${prefix}${JSON.stringify(obj, null, 2).replace(/\n/g, `\n${INDENT.repeat(indent)}`)}`;
   logger[level](stringified);

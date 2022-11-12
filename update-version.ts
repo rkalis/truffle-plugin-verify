@@ -6,7 +6,7 @@ import path from 'path';
 
 const version = process.argv[2];
 
-const replaceVersion = (filePath: string, matchString: string, version: string, eol: string) => {
+const replaceVersion = (filePath: string, matchString: string, version: string, eol: string): void => {
   const data = fs.readFileSync(filePath, 'utf8');
   const updatedData = data.replace(new RegExp(`${matchString}.*`), `${matchString}${version}${eol}`);
   fs.writeFileSync(filePath, updatedData);
