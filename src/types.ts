@@ -50,6 +50,7 @@ export interface TruffleConfig {
   'custom-proxy'?: string;
   forceConstructorArgs?: string;
   debug?: boolean;
+  verifiers?: string;
 }
 
 // Incomplete typing
@@ -68,11 +69,12 @@ export interface TruffleProvider {
 }
 
 export interface Options {
-  apiUrl: string;
-  apiKey: string;
-  explorerUrl: string;
+  apiUrl?: string;
+  apiKey?: string;
+  explorerUrl?: string;
   networkId: number;
   chainId: number;
+  networkName: string;
   provider?: TruffleProvider;
   projectDir: string;
   contractsBuildDir: string;
@@ -92,7 +94,7 @@ export interface InputJson {
   sources: {
     [path: string]: {
       content: string;
-    }
+    };
   };
   settings: {
     libraries: Libraries;

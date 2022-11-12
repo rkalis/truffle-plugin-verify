@@ -1,6 +1,6 @@
 import { INDENT, VerificationStatus } from '../constants';
 import { Artifact, Logger, Options } from '../types';
-import { enforce, enforceOrThrow, getArtifact, getImplementationAddress } from '../util';
+import { enforceOrThrow, getArtifact, getImplementationAddress } from '../util';
 
 const cliLogger = require('cli-logger');
 
@@ -36,8 +36,8 @@ export abstract class AbstractVerifier {
           this.logger.debug(`Custom address ${contractAddress} specified`);
           artifact.networks[`${this.options.networkId}`] = {
             ...(artifact.networks[`${this.options.networkId}`] ?? {}),
-            address: contractAddress
-          }
+            address: contractAddress,
+          };
         }
 
         enforceOrThrow(
@@ -73,7 +73,7 @@ export abstract class AbstractVerifier {
     if (failedContracts.length === 0) {
       this.logger.info(`Successfully verified ${contractNameAddressPairs.length} contract(s).`);
     } else {
-      this.logger.info(`Failed to verify ${failedContracts.length} contract(s): ${failedContracts.join(', ')}`)
+      this.logger.info(`Failed to verify ${failedContracts.length} contract(s): ${failedContracts.join(', ')}`);
     }
   }
 }

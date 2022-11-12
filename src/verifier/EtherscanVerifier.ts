@@ -2,8 +2,16 @@ import axios from 'axios';
 import delay from 'delay';
 import querystring from 'querystring';
 import { RequestStatus, VerificationStatus } from '../constants';
-import { Artifact, Logger, Options } from '../types';
-import { deepCopy, enforceOrThrow, extractCompilerVersion, getArtifact, getInputJSON, getPlatform, logObject } from '../util';
+import { Artifact, Options } from '../types';
+import {
+  deepCopy,
+  enforceOrThrow,
+  extractCompilerVersion,
+  getArtifact,
+  getInputJSON,
+  getPlatform,
+  logObject,
+} from '../util';
 import { AbstractVerifier } from './AbstractVerifier';
 import { Verifier } from './Verifier';
 
@@ -12,14 +20,20 @@ export class EtherscanVerifier extends AbstractVerifier implements Verifier {
 
   constructor(options: Options) {
     super(options);
-    this.name = getPlatform(options.apiUrl).platform;
+    this.name = options.apiUrl ? getPlatform(options.apiUrl).platform : 'etherscan';
   }
 
   getContractUrl(address: string) {
     return `${this.options.explorerUrl}/${address}#code`;
   }
 
+  async verifyAll(contractNameAddressPairs: string[]): Promise<void> {
+    this.checkBoundaries();
+    await super.verifyAll(contractNameAddressPairs);
+  }
+
   async verifyContract(artifact: Artifact): Promise<VerificationStatus> {
+    this.checkBoundaries();
     const res = await this.sendVerifyRequest(artifact);
     enforceOrThrow(res.data, `Failed to connect to Etherscan API at url ${this.options.apiUrl}`);
 
@@ -32,6 +46,7 @@ export class EtherscanVerifier extends AbstractVerifier implements Verifier {
   }
 
   async verifyProxyContract(proxyArtifact: Artifact, implementationName: string, implementationAddress: string) {
+    this.checkBoundaries();
     if (this.options.customProxy) {
       this.logger.info(
         `Verifying custom proxy contract ${this.options.customProxy} at ${
@@ -90,7 +105,7 @@ export class EtherscanVerifier extends AbstractVerifier implements Verifier {
     try {
       this.logger.debug('Sending verify request with POST arguments:');
       logObject(this.logger, 'debug', postQueries, 2);
-      return await axios.post(this.options.apiUrl, querystring.stringify(postQueries));
+      return await axios.post(this.options.apiUrl!, querystring.stringify(postQueries));
     } catch (error: any) {
       this.logger.debug(error.message);
       throw new Error(`Failed to connect to Etherscan API at url ${this.options.apiUrl}`);
@@ -180,5 +195,15 @@ export class EtherscanVerifier extends AbstractVerifier implements Verifier {
     enforceOrThrow(res.data.status === RequestStatus.OK, res.data.result);
     const status = await this.verificationStatus(res.data.result, 'checkproxyverification');
     this.logger.debug(status);
+  }
+
+  private checkBoundaries() {
+    enforceOrThrow(
+      this.options.apiUrl,
+      `Etherscan has no support for network ${this.options.networkName} with chain id ${this.options.chainId}`
+    );
+
+    const { platform, subPlatform } = getPlatform(this.options.apiUrl!);
+    enforceOrThrow(this.options.apiKey, `No ${platform} or ${subPlatform}_${platform} API Key provided`);
   }
 }

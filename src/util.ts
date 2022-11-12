@@ -2,7 +2,16 @@ import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
 import { INDENT, NULL_ADDRESS, StorageSlot } from './constants';
-import { Artifact, InputJson, Libraries, Logger, Options, RetrievedNetworkInfo, TruffleConfig, TruffleProvider } from './types';
+import {
+  Artifact,
+  InputJson,
+  Libraries,
+  Logger,
+  Options,
+  RetrievedNetworkInfo,
+  TruffleConfig,
+  TruffleProvider,
+} from './types';
 
 export const abort = (message: string, logger: Console = console, code: number = 1): void => {
   logger.error(message);
@@ -135,7 +144,7 @@ export const deepCopy = <T>(obj: T): T => JSON.parse(JSON.stringify(obj));
 
 export const getAddressFromStorage = (storage: string): string => `0x${storage.slice(2).slice(-40).padStart(40, '0')}`;
 
-export const getPlatform = (apiUrl: string): { platform: string, subPlatform?: string } => {
+export const getPlatform = (apiUrl: string): { platform: string; subPlatform?: string } => {
   const platform = new URL(apiUrl).hostname.split('.').at(-2)!;
   let subPlatform = new URL(apiUrl).hostname.split('.').at(-3)?.split('-').at(-1);
 
@@ -145,21 +154,18 @@ export const getPlatform = (apiUrl: string): { platform: string, subPlatform?: s
   return { platform, subPlatform };
 };
 
-export const getApiKey = (config: TruffleConfig, apiUrl: string, logger: Logger): string => {
+export const getApiKey = (config: TruffleConfig, apiUrl?: string): string | undefined => {
   const networkConfig = config.networks[config.network];
   if (networkConfig?.verify?.apiKey) {
     return networkConfig.verify.apiKey;
   }
 
-  enforce(config.api_keys, 'No API Keys provided', logger);
+  if (!config.api_keys || !apiUrl) return undefined;
 
   const { platform, subPlatform } = getPlatform(apiUrl);
-
   const apiKey = config.api_keys![`${subPlatform}_${platform}`] ?? config.api_keys![platform];
 
-  enforce(apiKey, `No ${platform} or ${subPlatform}_${platform} API Key provided`, logger);
-
-  return apiKey!;
+  return apiKey;
 };
 
 export const getArtifact = (contractName: string, options: Options, logger: Logger): Artifact => {
@@ -250,4 +256,4 @@ export const logObject = (logger: Logger, level: 'debug' | 'info', obj: any, ind
   const prefix = INDENT.repeat(Math.min(indent - 1));
   const stringified = `${prefix}${JSON.stringify(obj, null, 2).replace(/\n/g, `\n${INDENT.repeat(indent)}`)}`;
   logger[level](stringified);
-}
+};

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { SOURCIFY_API_URL, VerificationStatus } from '../constants';
-import { Artifact, Logger, Options } from '../types';
-import { deepCopy, enforceOrThrow, getArtifact, getInputJSON, getPlatform, logObject } from '../util';
+import { Artifact, Options } from '../types';
+import { deepCopy, enforceOrThrow, getArtifact, getInputJSON, logObject } from '../util';
 import { AbstractVerifier } from './AbstractVerifier';
 import { Verifier } from './Verifier';
 

@@ -1,8 +1,10 @@
 export const VERSION = '0.5.33';
 
+export const SUPPORTED_VERIFIERS = ['etherscan', 'sourcify'];
+
 export const SOURCIFY_API_URL = 'https://sourcify.dev/server/';
 
-export const API_URLS: { [chainId: number]: string } = {
+export const API_URLS: { [chainId: number]: string | undefined } = {
   1: 'https://api.etherscan.io/api',
   5: 'https://api-goerli.etherscan.io/api',
   10: 'https://api-optimistic.etherscan.io/api',
@@ -36,7 +38,7 @@ export const API_URLS: { [chainId: number]: string } = {
   1313161555: 'https://api-testnet.aurorascan.dev/api',
 };
 
-export const EXPLORER_URLS: { [chainId: number]: string } = {
+export const EXPLORER_URLS: { [chainId: number]: string | undefined } = {
   1: 'https://etherscan.io/address',
   5: 'https://goerli.etherscan.io/address',
   10: 'https://optimistic.etherscan.io/address',
