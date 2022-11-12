@@ -4,7 +4,7 @@
 [![NPM Monthly Downloads](https://img.shields.io/npm/dm/truffle-plugin-verify.svg)](https://www.npmjs.com/package/truffle-plugin-verify)
 [![NPM License](https://img.shields.io/npm/l/truffle-assertions.svg)](https://www.npmjs.com/package/truffle-plugin-verify)
 
-This truffle plugin allows you to automatically verify your smart contracts' source code on Etherscan, straight from the Truffle CLI.
+This truffle plugin allows you to automatically verify your smart contracts' source code on Etherscan and Sourcify, straight from the Truffle CLI.
 
 I wrote a tutorial on my website that goes through the entire process of installing and using this plugin: [Automatically verify Truffle smart contracts on Etherscan](https://kalis.me/verify-truffle-smart-contracts-etherscan/).
 
@@ -27,6 +27,8 @@ I wrote a tutorial on my website that goes through the entire process of install
    };
    ```
 
+When only verifying on Sourcify, no more steps are required. When verifying on Etherscan (and derived explorers like PolygonScan), the appropriate API keys need to be specified:
+
 3. Generate an API Key on your Etherscan account (see the [Etherscan website](https://etherscan.io/apis))
 4. Add your Etherscan API key to your truffle config (make sure to use something like `dotenv` so you don't commit the api key)
 
@@ -42,29 +44,30 @@ I wrote a tutorial on my website that goes through the entire process of install
 
 ## Usage
 
-Before running verification, make sure that you have successfully deployed your contracts to a public network with Truffle. The contract deployment must have completely finished without errors, including the final step of "saving migration to chain," so that the artifact files are updated with the required information. If this final step fails, try lowering your global gas limit in your `truffle-config.js` file, as saving migrations to chain uses your global gas limit and gas price, which could be problematic if you do not have sufficient ETH in your wallet to cover this maximum hypothetical cost.
-
-After deployment, run the following command with one or more contracts that you wish to verify:
+Before running verification, make sure that you have successfully deployed your contracts to a supported network with Truffle. The contract deployment must have completely finished without errors. After deploying, run the following command with one or more contracts that you wish to verify:
 
 ```
-truffle run verify SomeContractName AnotherContractName --network networkName [--debug]
+truffle run verify SomeContractName AnotherContractName --network networkName [--debug] [--verifiers=etherscan,sourcify]
 ```
 
-The network parameter should correspond to a network defined in the Truffle config file, with the correct network id set. The Ethereum mainnet and all main public testnets are supported.
-
-For example, if we defined `rinkeby` as network in Truffle, and we wish to verify the `SimpleStorage` contract:
+The network parameter should correspond to a network defined in the Truffle config file, with the correct network id set. For example, if we defined `goerli` as a network in Truffle, and we wish to verify the `SimpleStorage` contract:
 
 ```
-truffle run verify SimpleStorage --network rinkeby
+truffle run verify SimpleStorage --network goerli
 ```
 
-This can take some time, and will eventually either return `Pass - Verified` or `Fail - Unable to verify` for each contract. Since the information we get from the Etherscan API is quite limited, it is currently impossible to retrieve any more information on verification failure. There should be no reason though why the verification should fail if the usage is followed correctly.
+This can take some time, and will eventually either return `Pass - Verified` or `Fail - Unable to verify` for each contract. Since the information we get from the Etherscan API is quite limited, it is currently impossible to retrieve any more information on verification failure. There should be no reason though why the verification should fail if the usage is followed correctly. If you do receive a `Fail - Unable to verify` and you are sure that you followed the instructions correctly, please [open an issue](/issues/new).
 
-If you do receive a `Fail - Unable to verify` and you are sure that you followed the instructions correctly, please [open an issue](/issues/new) and I will look into it. Optionally, a `--debug` flag can also be passed into the CLI to output additional debug messages. It is helpful if you run this once before opening an issue and provide the output in your bug report.
+By default the plugin attempts to verify contracts both on Etherscan and Sourcify. If you only want to verify with one of them instead of both, you can specify so using the `--verifiers` argument.
+
+```
+truffle run verify SimpleStorage --network goerli --verifiers=etherscan
+truffle run verify SimpleStorage --network goerli --verifiers=sourcify
+```
 
 ### Usage with the Truffle Dashboard
 
-In 2022, Truffle launched an awesome new feature called the Truffle Dashboard that allows you to deploy your contracts using your Metamask wallet. truffle-plugin-verify works with the Truffle Dashboard out of the box, but for it to work correctly you need to make sure that you are running the truffle dashboard, **connected to the same network** as you used for deployment _while_ you're running `truffle run verify ...`
+In 2022, Truffle launched an awesome new feature called the Truffle Dashboard that allows you to deploy your contracts using your MetaMask wallet. truffle-plugin-verify works with the Truffle Dashboard out of the box, but for it to work correctly you need to make sure that you are running the truffle dashboard, **connected to the same network** as you used for deployment _while_ you're running `truffle run verify ...`
 
 ### Usage with proxy contracts
 
@@ -73,8 +76,8 @@ This plugin supports [EIP1967](https://eips.ethereum.org/EIPS/eip-1967) proxies 
 When using OpenZeppelin's `deployProxy` functionality, proxy verification should work automatically. For custom proxy contracts you need to use the `--custom-proxy` flag. The name of the proxy contract should be passed after this flag.
 
 ```
-truffle run verify SimpleTokenUpgradeable --network rinkeby
-truffle run verify SimpleTokenUpgradeable --custom-proxy SimpleProxy --network rinkeby
+truffle run verify SimpleTokenUpgradeable --network goerli
+truffle run verify SimpleTokenUpgradeable --custom-proxy SimpleProxy --network goerli
 ```
 
 ### Address override (Optional)
@@ -82,12 +85,12 @@ truffle run verify SimpleTokenUpgradeable --custom-proxy SimpleProxy --network r
 You can optionally provide an explicit address of the contract(s) that you wish to verify. This may be useful when you have deployed multiple instances of the same contract. The address is appended with `@<address>` as follows:
 
 ```
-truffle run verify SimpleStorage@0x61C9157A9EfCaf6022243fA65Ef4666ECc9FD3D7 --network rinkeby
+truffle run verify SimpleStorage@0x61C9157A9EfCaf6022243fA65Ef4666ECc9FD3D7 --network goerli
 ```
 
 ### Run verification through an HTTP proxy (Optional)
 
-In some cases the Etherscan website may not be directly accessible. In this case it is possible to configure proxy settings so that the Etherscan requests will be made through this proxy. To use this feature, please add the relevant proxy settings to your truffle-config under `proxy.verify`.
+In some cases the Etherscan or Sourcify websites may not be directly accessible. In this case it is possible to configure proxy settings so that the API requests will be made through this proxy. To use this feature, please add the relevant proxy settings to your truffle-config under `verify.proxy`.
 
 ```js
 module.exports = {
@@ -104,7 +107,7 @@ module.exports = {
 
 ### Constructor arguments override (Optional)
 
-You can additionally provide an explicit constructor arguments for the contract using the `--forceConstructorArgs` option. This is useful if the contract was created by another contract rather an EOA, because truffle-plugin-verify cannot automatically retrieve constructor arguments in these cases. Note that the value needs to be prefixed with `string:` (e.g. `--forceConstructorArgs string:0000`).
+You can additionally provide an explicit constructor arguments for the contract using the `--forceConstructorArgs` option. This is useful if the contract was created by another contract rather than an EOA, because truffle-plugin-verify cannot automatically retrieve constructor arguments in these cases. Note that the value needs to be prefixed with `string:` (e.g. `--forceConstructorArgs string:0000`).
 
 ```
 truffle run verify MetaCoin --forceConstructorArgs string:0000000000000000000000000cb966d6a7702a4eff64009502653e302b3ec365 --network goerli
@@ -115,12 +118,12 @@ truffle run verify MetaCoin --forceConstructorArgs string:0000000000000000000000
 You can pass an optional `--debug` flag into the plugin to display debug messages during the verification process. This is generally not necessary, but can be used to provide additional information when the plugin appears to malfunction.
 
 ```
-truffle run verify SimpleStorage --network rinkeby
+truffle run verify SimpleStorage --network goerli --debug
 ```
 
-### Usage with supported chains
+### Supported chains
 
-These instructions were written for verification on Etherscan for Ethereum mainnet and testnets, but it also works for verification on other platforms for other chains. To verify your contracts on these chains make sure that your `truffle-config.js` file contains a network config for your preferred network. Also make sure that you request an API key from the platform that you're using and add it to your `truffle-config.js` file. If you want to verify your contracts on multiple chains, please provide separate API keys.
+These instructions were written for Ethereum mainnet and testnets, but it also works for verification on other platforms for other chains. Sourcify verification has support for nearly every EVM based chain and no API keys are required. For verification on Etherscan-derived explorers you can refer to the list below for supported chains. Also make sure to request an API key from the platform that you're using and add it to your `truffle-config.js` file. If you want to verify your contracts on multiple chains, please provide separate API keys.
 
 ```js
 module.exports = {
@@ -148,7 +151,7 @@ module.exports = {
 };
 ```
 
-#### All supported platforms & networks
+#### All supported Etherscan-derived platforms & networks
 
 - [Etherscan](https://etherscan.io/) (Ethereum Mainnet & Goerli, Sepolia Testnets)
 - [Optimistic Etherscan](https://optimistic.etherscan.io/) (Optimistic Ethereum Mainnet & Goerli Testnet)
@@ -170,7 +173,7 @@ module.exports = {
 
 ### Usage with unsupported chains
 
-In cases where the platform you want to use supports an Etherscan compatible API but is not listed above, you may manually specify the `apiUrl` and `explorerUrl` (optional) for the platform. To use this feature, please add the relevant settings to your truffle-config under `networks.<name of your network>.verify`.
+In cases where the platform you want to use supports an Etherscan-compatible API but is not listed above, you may manually specify the `apiUrl` and `explorerUrl` (optional) for the platform. To use this feature, please add the relevant settings to your truffle-config under `networks.<name of your network>.verify`.
 
 ```js
 module.exports = {
@@ -193,7 +196,3 @@ module.exports = {
 ## Notes
 
 This plugin has a naming conflict with the truffle-security plugin, so when using both truffle-security and truffle-plugin-verify in the same project, `truffle run etherscan` can be used instead of `truffle run verify` for truffle-plugin-verify.
-
-## Donations
-
-If you've used this plugin and found it helpful in your workflow, please consider sending some Ξ or tokens to `0xe126b3E5d052f1F575828f61fEBA4f4f2603652a` or `kalis.eth`.
