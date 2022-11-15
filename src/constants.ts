@@ -1,4 +1,4 @@
-export const VERSION = '0.5.33';
+export const VERSION = '0.6.0-beta.0';
 
 export const SUPPORTED_VERIFIERS = ['etherscan', 'sourcify'];
 
