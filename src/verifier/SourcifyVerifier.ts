@@ -7,6 +7,7 @@ import { Verifier } from './Verifier';
 
 export class SourcifyVerifier extends AbstractVerifier implements Verifier {
   name: string = 'sourcify';
+  private supportedChainIds: number[];
 
   constructor(options: Options) {
     super(options);
@@ -16,7 +17,14 @@ export class SourcifyVerifier extends AbstractVerifier implements Verifier {
     return `https://sourcify.dev/#/lookup/${address}`;
   }
 
+  async verifyAll(contractNameAddressPairs: string[]): Promise<void> {
+    await this.checkBoundaries();
+    await super.verifyAll(contractNameAddressPairs);
+  }
+
   async verifyContract(artifact: Artifact): Promise<VerificationStatus> {
+    await this.checkBoundaries();
+
     const res = await this.sendVerifyRequest(artifact);
     enforceOrThrow(res.data?.result?.length === 1, `Failed to connect to Sourcify API at url ${SOURCIFY_API_URL}`);
 
@@ -34,6 +42,8 @@ export class SourcifyVerifier extends AbstractVerifier implements Verifier {
     implementationName: string,
     implementationAddress: string
   ): Promise<VerificationStatus> {
+    await this.checkBoundaries();
+
     if (this.options.customProxy) {
       this.logger.info(
         `Verifying custom proxy contract ${this.options.customProxy} at ${
@@ -76,6 +86,33 @@ export class SourcifyVerifier extends AbstractVerifier implements Verifier {
       this.logger.debug(error.message);
       this.logger.debug(error.response.data.message);
       throw new Error(`Failed to connect to Sourcify API at url ${SOURCIFY_API_URL}`);
+    }
+  }
+
+  private async checkBoundaries() {
+    enforceOrThrow(
+      await this.isSupportedChain(this.options.chainId),
+      `Sourcify has no support for network ${this.options.networkName} with chain id ${this.options.chainId}`
+    );
+  }
+
+  private async isSupportedChain(chainId: number) {
+    const supportedChains = await this.getSupportedChains();
+    return supportedChains.includes(chainId);
+  }
+
+  private async getSupportedChains() {
+    if (this.supportedChainIds) return this.supportedChainIds;
+    const chainsUrl = `${SOURCIFY_API_URL}chains`
+
+    try {
+      this.logger.debug(`Fetching supported chains from ${chainsUrl}`);
+      const { data } = await axios.get(chainsUrl);
+      const supportedChainIds = data.filter((chain: any) => !!chain?.supported).map((chain: any) => chain.chainId);
+      this.supportedChainIds = supportedChainIds;
+      return supportedChainIds;
+    } catch (error) {
+      throw new Error(`Failed to connect to Sourcify API at url ${chainsUrl}`);
     }
   }
 }

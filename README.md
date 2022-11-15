@@ -123,7 +123,7 @@ truffle run verify SimpleStorage --network goerli --debug
 
 ### Supported chains
 
-These instructions were written for Ethereum mainnet and testnets, but it also works for verification on other platforms for other chains. Sourcify verification has support for nearly every EVM based chain and no API keys are required. For verification on Etherscan-derived explorers you can refer to the list below for supported chains. Also make sure to request an API key from the platform that you're using and add it to your `truffle-config.js` file. If you want to verify your contracts on multiple chains, please provide separate API keys.
+These instructions were written for Ethereum mainnet and testnets, but it also works for verification on other platforms for other chains. Sourcify verification has support for many EVM based chains and no API keys are required. For verification on Etherscan-derived explorers you can refer to the list below for supported chains. Also make sure to request an API key from the platform that you're using and add it to your `truffle-config.js` file. If you want to verify your contracts on multiple chains, please provide separate API keys.
 
 ```js
 module.exports = {

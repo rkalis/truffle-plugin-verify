@@ -34,6 +34,7 @@ export class EtherscanVerifier extends AbstractVerifier implements Verifier {
 
   async verifyContract(artifact: Artifact): Promise<VerificationStatus> {
     this.checkBoundaries();
+
     const res = await this.sendVerifyRequest(artifact);
     enforceOrThrow(res.data, `Failed to connect to Etherscan API at url ${this.options.apiUrl}`);
 
@@ -47,6 +48,7 @@ export class EtherscanVerifier extends AbstractVerifier implements Verifier {
 
   async verifyProxyContract(proxyArtifact: Artifact, implementationName: string, implementationAddress: string) {
     this.checkBoundaries();
+
     if (this.options.customProxy) {
       this.logger.info(
         `Verifying custom proxy contract ${this.options.customProxy} at ${
