@@ -1,6 +1,10 @@
-export const VERSION = '0.5.33';
+export const VERSION = '0.6.0-beta.0';
 
-export const API_URLS: { [chainId: number]: string } = {
+export const SUPPORTED_VERIFIERS = ['etherscan', 'sourcify'];
+
+export const SOURCIFY_API_URL = 'https://sourcify.dev/server/';
+
+export const API_URLS: { [chainId: number]: string | undefined } = {
   1: 'https://api.etherscan.io/api',
   5: 'https://api-goerli.etherscan.io/api',
   10: 'https://api-optimistic.etherscan.io/api',
@@ -34,7 +38,7 @@ export const API_URLS: { [chainId: number]: string } = {
   1313161555: 'https://api-testnet.aurorascan.dev/api',
 };
 
-export const EXPLORER_URLS: { [chainId: number]: string } = {
+export const EXPLORER_URLS: { [chainId: number]: string | undefined } = {
   1: 'https://etherscan.io/address',
   5: 'https://goerli.etherscan.io/address',
   10: 'https://optimistic.etherscan.io/address',
@@ -74,13 +78,13 @@ export const RequestStatus = {
   NOTOK: '0',
 };
 
-export const VerificationStatus = {
-  FAILED: 'Fail - Unable to verify',
-  SUCCESS: 'Pass - Verified',
-  PENDING: 'Pending in queue',
-  ALREADY_VERIFIED: 'Contract source code already verified',
-  AUTOMATICALLY_VERIFIED: 'Already Verified',
-};
+export enum VerificationStatus {
+  FAILED = 'Fail - Unable to verify',
+  SUCCESS = 'Pass - Verified',
+  PENDING = 'Pending in queue',
+  ALREADY_VERIFIED = 'Contract source code already verified',
+  AUTOMATICALLY_VERIFIED = 'Already Verified',
+}
 
 export const StorageSlot = {
   LOGIC: '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc',
@@ -88,3 +92,6 @@ export const StorageSlot = {
 };
 
 export const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
+
+export const INDENT_SIZE = 3;
+export const INDENT = ' '.repeat(INDENT_SIZE);

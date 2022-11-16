@@ -1,7 +1,6 @@
-export interface Logger {
-  info: (message: any) => void;
-  debug: (message: any) => void;
-  error: (message: any) => void;
+export interface Logger extends Console {
+  level(level: string): void;
+  prefix(prefix: string): void;
 }
 
 // Incomplete typing
@@ -15,8 +14,8 @@ export interface Artifact {
   networks: {
     [networkId: string]: {
       address: string;
-      links: {
-        [libraryName: string]: string;
+      links?: {
+        [libraryName: string]: string | undefined;
       };
     };
   };
@@ -25,10 +24,10 @@ export interface Artifact {
 // Incomplete typing
 export interface TruffleConfig {
   // truffle-config.js
-  networks: { [networkName: string]: TruffleNetworkConfig };
+  networks: { [networkName: string]: TruffleNetworkConfig | undefined };
 
   // Custom truffle-config.js
-  api_keys?: { [platformName: string]: string };
+  api_keys?: { [platformName: string]: string | undefined };
   verify?: {
     proxy?: {
       host: string;
@@ -51,6 +50,7 @@ export interface TruffleConfig {
   'custom-proxy'?: string;
   forceConstructorArgs?: string;
   debug?: boolean;
+  verifiers?: string;
 }
 
 // Incomplete typing
@@ -69,15 +69,41 @@ export interface TruffleProvider {
 }
 
 export interface Options {
-  apiUrl: string;
-  apiKey: string;
-  explorerUrl: string;
+  apiUrl?: string;
+  apiKey?: string;
+  explorerUrl?: string;
   networkId: number;
   chainId: number;
+  networkName: string;
   provider?: TruffleProvider;
   projectDir: string;
   contractsBuildDir: string;
   contractsDir: string;
   forceConstructorArgs?: string;
   customProxy?: string;
+  debug?: boolean;
+}
+
+export interface RetrievedNetworkInfo {
+  chainId: string;
+  networkId: string;
+}
+
+export interface InputJson {
+  language: string;
+  sources: {
+    [path: string]: {
+      content: string;
+    };
+  };
+  settings: {
+    libraries: Libraries;
+    [key: string]: any;
+  };
+}
+
+export interface Libraries {
+  [fileName: string]: {
+    [libraryName: string]: string;
+  };
 }
