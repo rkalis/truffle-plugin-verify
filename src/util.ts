@@ -145,8 +145,9 @@ export const deepCopy = <T>(obj: T): T => JSON.parse(JSON.stringify(obj));
 export const getAddressFromStorage = (storage: string): string => `0x${storage.slice(2).slice(-40).padStart(40, '0')}`;
 
 export const getPlatform = (apiUrl: string): { platform: string; subPlatform?: string } => {
-  const platform = new URL(apiUrl).hostname.split('.').at(-2)!;
-  let subPlatform = new URL(apiUrl).hostname.split('.').at(-3)?.split('-').at(-1);
+  const splitHostname = new URL(apiUrl).hostname.split('.');
+  const platform = splitHostname[splitHostname.length - 2];
+  let subPlatform = splitHostname[splitHostname.length - 3]?.split('-').pop();
 
   // For some reason Etherscan uses both optimistic.etherscan.io and optimism.etherscan.io
   if (subPlatform === 'optimism') subPlatform = 'optimistic';
