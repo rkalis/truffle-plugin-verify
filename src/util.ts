@@ -207,6 +207,8 @@ export const getInputJSON = async (artifact: Artifact, options: Options, logger:
     try {
       absolutePath = require.resolve(normalisedContractPath, { paths: [options.projectDir] });
     } catch {
+      // handle case where the contractPath refers to some ephemeral source
+      // (e.g., truffle/console.sol)
       absolutePath = contractPath;
     }
 
