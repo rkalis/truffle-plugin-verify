@@ -87,7 +87,7 @@ export class EtherscanVerifier extends AbstractVerifier implements Verifier {
       this.options.forceConstructorArgs !== undefined
         ? this.options.forceConstructorArgs
         : await this.fetchConstructorValues(artifact);
-    const inputJSON = getInputJSON(artifact, this.options, this.logger);
+    const inputJSON = await getInputJSON(artifact, this.options, this.logger);
 
     // Remove the 'project:' prefix that was added in Truffle v5.3.14
     const relativeFilePath = artifact.ast.absolutePath.replace('project:', '');

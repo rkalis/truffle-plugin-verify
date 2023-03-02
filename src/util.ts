@@ -170,13 +170,12 @@ export const getApiKey = (config: TruffleConfig, apiUrl?: string): string | unde
 };
 
 export const getArtifact = (contractName: string, options: Options, logger: Logger): Artifact => {
-  const artifactPath = path.resolve(options.contractsBuildDir, `${contractName}.json`);
+  logger.debug(`Resolving artifact for contract ${contractName}`);
 
-  logger.debug(`Reading artifact file at ${artifactPath}`);
-  enforceOrThrow(fs.existsSync(artifactPath), `Could not find ${contractName} artifact at ${artifactPath}`);
+  const abstraction = options.resolver.require(contractName);
 
   // Stringify + parse to make a deep copy (to avoid bugs with PR #19)
-  return JSON.parse(JSON.stringify(require(artifactPath)));
+  return JSON.parse(JSON.stringify(abstraction._json));
 };
 
 export const extractCompilerVersion = (artifact: Artifact): string => {
@@ -185,7 +184,7 @@ export const extractCompilerVersion = (artifact: Artifact): string => {
   return compilerVersion;
 };
 
-export const getInputJSON = (artifact: Artifact, options: Options, logger: Logger): InputJson => {
+export const getInputJSON = async (artifact: Artifact, options: Options, logger: Logger): Promise<InputJson> => {
   const metadata = JSON.parse(artifact.metadata);
   const libraries = getLibraries(artifact, options, logger);
 
@@ -203,8 +202,19 @@ export const getInputJSON = (artifact: Artifact, options: Options, logger: Logge
     // If we're on Windows we need to de-Unixify the path so that Windows can read the file
     // We also need to replace the 'project:' prefix so that the file can be read
     const normalisedContractPath = normaliseContractPath(contractPath, options);
-    const absolutePath = require.resolve(normalisedContractPath, { paths: [options.projectDir] });
-    const content = fs.readFileSync(absolutePath, 'utf8');
+
+    let absolutePath;
+    try {
+      absolutePath = require.resolve(normalisedContractPath, { paths: [options.projectDir] });
+    } catch {
+      absolutePath = contractPath;
+    }
+
+    // @ts-ignore type is wrong; resolve only needs one argument
+    const { body: content } = await options.resolver.resolve(absolutePath);
+    if (!content) {
+      throw new Error(`Content missing for contract at ${contractPath}`);
+    }
 
     // Remove the 'project:' prefix that was added in Truffle v5.3.14
     const relativeContractPath = contractPath.replace('project:', '');

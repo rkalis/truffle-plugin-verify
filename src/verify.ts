@@ -1,5 +1,6 @@
 import axios from 'axios';
 import tunnel from 'tunnel';
+import TruffleResolver from "@truffle/resolver";
 import { API_URLS, EXPLORER_URLS, INDENT, SUPPORTED_VERIFIERS, VERSION } from './constants';
 import { Logger, Options, TruffleConfig } from './types';
 import { enforce, getApiKey, getNetwork } from './util';
@@ -63,6 +64,8 @@ const parseConfig = async (config: TruffleConfig): Promise<Options> => {
     logger.debug(`Force custructor args provided: 0x${forceConstructorArgs}`);
   }
 
+  const resolver = new TruffleResolver(config);
+
   return {
     apiUrl,
     apiKey,
@@ -77,6 +80,7 @@ const parseConfig = async (config: TruffleConfig): Promise<Options> => {
     forceConstructorArgs,
     customProxy,
     debug: config.debug,
+    resolver,
   };
 };
 

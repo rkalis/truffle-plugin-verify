@@ -64,7 +64,7 @@ export class SourcifyVerifier extends AbstractVerifier implements Verifier {
   }
 
   private async sendVerifyRequest(artifact: Artifact) {
-    const inputJSON = getInputJSON(artifact, this.options, this.logger);
+    const inputJSON = await getInputJSON(artifact, this.options, this.logger);
 
     const files: { [path: string]: string } = {};
     Object.keys(inputJSON.sources).forEach((path) => {
