@@ -212,7 +212,6 @@ export const getInputJSON = async (artifact: Artifact, options: Options, logger:
       absolutePath = contractPath;
     }
 
-    // @ts-ignore type is wrong; resolve only needs one argument
     const { body: content } = await options.resolver.resolve(absolutePath);
     if (!content) {
       throw new Error(`Content missing for contract at ${contractPath}`);

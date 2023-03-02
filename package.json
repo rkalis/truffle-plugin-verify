@@ -27,7 +27,7 @@
   "author": "Rosco Kalis <roscokalis@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@truffle/resolver": "^9.0.34",
+    "@truffle/resolver": "^9.0.35",
     "axios": "^0.26.1",
     "cli-logger": "^0.5.40",
     "delay": "^5.0.0",
