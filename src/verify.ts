@@ -54,8 +54,6 @@ const parseConfig = async (config: TruffleConfig): Promise<Options> => {
   enforce(networkId !== '*', 'network_id bypassed with "*" in truffle-config.js.', logger);
 
   const projectDir = config.working_directory;
-  const contractsBuildDir = config.contracts_build_directory;
-  const contractsDir = config.contracts_directory;
   const customProxy = config['custom-proxy'];
   let forceConstructorArgsType, forceConstructorArgs;
   if (config.forceConstructorArgs) {
@@ -75,8 +73,6 @@ const parseConfig = async (config: TruffleConfig): Promise<Options> => {
     networkName: config.network,
     provider: config.provider,
     projectDir,
-    contractsBuildDir,
-    contractsDir,
     forceConstructorArgs,
     customProxy,
     debug: config.debug,

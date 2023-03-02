@@ -79,8 +79,6 @@ export interface Options {
   networkName: string;
   provider?: TruffleProvider;
   projectDir: string;
-  contractsBuildDir: string;
-  contractsDir: string;
   forceConstructorArgs?: string;
   customProxy?: string;
   debug?: boolean;
