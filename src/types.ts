@@ -1,3 +1,5 @@
+import type TruffleResolver from "@truffle/resolver";
+
 export interface Logger extends Console {
   level(level: string): void;
   prefix(prefix: string): void;
@@ -77,11 +79,10 @@ export interface Options {
   networkName: string;
   provider?: TruffleProvider;
   projectDir: string;
-  contractsBuildDir: string;
-  contractsDir: string;
   forceConstructorArgs?: string;
   customProxy?: string;
   debug?: boolean;
+  resolver: TruffleResolver;
 }
 
 export interface RetrievedNetworkInfo {

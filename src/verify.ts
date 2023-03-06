@@ -1,5 +1,6 @@
 import axios from 'axios';
 import tunnel from 'tunnel';
+import TruffleResolver from "@truffle/resolver";
 import { API_URLS, EXPLORER_URLS, INDENT, SUPPORTED_VERIFIERS, VERSION } from './constants';
 import { Logger, Options, TruffleConfig } from './types';
 import { enforce, getApiKey, getNetwork } from './util';
@@ -53,8 +54,6 @@ const parseConfig = async (config: TruffleConfig): Promise<Options> => {
   enforce(networkId !== '*', 'network_id bypassed with "*" in truffle-config.js.', logger);
 
   const projectDir = config.working_directory;
-  const contractsBuildDir = config.contracts_build_directory;
-  const contractsDir = config.contracts_directory;
   const customProxy = config['custom-proxy'];
   let forceConstructorArgsType, forceConstructorArgs;
   if (config.forceConstructorArgs) {
@@ -62,6 +61,8 @@ const parseConfig = async (config: TruffleConfig): Promise<Options> => {
     enforce(forceConstructorArgsType === 'string', 'Force constructor args must be string type', logger);
     logger.debug(`Force custructor args provided: 0x${forceConstructorArgs}`);
   }
+
+  const resolver = new TruffleResolver(config);
 
   return {
     apiUrl,
@@ -72,11 +73,10 @@ const parseConfig = async (config: TruffleConfig): Promise<Options> => {
     networkName: config.network,
     provider: config.provider,
     projectDir,
-    contractsBuildDir,
-    contractsDir,
     forceConstructorArgs,
     customProxy,
     debug: config.debug,
+    resolver,
   };
 };
 
