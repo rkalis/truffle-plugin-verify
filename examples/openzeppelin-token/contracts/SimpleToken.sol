@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "truffle/console.sol";
 
 /**
  * @title SimpleToken
@@ -16,5 +17,6 @@ contract SimpleToken is ERC20 {
      */
     constructor () ERC20("Simple Token", "SIM") {
         _mint(msg.sender, 1000000 * (10 ** uint256(decimals())));
+        console.log("Deployer address is %s", msg.sender);
     }
 }

@@ -55,13 +55,13 @@ export abstract class AbstractVerifier {
           ? await this.verifyProxyContract(artifact, contractName, proxyImplementationAddress)
           : await this.verifyContract(artifact);
 
-        if (status === VerificationStatus.FAILED) {
+        if (status.includes(VerificationStatus.FAILED)) {
           failedContracts.push(`${contractNameAddressPair}`);
         }
 
         const contractUrl = this.getContractUrl(artifact.networks[`${this.options.networkId}`].address);
-        const statusMessage =
-          status !== VerificationStatus.FAILED && contractUrl ? `${status}: ${contractUrl}` : status;
+        const succeededAndHasUrl = !status.includes(VerificationStatus.FAILED) && contractUrl;
+        const statusMessage = succeededAndHasUrl ? `${status}: ${contractUrl}` : status;
         this.logger.info(statusMessage);
       } catch (error: any) {
         this.logger.error(error.message);

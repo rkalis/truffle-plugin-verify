@@ -38,7 +38,7 @@ export class EtherscanVerifier extends AbstractVerifier implements Verifier {
     const res = await this.sendVerifyRequest(artifact);
     enforceOrThrow(res.data, `Failed to connect to Etherscan API at url ${this.options.apiUrl}`);
 
-    if (res.data.result === VerificationStatus.ALREADY_VERIFIED) {
+    if (res.data.result.includes(VerificationStatus.ALREADY_VERIFIED)) {
       return VerificationStatus.ALREADY_VERIFIED;
     }
 
@@ -56,7 +56,7 @@ export class EtherscanVerifier extends AbstractVerifier implements Verifier {
         }`
       );
       const status = await this.verifyContract(proxyArtifact);
-      if (status === VerificationStatus.FAILED) return status;
+      if (status.includes(VerificationStatus.FAILED)) return status;
     }
 
     const implementationArtifact = deepCopy(getArtifact(implementationName, this.options, this.logger));
@@ -67,13 +67,7 @@ export class EtherscanVerifier extends AbstractVerifier implements Verifier {
     this.logger.info(`Verifying proxy implementation ${implementationName} at ${implementationAddress}`);
     const status = await this.verifyContract(implementationArtifact);
 
-    if (
-      [
-        VerificationStatus.SUCCESS,
-        VerificationStatus.ALREADY_VERIFIED,
-        VerificationStatus.AUTOMATICALLY_VERIFIED,
-      ].includes(status)
-    ) {
+    if (!status.includes(VerificationStatus.FAILED)) {
       this.logger.info('Linking proxy and implementation addresses');
       await this.verifyProxy(proxyArtifact.networks[`${this.options.networkId}`].address);
     }
@@ -163,7 +157,7 @@ export class EtherscanVerifier extends AbstractVerifier implements Verifier {
           guid,
         });
         const verificationResult = await axios.get(`${this.options.apiUrl}?${qs}`);
-        if (verificationResult.data.result !== VerificationStatus.PENDING) {
+        if (!verificationResult.data.result.includes(VerificationStatus.PENDING)) {
           return verificationResult.data.result;
         }
       } catch (error: any) {

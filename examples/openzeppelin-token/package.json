@@ -7,7 +7,7 @@
     "@openzeppelin/contracts": "^4.5.0",
     "@openzeppelin/contracts-upgradeable": "^4.4.0",
     "@openzeppelin/truffle-upgrades": "^1.11.0",
-    "@truffle/hdwallet-provider": "^1.5.0",
+    "@truffle/hdwallet-provider": "^2.1.7",
     "dotenv": "^10.0.0",
     "truffle-plugin-verify": "../.."
   }
