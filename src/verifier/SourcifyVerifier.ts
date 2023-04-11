@@ -26,8 +26,17 @@ export class SourcifyVerifier extends AbstractVerifier implements Verifier {
     await this.checkBoundaries();
 
     const res = await this.sendVerifyRequest(artifact);
-    enforceOrThrow(res.data?.result?.length === 1, `Failed to connect to Sourcify API at url ${SOURCIFY_API_URL}`);
 
+    const verificationStatus = res.data?.result[0]?.status;
+    if (verificationStatus !== 'perfect' || verificationStatus !== 'partial') {
+      throw new Error(
+        `Sourcify couldn't verify the contract. Server response at ${SOURCIFY_API_URL}: \n ${JSON.stringify(
+          res.data.result[0],
+          null,
+          2
+        )}`
+      );
+    }
     const [contract] = res.data.result;
 
     if (contract.storageTimestamp) {
@@ -83,9 +92,10 @@ export class SourcifyVerifier extends AbstractVerifier implements Verifier {
       logObject(this.logger, 'debug', postQueries, 2);
       return await axios.post(SOURCIFY_API_URL, postQueries);
     } catch (error: any) {
-      this.logger.debug(error.message);
-      this.logger.debug(error.response.data.message);
-      throw new Error(`Failed to connect to Sourcify API at url ${SOURCIFY_API_URL}`);
+      this.logger.info(error.message);
+      this.logger.info(`Response from ${SOURCIFY_API_URL}:`);
+      this.logger.info(error.response.data);
+      throw new Error(`Sourcify verification failed at ${SOURCIFY_API_URL}`);
     }
   }
 
@@ -103,7 +113,7 @@ export class SourcifyVerifier extends AbstractVerifier implements Verifier {
 
   private async getSupportedChains() {
     if (this.supportedChainIds) return this.supportedChainIds;
-    const chainsUrl = `${SOURCIFY_API_URL}chains`
+    const chainsUrl = `${SOURCIFY_API_URL}chains`;
 
     try {
       this.logger.debug(`Fetching supported chains from ${chainsUrl}`);
