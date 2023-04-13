@@ -28,7 +28,7 @@ export class SourcifyVerifier extends AbstractVerifier implements Verifier {
     const res = await this.sendVerifyRequest(artifact);
 
     const verificationStatus = res.data?.result[0]?.status;
-    if (verificationStatus !== 'perfect' || verificationStatus !== 'partial') {
+    if (verificationStatus !== 'perfect' && verificationStatus !== 'partial') {
       throw new Error(
         `Sourcify couldn't verify the contract. Server response at ${SOURCIFY_API_URL}: \n ${JSON.stringify(
           res.data.result[0],
