@@ -43,7 +43,7 @@ export class SourcifyVerifier extends AbstractVerifier implements Verifier {
 
     try {
       this.logger.debug('Sending verify request with POST arguments:');
-      // logObject(this.logger, 'debug', postQueries, 2);
+      logObject(this.logger, 'debug', postQueries, 2);
       const res = await axios.post(SOURCIFY_API_URL, postQueries);
 
       const [result] = res?.data?.result ?? [];
