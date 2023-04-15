@@ -68,7 +68,7 @@ export class SourcifyVerifier extends AbstractVerifier implements Verifier {
 
       // If an error message is present in the checked response, this likely indicates a failed verification
       if (errorResponseMessage) {
-        return `${VerificationStatus.FAILED}: ${errorResponseMessage}}`
+        return `${VerificationStatus.FAILED}: ${errorResponseMessage}`
       }
 
       // If no message was passed in the response, this likely indicates a failed connection
