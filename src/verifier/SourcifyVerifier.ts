@@ -50,15 +50,15 @@ export class SourcifyVerifier extends AbstractVerifier implements Verifier {
       this.logger.debug('Received response:');
       logObject(this.logger, 'debug', result, 2);
 
-      if (result?.status !== 'perfect' && result?.status !== 'partial') {
-        return `${VerificationStatus.FAILED}: ${result?.message}`
+      if (!result) {
+        // If no result was returned, there is likely an issue with the API connection
+        throw new Error(`Could not connect to Sourcify API at url ${SOURCIFY_API_URL}`);
       }
 
-      if (result.storageTimestamp) {
-        return VerificationStatus.ALREADY_VERIFIED;
-      }
-
-      return VerificationStatus.SUCCESS;
+      if (result.storageTimestamp) return VerificationStatus.ALREADY_VERIFIED;
+      if (result.status === 'partial') return VerificationStatus.PARTIAL;
+      if (result.status === 'perfect') return VerificationStatus.SUCCESS;
+      return `${VerificationStatus.FAILED}: ${result?.message}`
     } catch (error: any) {
       const errorResponse = error?.response?.data;
       const errorResponseMessage = errorResponse?.message ?? errorResponse?.error;
