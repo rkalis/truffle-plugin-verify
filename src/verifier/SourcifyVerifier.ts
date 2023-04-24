@@ -22,26 +22,65 @@ export class SourcifyVerifier extends AbstractVerifier implements Verifier {
     await super.verifyAll(contractNameAddressPairs);
   }
 
-  async verifyContract(artifact: Artifact): Promise<VerificationStatus> {
+  // Note that Sourcify may indicate failed verification in through errors, but also through 200 responses
+  // This is why we check both cases
+  async verifyContract(artifact: Artifact): Promise<string> {
     await this.checkBoundaries();
 
-    const res = await this.sendVerifyRequest(artifact);
-    enforceOrThrow(res.data?.result?.length === 1, `Failed to connect to Sourcify API at url ${SOURCIFY_API_URL}`);
+    const inputJSON = await getInputJSON(artifact, this.options, this.logger);
 
-    const [contract] = res.data.result;
+    const files: { [path: string]: string } = {};
+    Object.keys(inputJSON.sources).forEach((path) => {
+      files[path.replace(/^.*[\\/]/, '')] = inputJSON.sources[path].content;
+    });
+    files['metadata.json'] = JSON.stringify(JSON.parse(artifact.metadata));
 
-    if (contract.storageTimestamp) {
-      return VerificationStatus.ALREADY_VERIFIED;
+    const postQueries = {
+      address: artifact.networks[`${this.options.networkId}`].address,
+      chain: `${this.options.chainId}`,
+      files,
+    };
+
+    try {
+      this.logger.debug('Sending verify request with POST arguments:');
+      logObject(this.logger, 'debug', postQueries, 2);
+      const res = await axios.post(SOURCIFY_API_URL, postQueries);
+
+      const [result] = res?.data?.result ?? [];
+      this.logger.debug('Received response:');
+      logObject(this.logger, 'debug', result, 2);
+
+      if (!result) {
+        // If no result was returned, there is likely an issue with the API connection
+        throw new Error(`Could not connect to Sourcify API at url ${SOURCIFY_API_URL}`);
+      }
+
+      if (result.storageTimestamp) return VerificationStatus.ALREADY_VERIFIED;
+      if (result.status === 'partial') return VerificationStatus.PARTIAL;
+      if (result.status === 'perfect') return VerificationStatus.SUCCESS;
+      return `${VerificationStatus.FAILED}: ${result?.message}`
+    } catch (error: any) {
+      const errorResponse = error?.response?.data;
+      const errorResponseMessage = errorResponse?.message ?? errorResponse?.error;
+
+      this.logger.debug(`Error: ${error?.message}`);
+      logObject(this.logger, 'debug', error?.response?.data, 2)
+
+      // If an error message is present in the checked response, this likely indicates a failed verification
+      if (errorResponseMessage) {
+        return `${VerificationStatus.FAILED}: ${errorResponseMessage}`
+      }
+
+      // If no message was passed in the response, this likely indicates a failed connection
+      throw new Error(`Could not connect to Sourcify API at url ${SOURCIFY_API_URL}`);
     }
-
-    return VerificationStatus.SUCCESS;
   }
 
   async verifyProxyContract(
     proxyArtifact: Artifact,
     implementationName: string,
     implementationAddress: string
-  ): Promise<VerificationStatus> {
+  ): Promise<string> {
     await this.checkBoundaries();
 
     if (this.options.customProxy) {
@@ -63,32 +102,6 @@ export class SourcifyVerifier extends AbstractVerifier implements Verifier {
     return status;
   }
 
-  private async sendVerifyRequest(artifact: Artifact) {
-    const inputJSON = await getInputJSON(artifact, this.options, this.logger);
-
-    const files: { [path: string]: string } = {};
-    Object.keys(inputJSON.sources).forEach((path) => {
-      files[path.replace(/^.*[\\/]/, '')] = inputJSON.sources[path].content;
-    });
-    files['metadata.json'] = JSON.stringify(JSON.parse(artifact.metadata));
-
-    const postQueries = {
-      address: artifact.networks[`${this.options.networkId}`].address,
-      chain: `${this.options.chainId}`,
-      files,
-    };
-
-    try {
-      this.logger.debug('Sending verify request with POST arguments:');
-      logObject(this.logger, 'debug', postQueries, 2);
-      return await axios.post(SOURCIFY_API_URL, postQueries);
-    } catch (error: any) {
-      this.logger.debug(error.message);
-      this.logger.debug(error.response.data.message);
-      throw new Error(`Failed to connect to Sourcify API at url ${SOURCIFY_API_URL}`);
-    }
-  }
-
   private async checkBoundaries() {
     enforceOrThrow(
       await this.isSupportedChain(this.options.chainId),
@@ -103,7 +116,7 @@ export class SourcifyVerifier extends AbstractVerifier implements Verifier {
 
   private async getSupportedChains() {
     if (this.supportedChainIds) return this.supportedChainIds;
-    const chainsUrl = `${SOURCIFY_API_URL}chains`
+    const chainsUrl = `${SOURCIFY_API_URL}chains`;
 
     try {
       this.logger.debug(`Fetching supported chains from ${chainsUrl}`);

@@ -32,7 +32,7 @@ export class EtherscanVerifier extends AbstractVerifier implements Verifier {
     await super.verifyAll(contractNameAddressPairs);
   }
 
-  async verifyContract(artifact: Artifact): Promise<VerificationStatus> {
+  async verifyContract(artifact: Artifact): Promise<string> {
     this.checkBoundaries();
 
     const res = await this.sendVerifyRequest(artifact);

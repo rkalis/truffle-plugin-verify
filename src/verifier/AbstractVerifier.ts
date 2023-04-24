@@ -8,12 +8,12 @@ export abstract class AbstractVerifier {
   abstract name: string;
 
   abstract getContractUrl(address: string): string | undefined;
-  abstract verifyContract(artifact: Artifact): Promise<VerificationStatus>;
+  abstract verifyContract(artifact: Artifact): Promise<string>;
   abstract verifyProxyContract(
     proxyArtifact: Artifact,
     implementationName: string,
     implementationAddress: string
-  ): Promise<VerificationStatus>;
+  ): Promise<string>;
 
   logger: Logger;
 
