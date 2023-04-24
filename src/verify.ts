@@ -1,6 +1,6 @@
+import TruffleResolver from '@truffle/resolver';
 import axios from 'axios';
 import tunnel from 'tunnel';
-import TruffleResolver from "@truffle/resolver";
 import { API_URLS, EXPLORER_URLS, INDENT, SUPPORTED_VERIFIERS, VERSION } from './constants';
 import { Logger, Options, TruffleConfig } from './types';
 import { enforce, getApiKey, getNetwork } from './util';

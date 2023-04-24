@@ -1,4 +1,4 @@
-import type TruffleResolver from "@truffle/resolver";
+import type TruffleResolver from '@truffle/resolver';
 
 export interface Logger extends Console {
   level(level: string): void;

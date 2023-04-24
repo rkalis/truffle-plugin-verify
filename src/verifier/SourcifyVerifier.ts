@@ -58,17 +58,17 @@ export class SourcifyVerifier extends AbstractVerifier implements Verifier {
       if (result.storageTimestamp) return VerificationStatus.ALREADY_VERIFIED;
       if (result.status === 'partial') return VerificationStatus.PARTIAL;
       if (result.status === 'perfect') return VerificationStatus.SUCCESS;
-      return `${VerificationStatus.FAILED}: ${result?.message}`
+      return `${VerificationStatus.FAILED}: ${result?.message}`;
     } catch (error: any) {
       const errorResponse = error?.response?.data;
       const errorResponseMessage = errorResponse?.message ?? errorResponse?.error;
 
       this.logger.debug(`Error: ${error?.message}`);
-      logObject(this.logger, 'debug', error?.response?.data, 2)
+      logObject(this.logger, 'debug', error?.response?.data, 2);
 
       // If an error message is present in the checked response, this likely indicates a failed verification
       if (errorResponseMessage) {
-        return `${VerificationStatus.FAILED}: ${errorResponseMessage}`
+        return `${VerificationStatus.FAILED}: ${errorResponseMessage}`;
       }
 
       // If no message was passed in the response, this likely indicates a failed connection

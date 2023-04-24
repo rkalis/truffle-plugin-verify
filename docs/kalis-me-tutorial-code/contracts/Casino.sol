@@ -1,6 +1,6 @@
 pragma solidity ^0.5.8;
 
-import "./Killable.sol";
+import './Killable.sol';
 
 contract Casino is Killable {
     event Play(address payable indexed player, uint256 betSize, uint8 betNumber, uint8 winningNumber);
@@ -9,8 +9,8 @@ contract Casino is Killable {
     function fund() external payable {}
 
     function bet(uint8 number) external payable {
-        require(msg.value <= getMaxBet(), "Bet amount can not exceed max bet size");
-        require(msg.value > 0, "A bet should be placed");
+        require(msg.value <= getMaxBet(), 'Bet amount can not exceed max bet size');
+        require(msg.value > 0, 'A bet should be placed');
 
         uint8 winningNumber = generateWinningNumber();
         emit Play(msg.sender, msg.value, number, winningNumber);
@@ -25,7 +25,7 @@ contract Casino is Killable {
     }
 
     function generateWinningNumber() internal view returns (uint8) {
-        return uint8(block.number % 10 + 1); // Don't do this in production
+        return uint8((block.number % 10) + 1); // Don't do this in production
     }
 
     function payout(address payable winner, uint256 amount) internal {

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "truffle/console.sol";
+import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
+import 'truffle/console.sol';
 
 /**
  * @title SimpleToken
@@ -11,12 +11,11 @@ import "truffle/console.sol";
  * `ERC20` functions.
  */
 contract SimpleToken is ERC20 {
-
     /**
      * @dev Constructor that gives msg.sender all of existing tokens.
      */
-    constructor () ERC20("Simple Token", "SIM") {
+    constructor() ERC20('Simple Token', 'SIM') {
         _mint(msg.sender, 1000000 * (10 ** uint256(decimals())));
-        console.log("Deployer address is %s", msg.sender);
+        console.log('Deployer address is %s', msg.sender);
     }
 }

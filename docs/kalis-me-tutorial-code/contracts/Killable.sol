@@ -8,7 +8,7 @@ contract Killable {
     }
 
     function kill() external {
-        require(msg.sender == owner, "Only the owner can kill this contract");
+        require(msg.sender == owner, 'Only the owner can kill this contract');
         selfdestruct(owner);
     }
 }

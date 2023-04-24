@@ -1,4 +1,3 @@
-import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
 import { INDENT, NULL_ADDRESS, StorageSlot } from './constants';
