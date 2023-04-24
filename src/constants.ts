@@ -81,7 +81,7 @@ export const RequestStatus = {
 export enum VerificationStatus {
   FAILED = 'Fail - Unable to verify',
   SUCCESS = 'Pass - Verified',
-  PARTIAL = 'Pass - Verified (with a metadata mismatch)',
+  PARTIAL = 'Pass - Partially Verified (with a metadata mismatch)',
   PENDING = 'Pending in queue',
   ALREADY_VERIFIED = 'Contract source code already verified',
   AUTOMATICALLY_VERIFIED = 'Already Verified',
