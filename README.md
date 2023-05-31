@@ -170,6 +170,11 @@ module.exports = {
 - [Gnosisscan](https://gnosisscan.io) (Gnosis Mainnet)
 - [CLVScan](https://clvscan.com/) (CLV Mainnet)
 - [Celoscan](https://celoscan.io/) (Celo Mainnet & Alfajores Testnet)
+- [Darwinia_Subscan](https://darwinia.subscan.io/) (Darwinia Mainnet)
+- [Crab_Subscan](https://crab.subscan.io/) (Darwinia Crab Mainnet)
+- [Pangolin_Subscan](https://pangolin.subscan.io/) (Darwinia Pangolin Testnet)
+- [Pangoro_Subscan](https://pangoro.subscan.io/) (Darwinia Pangoro Testnet)
+
 
 ### Usage with unsupported chains
 
