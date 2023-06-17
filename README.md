@@ -170,6 +170,7 @@ module.exports = {
 - [Gnosisscan](https://gnosisscan.io) (Gnosis Mainnet)
 - [CLVScan](https://clvscan.com/) (CLV Mainnet)
 - [Celoscan](https://celoscan.io/) (Celo Mainnet & Alfajores Testnet)
+- [BaseScan](https://basescan.org/) (Base Testnet)
 
 ### Usage with unsupported chains
 
