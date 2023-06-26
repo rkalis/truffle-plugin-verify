@@ -159,7 +159,7 @@ module.exports = {
 - [Arbiscan Nova](https://nova.arbiscan.io) (Arbitrum Nova)
 - [BscScan](https://bscscan.com) (BSC Mainnet & Testnet)
 - [Snowtrace](https://snowtrace.io/) (Avalanche Mainnet & Fuji Testnet)
-- [PolygonScan](https://polygonscan.com) (Polygon Mainnet & Mumbai Testnet)
+- [PolygonScan](https://polygonscan.com) (Polygon PoS, zkEVM Mainnet & Mumbai, zkEVM Testnet)
 - [FtmScan](https://ftmscan.com) (Fantom Mainnet & Testnet)
 - [HecoInfo](https://hecoinfo.com) (HECO Mainnet & Testnet)
 - [Moonscan](https://moonscan.io/) (Moonbeam Mainnet & Moonbase Alpha Testnet)
