@@ -61,7 +61,7 @@ export const EXPLORER_URLS: { [chainId: number]: string | undefined } = {
   1284: 'https://moonbeam.moonscan.io/address',
   1285: 'https://moonriver.moonscan.io/address',
   1287: 'https://moonbase.moonscan.io/address',
-  1442: 'https://testnet-zkevm.polygonscan.com',
+  1442: 'https://testnet-zkevm.polygonscan.com/address',
   4002: 'https://testnet.ftmscan.com/address',
   42161: 'https://arbiscan.io/address',
   42170: 'https://nova.arbiscan.io/address',
