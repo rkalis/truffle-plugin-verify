@@ -32,7 +32,7 @@ export const API_URLS: { [chainId: number]: string | undefined } = {
   43114: 'https://api.snowtrace.io/api',
   44787: 'https://api-alfajores.celoscan.io/api',
   80001: 'https://api-testnet.polygonscan.com/api',
-  84531: 'https://goerli.basescan.org/api',
+  84531: 'https://api-goerli.basescan.org/api',
   421613: 'https://api-goerli.arbiscan.io/api',
   11155111: 'https://api-sepolia.etherscan.io/api',
   1313161554: 'https://api.aurorascan.dev/api',
