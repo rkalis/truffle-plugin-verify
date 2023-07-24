@@ -137,6 +137,7 @@ module.exports = {
     bscscan: 'MY_API_KEY',
     snowtrace: 'MY_API_KEY',
     polygonscan: 'MY_API_KEY',
+    zkevm_polygonscan: 'MY_API_KEY',
     ftmscan: 'MY_API_KEY',
     hecoinfo: 'MY_API_KEY',
     moonscan: 'MY_API_KEY',
@@ -159,7 +160,7 @@ module.exports = {
 - [Arbiscan Nova](https://nova.arbiscan.io) (Arbitrum Nova)
 - [BscScan](https://bscscan.com) (BSC Mainnet & Testnet)
 - [Snowtrace](https://snowtrace.io/) (Avalanche Mainnet & Fuji Testnet)
-- [PolygonScan](https://polygonscan.com) (Polygon PoS, zkEVM Mainnet & Mumbai, zkEVM Testnet)
+- [PolygonScan](https://polygonscan.com) (Polygon PoS & Mumbai Testnet)
 - [FtmScan](https://ftmscan.com) (Fantom Mainnet & Testnet)
 - [HecoInfo](https://hecoinfo.com) (HECO Mainnet & Testnet)
 - [Moonscan](https://moonscan.io/) (Moonbeam Mainnet & Moonbase Alpha Testnet)
@@ -171,6 +172,7 @@ module.exports = {
 - [CLVScan](https://clvscan.com/) (CLV Mainnet)
 - [Celoscan](https://celoscan.io/) (Celo Mainnet & Alfajores Testnet)
 - [BaseScan](https://basescan.org/) (Base Mainnet & Testnet)
+- [zkEVM PolygonScan](https://zkevm.polygonscan.com) (Polygon zkEVM Mainnet & Testnet)
 
 ### Usage with unsupported chains
 
