@@ -72,7 +72,7 @@ export const EXPLORER_URLS: { [chainId: number]: string | undefined } = {
   42220: 'https://celoscan.io/address',
   43113: 'https://testnet.snowtrace.io/address',
   43114: 'https://snowtrace.io/address',
-  44787: 'https://aalfajores.celoscan.io/address',
+  44787: 'https://alfajores.celoscan.io/address',
   80001: 'https://mumbai.polygonscan.com/address',
   84531: 'https://goerli.basescan.org/address',
   421613: 'https://goerli.arbiscan.io/address',
