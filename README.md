@@ -1,4 +1,4 @@
-⚠️ Truffle (and by extension, truffle-plugin-verify) has been sunset. It is recommended to move over to Hardhat or Foundry ⚠️
+⚠️ Truffle (and truffle-plugin-verify) has been sunset. It is recommended to move over to Hardhat or Foundry ⚠️
 
 # truffle-plugin-verify
 
