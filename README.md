@@ -1,3 +1,5 @@
+⚠️ Truffle (and by extension, truffle-plugin-verify) has been sunset. It is recommended to move over to Hardhat or Foundry ⚠️
+
 # truffle-plugin-verify
 
 [![NPM Version](https://img.shields.io/npm/v/truffle-plugin-verify.svg)](https://www.npmjs.com/package/truffle-plugin-verify)
