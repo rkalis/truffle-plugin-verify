@@ -1,4 +1,4 @@
-export const VERSION = '0.6.6';
+export const VERSION = '0.6.7';
 
 export const SUPPORTED_VERIFIERS = ['etherscan', 'sourcify'];
 
@@ -15,6 +15,7 @@ export const API_URLS: { [chainId: number]: string | undefined } = {
   128: 'https://api.hecoinfo.com/api',
   137: 'https://api.polygonscan.com/api',
   199: 'https://api.bttcscan.com/api',
+  204: 'https://api-opbnb.bscscan.com/api',
   250: 'https://api.ftmscan.com/api',
   256: 'https://api-testnet.hecoinfo.com/api',
   338: 'https://api-testnet.cronoscan.com/api',
@@ -27,6 +28,7 @@ export const API_URLS: { [chainId: number]: string | undefined } = {
   1287: 'https://api-moonbase.moonscan.io/api',
   1442: 'https://api-testnet-zkevm.polygonscan.com/api',
   4002: 'https://api-testnet.ftmscan.com/api',
+  5611: 'https://api-opbnb-testnet.bscscan.com/api',
   8453: 'https://api.basescan.org/api',
   42161: 'https://api.arbiscan.io/api',
   42170: 'https://api-nova.arbiscan.io/api',
@@ -54,6 +56,7 @@ export const EXPLORER_URLS: { [chainId: number]: string | undefined } = {
   128: 'https://hecoinfo.com/address',
   137: 'https://polygonscan.com/address',
   199: 'https://bttcscan.com/address',
+  204: 'https://opbnb.bscscan.com/address',
   250: 'https://ftmscan.com/address',
   256: 'https://testnet.hecoinfo.com/address',
   338: 'https://testnet.cronoscan.com/address',
@@ -66,6 +69,7 @@ export const EXPLORER_URLS: { [chainId: number]: string | undefined } = {
   1287: 'https://moonbase.moonscan.io/address',
   1442: 'https://testnet-zkevm.polygonscan.com/address',
   4002: 'https://testnet.ftmscan.com/address',
+  5611: 'https://opbnb-testnet.bscscan.com/address',
   8453: 'https://basescan.org/address',
   42161: 'https://arbiscan.io/address',
   42170: 'https://nova.arbiscan.io/address',
