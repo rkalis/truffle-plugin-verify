@@ -137,6 +137,7 @@ module.exports = {
     arbiscan: 'MY_API_KEY',
     nova_arbiscan: 'MY_API_KEY',
     bscscan: 'MY_API_KEY',
+    opbnbscan: 'MY_API_KEY',
     snowtrace: 'MY_API_KEY',
     polygonscan: 'MY_API_KEY',
     zkevm_polygonscan: 'MY_API_KEY',
@@ -161,6 +162,7 @@ module.exports = {
 - [Arbiscan](https://arbiscan.io) (Arbitrum Mainnet & Goerli Testnet)
 - [Arbiscan Nova](https://nova.arbiscan.io) (Arbitrum Nova)
 - [BscScan](https://bscscan.com) (BSC Mainnet & Testnet)
+- [OpbnbScan](https://opbnb.bscscan.com) (opBNB Mainnet & opBNB Testnet) 
 - [Snowtrace](https://snowtrace.io/) (Avalanche Mainnet & Fuji Testnet)
 - [PolygonScan](https://polygonscan.com) (Polygon PoS & Mumbai Testnet)
 - [FtmScan](https://ftmscan.com) (Fantom Mainnet & Testnet)
